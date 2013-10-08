@@ -4,6 +4,9 @@ include 'plan.php';
 
 class PlanTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @covers ScalarValidator::__invoke
+     */
     public function testScalar()
     {
         $validator = plan('hello');
@@ -22,6 +25,9 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator('world');
     }
 
+    /**
+     * @covers Type::__invoke
+     */
     public function testType()
     {
         $validator = plan(new StringType());
