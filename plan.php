@@ -2,12 +2,27 @@
 
 function plan($schema)
 {
-    if (is_object($schema) && $schema instanceof Type) {
-        $validator = $schema;
+    if (is_scalar($schema)) {
+        $validator = new ScalarValidator($schema);
     }
 
-    elseif (is_scalar($schema)) {
-        $validator = new ScalarValidator($schema);
+    elseif (is_array($schema)) {
+        // FIXME
+        //$validator = new ArrayValidator($schema);
+    }
+
+    elseif (is_object($schema)) {
+        if ($schema instanceof Type || $schema instanceof Validator) {
+            $validator = $schema;
+        } else {
+            // FIXME
+            //$validator = ObjectValidator($schema);
+        }
+    }
+
+    elseif (is_callable($schema)) {
+        // FIXME
+        //$validator = CallableValidator($schema);
     }
 
     else {
