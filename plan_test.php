@@ -47,11 +47,11 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        InvalidException
-     * @expectedExceptionMessage 123 is not of type string
+     * @expectedExceptionMessage '123' is not of type integer
      */
     public function testTypeInvalid()
     {
-        $validator = plan(new StringType());
-        $validator(123);
+        $validator = plan(new IntegerType());
+        $validator('123');
     }
 }
