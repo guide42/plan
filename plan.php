@@ -25,7 +25,7 @@ function plan($schema)
 class SchemaException extends \Exception {}
 
 /**
- * Base exception for all validation errors thrown by plan.
+ * Exception for all validation errors thrown by plan.
  */
 class InvalidException extends \Exception {}
 
@@ -34,6 +34,11 @@ class InvalidException extends \Exception {}
  */
 abstract class Validator
 {
+    /**
+     * RAW schema input by the user.
+     *
+     * @var unknown
+     */
     protected $schema;
 
     public function __construct($schema)
@@ -44,6 +49,9 @@ abstract class Validator
     abstract public function __invoke($data);
 }
 
+/**
+ * Test that data equals to the scalar input as schema.
+ */
 class ScalarValidator extends Validator
 {
     public function __invoke($data)
@@ -62,12 +70,25 @@ class ScalarValidator extends Validator
     }
 }
 
+/**
+ * Validator that test the type of the input data.
+ */
 class Type
 {
+    /**
+     * A list of possible types.
+     *
+     * @var array
+     */
     protected $types = array('boolean', 'integer', 'double', 'string',
                              'array', 'object', 'resource',
                              'NULL', 'unknown type');
 
+    /**
+     * The current type to test.
+     *
+     * @var string
+     */
     protected $type;
 
     public function __construct($type)
