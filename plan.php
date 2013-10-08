@@ -54,6 +54,17 @@ abstract class Validator
  */
 class ScalarValidator extends Validator
 {
+    public function __construct($schema)
+    {
+        if (!is_scalar($schema)) {
+            throw new SchemaException(
+                sprintf('Schema %s is not scalar', var_export($schema, true))
+            );
+        }
+
+        parent::__construct($schema);
+    }
+
     public function __invoke($data)
     {
         $type = new Type(gettype($this->schema));
