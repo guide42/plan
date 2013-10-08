@@ -16,6 +16,15 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException        SchemaException
+     * @expectedExceptionMessage Schema is not scalar
+     */
+    public function testScalarSchemaException()
+    {
+        new ScalarValidator(array());
+    }
+
+    /**
      * @expectedException        InvalidException
      * @expectedExceptionMessage 'world' is not 'hello'
      */

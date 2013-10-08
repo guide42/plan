@@ -58,7 +58,7 @@ class ScalarValidator extends Validator
     {
         if (!is_scalar($schema)) {
             throw new SchemaException(
-                sprintf('Schema %s is not scalar', var_export($schema, true))
+                sprintf('Schema is not scalar')
             );
         }
 
