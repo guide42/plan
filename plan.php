@@ -74,7 +74,7 @@ class Type
     {
         if (!in_array($type, $this->types, true)) {
             throw new SchemaException(
-                sprintf('Invalid type %s', $type)
+                sprintf('Unknown type %s', $type)
             );
         }
 

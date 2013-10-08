@@ -29,6 +29,13 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('world', $validator('world'));
     }
 
+    public function testTypeUnknown()
+    {
+        $this->setExpectedException('SchemaException', 'Unknown type ravioli');
+
+        plan(new Type('ravioli'));
+    }
+
     public function testTypeInvalid()
     {
         $this->setExpectedException('InvalidException',
