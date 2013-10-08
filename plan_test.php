@@ -27,13 +27,26 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Type::__invoke
+     * @dataProvider testTypeProvider
      */
-    public function testType()
+    public function testType($instance, $test1, $test2)
     {
-        $validator = plan(new StringType());
+        $validator = plan($instance);
 
-        $this->assertEquals('hello', $validator('hello'));
-        $this->assertEquals('world', $validator('world'));
+        $this->assertEquals($test1, $validator($test1));
+        $this->assertEquals($test2, $validator($test2));
+    }
+
+    public function testTypeProvider()
+    {
+        return array(
+            array(new BooleanType(), true, false),
+            array(new IntegerType(), 0, PHP_INT_MAX),
+            array(new DoubleType(), 0.0, 7.9999999999999991118),
+            array(new StringType(), 'hello', 'world'),
+            array(new ArrayType(), array(), array_fill(0, 666, '666')),
+            array(new ObjectType(), new stdClass(), new SplStack()),
+        );
     }
 
     /**
