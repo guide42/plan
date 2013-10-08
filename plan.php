@@ -114,10 +114,68 @@ class Type
     }
 }
 
+/**
+ * Alias for `Type('boolean')`.
+ */
+class BooleanType extends Type
+{
+    public function __construct()
+    {
+        parent::__construct('boolean');
+    }
+}
+
+/**
+ * Alias for `Type('integer')`.
+ */
+class IntegerType extends Type
+{
+    public function __construct()
+    {
+        parent::__construct('integer');
+    }
+}
+
+/**
+ * Alias for `Type('double')`.
+ */
+class DoubleType extends Type
+{
+    public function __construct()
+    {
+        parent::__construct('double');
+    }
+}
+
+/**
+ * Alias for `Type('string')`.
+ */
 class StringType extends Type
 {
     public function __construct()
     {
         parent::__construct('string');
+    }
+}
+
+/**
+ * Alias for `Type('array')`.
+ */
+class ArrayType extends Type
+{
+    public function __construct()
+    {
+        parent::__construct('array');
+    }
+}
+
+/**
+ * Alias for `Type('object')`.
+ */
+class ObjectType extends Type
+{
+    public function __construct()
+    {
+        parent::__construct('object');
     }
 }
