@@ -12,11 +12,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('hello', $result);
     }
 
+    /**
+     * @expectedException        InvalidException
+     * @expectedExceptionMessage 'world' is not 'hello'
+     */
     public function testScalarInvalid()
     {
-        $this->setExpectedException('InvalidException',
-                                    '\'world\' is not \'hello\'');
-
         $validator = plan('hello');
         $validator('world');
     }
@@ -29,18 +30,21 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('world', $validator('world'));
     }
 
+    /**
+     * @expectedException        SchemaException
+     * @expectedExceptionMessage Unknown type ravioli
+     */
     public function testTypeUnknown()
     {
-        $this->setExpectedException('SchemaException', 'Unknown type ravioli');
-
         plan(new Type('ravioli'));
     }
 
+    /**
+     * @expectedException        InvalidException
+     * @expectedExceptionMessage 123 is not of type string
+     */
     public function testTypeInvalid()
     {
-        $this->setExpectedException('InvalidException',
-                '123 is not of type string');
-
         $validator = plan(new StringType());
         $validator(123);
     }
