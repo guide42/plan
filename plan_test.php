@@ -168,4 +168,24 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator = dict(array('foo' => 'foo'), false, false);
         $validator(array('foo' => 'foo', 'bar' => 'bar'));
     }
+
+    public function testAny()
+    {
+        $validator = plan(any('true', 'false', bool()));
+
+        $this->assertEquals('true', $validator('true'));
+        $this->assertEquals('false', $validator('false'));
+        $this->assertEquals(true, $validator(true));
+        $this->assertEquals(false, $validator(false));
+    }
+
+    /**
+     * @expectedException        \UnexpectedValueException
+     * @expectedExceptionMessage No valid value found
+     */
+    public function testAnyInvalid()
+    {
+        $validator = plan(any('true', 'false', bool()));
+        $validator(array('true'));
+    }
 }

@@ -170,6 +170,30 @@ function dict($schema, $required=false, $extra=false)
     };
 }
 
+function any()
+{
+    $validators = func_get_args();
+    $count = func_num_args();
+    $schemas = array();
+
+    for ($i = 0; $i < $count; $i++) {
+        $schemas[] = plan($validators[$i]);
+    }
+
+    return function($data) use($schemas, $count)
+    {
+        for ($i = 0; $i < $count; $i++) {
+            try {
+                return $schemas[$i]($data);
+            } catch (\UnexpectedValueException $e) {
+                // Ignore
+            }
+        }
+
+        throw new \UnexpectedValueException('No valid value found');
+    };
+}
+
 /**
  * Little hack to check if all indexes from an array are numerical and in
  * sequence.
