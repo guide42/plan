@@ -169,6 +169,9 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator(array('foo' => 'foo', 'bar' => 'bar'));
     }
 
+    /**
+     * @covers ::any
+     */
     public function testAny()
     {
         $validator = plan(any('true', 'false', bool()));
