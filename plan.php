@@ -113,10 +113,11 @@ function seq($schema)
                 }
             }
 
-            if (!$found) {
-                throw new \UnexpectedValueException(
-                    sprintf('Invalid %s value', var_export($data[$d], true))
-                );
+            if ($found !== true) {
+                $msg = sprintf('Invalid value at index %d (value is %s)', $d
+                               , var_export($data[$d], true));
+
+                throw new \UnexpectedValueException($msg);
             }
         }
 
@@ -149,7 +150,14 @@ function dict($schema, $required=false, $extra=false)
 
         foreach ($data as $dkey => $dvalue) {
             if (array_key_exists($dkey, $compiled)) {
-                $return[$dkey] = $compiled[$dkey]($dvalue);
+                try {
+                    $return[$dkey] = $compiled[$dkey]($dvalue);
+                } catch (\UnexpectedValueException $e) {
+                    $msg = sprintf('Invalid value at key %s (value is %s)'
+                                   , var_export($dkey, true)
+                                   , var_export($dvalue, true));
+                    throw new \UnexpectedValueException($msg, null, $e);
+                }
             } elseif ($extra) {
                 $return[$dkey] = $dvalue;
             } else {
@@ -278,7 +286,9 @@ function validate($filtername)
     {
         if (filter_var($data, $filterid) === false) {
             throw new \UnexpectedValueException(sprintf(
-                'Validation of type %s failed', var_export($filtername, true)
+                'Validation %s for %s failed'
+                , var_export($filtername, true)
+                , var_export($data, true)
             ));
         }
 

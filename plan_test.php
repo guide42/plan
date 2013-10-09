@@ -90,12 +90,27 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers                   ::seq
      * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage Invalid 'foobar' value
+     * @expectedExceptionMessage Invalid value at index 0 (value is 'foobar')
      */
     public function testSequenceInvalid()
     {
         $validator = plan(array('foo', 'bar'));
         $validator(array('foobar'));
+    }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     */
+    public function testSequenceDeepException()
+    {
+        $schema = array(array('name' => str(), 'email' => email()), str());
+
+        $validator = plan($schema);
+        $validator(array(
+            array('name' => 'John', 'email' => 'john@example.org'),
+            array('name' => 'Jane', 'email' => 'ERROR'),
+            'Other Doe <other@example.org>',
+        ));
     }
 
     /**
@@ -174,6 +189,27 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     {
         $validator = dict(array('foo' => 'foo'), false, false);
         $validator(array('foo' => 'foo', 'bar' => 'bar'));
+    }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     */
+    public function testDictionaryDeepException()
+    {
+        $dict = array(
+            'email' => email(),
+            'extra' => array(
+                'emails' => array(email()),
+            ),
+        );
+
+        $validator = plan($dict);
+        $validator(array(
+            'email' => 'john@example.org',
+            'extra' => array(
+                'emails' => array('ERROR', 'mysecondemail@ymail.com')
+            )
+        ));
     }
 
     /**
@@ -304,11 +340,11 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage Validation of type 'validate_email' failed
+     * @expectedExceptionMessage Validation 'validate_email' for 123 failed
      */
     public function testValidateInvalid()
     {
         $validator = plan(email());
-        $validator('not an email');
+        $validator(123);
     }
 }
