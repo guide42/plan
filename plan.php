@@ -33,7 +33,7 @@ function type($type)
     {
         if (gettype($data) !== $type) {
             throw new \UnexpectedValueException(
-                sprintf('%s is not %s', var_export($data, true), $type)
+                sprintf('%s is not %s', json_encode($data), $type)
             );
         }
 
@@ -70,7 +70,7 @@ function scalar($scalar)
 
         if ($data !== $scalar) {
             throw new \UnexpectedValueException(sprintf('%s is not %s',
-                var_export($data, true), var_export($scalar, true)
+                json_encode($data), json_encode($scalar)
             ));
         }
 
@@ -115,7 +115,7 @@ function seq($schema)
 
             if ($found !== true) {
                 $msg = sprintf('Invalid value at index %d (value is %s)', $d
-                               , var_export($data[$d], true));
+                               , json_encode($data[$d]));
 
                 throw new \UnexpectedValueException($msg);
             }
@@ -154,8 +154,8 @@ function dict($schema, $required=false, $extra=false)
                     $return[$dkey] = $compiled[$dkey]($dvalue);
                 } catch (\UnexpectedValueException $e) {
                     $msg = sprintf('Invalid value at key %s (value is %s)'
-                                   , var_export($dkey, true)
-                                   , var_export($dvalue, true));
+                                   , json_encode($dkey)
+                                   , json_encode($dvalue));
                     throw new \UnexpectedValueException($msg, null, $e);
                 }
             } elseif ($extra) {
@@ -287,8 +287,8 @@ function validate($filtername)
         if (filter_var($data, $filterid) === false) {
             throw new \UnexpectedValueException(sprintf(
                 'Validation %s for %s failed'
-                , var_export($filtername, true)
-                , var_export($data, true)
+                , json_encode($filtername)
+                , json_encode($data)
             ));
         }
 

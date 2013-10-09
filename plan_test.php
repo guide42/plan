@@ -32,7 +32,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage '123' is not integer
+     * @expectedExceptionMessage "123" is not integer
      */
     public function testTypeInvalid()
     {
@@ -54,7 +54,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage 'world' is not 'hello'
+     * @expectedExceptionMessage "world" is not "hello"
      */
     public function testScalarInvalid()
     {
@@ -90,7 +90,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers                   ::seq
      * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage Invalid value at index 0 (value is 'foobar')
+     * @expectedExceptionMessage Invalid value at index 0 (value is "foobar")
      */
     public function testSequenceInvalid()
     {
@@ -99,7 +99,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException        \UnexpectedValueException
+     * @expectedExceptionMessage Invalid value at index 1 (value is {"name":"Jane","email":"ERROR"})
      */
     public function testSequenceDeepException()
     {
@@ -192,7 +193,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException        \UnexpectedValueException
+     * @expectedExceptionMessage Invalid value at key "extra" (value is {"emails":["ERROR","mysecondemail@ymail.com"]})
      */
     public function testDictionaryDeepException()
     {
@@ -340,7 +342,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage Validation 'validate_email' for 123 failed
+     * @expectedExceptionMessage Validation "validate_email" for 123 failed
      */
     public function testValidateInvalid()
     {
