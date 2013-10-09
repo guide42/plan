@@ -32,6 +32,40 @@ function plan($schema)
     return $validator;
 }
 
+function type($type, $msg='%s is not %s')
+{
+    return function($data) use($type, $msg)
+    {
+        if (gettype($data) !== $type) {
+            throw new \UnexpectedValueException(sprintf($msg,
+                var_export($data, true), var_export($type, true)
+            ));
+        }
+
+        return $data;
+    };
+}
+
+function bool($msg='%s is not %s')
+{
+    return type('boolean');
+}
+
+function int($msg='%s is not %s')
+{
+    return type('integer');
+}
+
+function float($msg='%s is not %s')
+{
+    return type('float');
+}
+
+function str($msg='%s is not %s')
+{
+    return type('string');
+}
+
 /**
  * Base validator.
  */
