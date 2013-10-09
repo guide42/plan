@@ -277,4 +277,38 @@ class PlanTest extends \PHPUnit_Framework_TestCase
             array(array('a', 'b', 'c')),
         );
     }
+
+    /**
+     * @covers       ::validate
+     * @dataProvider testValidateProvider
+     */
+    public function testValidate($filter, $test)
+    {
+        $validator = plan(validate($filter));
+        $validated = $validator($test);
+
+        $this->assertEquals($test, $validated);
+    }
+
+    public function testValidateProvider()
+    {
+        return array(
+            array('int', '1234567'),
+            array('boolean', 'true'),
+            array('float', '7.9999999999999991118'),
+            array('validate_url', 'http://www.example.org/'),
+            array('validate_email', 'john@example.org'),
+            array('validate_ip', '10.0.2.42'),
+        );
+    }
+
+    /**
+     * @expectedException        \UnexpectedValueException
+     * @expectedExceptionMessage Validation of type 'validate_email' failed
+     */
+    public function testValidateInvalid()
+    {
+        $validator = plan(email());
+        $validator('not an email');
+    }
 }

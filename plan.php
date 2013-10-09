@@ -41,7 +41,7 @@ function type($type)
     };
 }
 
-function bool()
+function boolean()
 {
     return type('boolean');
 }
@@ -268,6 +268,37 @@ function length($min=null, $max=null)
 
         return $data;
     };
+}
+
+function validate($filtername)
+{
+    $filterid = filter_id($filtername);
+
+    return function($data) use($filtername, $filterid)
+    {
+        if (filter_var($data, $filterid) === false) {
+            throw new \UnexpectedValueException(sprintf(
+                'Validation of type %s failed', var_export($filtername, true)
+            ));
+        }
+
+        return $data;
+    };
+}
+
+function url()
+{
+    return validate('validate_url');
+}
+
+function email()
+{
+    return validate('validate_email');
+}
+
+function ip()
+{
+    return validate('validate_ip');
 }
 
 /**
