@@ -221,8 +221,10 @@ function all()
 
     return function($data) use($schemas, $count)
     {
+        $return = $data;
+
         for ($i = 0; $i < $count; $i++) {
-            $return = $schemas[$i]($data);
+            $return = $schemas[$i]($return);
         }
 
         return $return;
