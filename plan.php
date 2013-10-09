@@ -32,9 +32,9 @@ function type($type, $msg='%s is not %s')
     return function($data) use($type, $msg)
     {
         if (gettype($data) !== $type) {
-            throw new \UnexpectedValueException(sprintf($msg,
-                var_export($data, true), var_export($type, true)
-            ));
+            throw new \UnexpectedValueException(
+                sprintf($msg, var_export($data, true), $type)
+            );
         }
 
         return $data;
@@ -43,22 +43,22 @@ function type($type, $msg='%s is not %s')
 
 function bool($msg='%s is not %s')
 {
-    return type('boolean');
+    return type('boolean', $msg);
 }
 
 function int($msg='%s is not %s')
 {
-    return type('integer');
+    return type('integer', $msg);
 }
 
 function float($msg='%s is not %s')
 {
-    return type('float');
+    return type('double', $msg);
 }
 
 function str($msg='%s is not %s')
 {
-    return type('string');
+    return type('string', $msg);
 }
 
 function scalar($scalar, $msg='%s is not %s')
