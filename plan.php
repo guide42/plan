@@ -161,7 +161,9 @@ function dict($schema, $required=false, $extra=false)
             } elseif ($extra) {
                 $return[$dkey] = $dvalue;
             } else {
-                throw new \UnexpectedValueException('Extra keys not allowed');
+                throw new \UnexpectedValueException(
+                    sprintf('Extra key %s not allowed', json_encode($dkey))
+                );
             }
 
             if ($required !== false) {

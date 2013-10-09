@@ -184,7 +184,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage Extra keys not allowed
+     * @expectedExceptionMessage Extra key "bar" not allowed
      */
     public function testDictionaryExtraInvalid()
     {
