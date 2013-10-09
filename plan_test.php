@@ -156,11 +156,11 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             # Test 1: One value is required
-            array(array('foo', array('a' => 'b'), new IntegerType()),
+            array(array('foo', array('a' => 'b'), int()),
                   array('foo')),
 
             # Test 2: Values can be repeated by default
-            array(array('foo', array('a' => 'b'), new IntegerType()),
+            array(array('foo', array('a' => 'b'), int()),
                   array('foo', 'foo', array('a' => 'b'), 123, 321)),
 
             # Test 3: Empty schema, allow any data
