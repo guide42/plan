@@ -7,8 +7,11 @@ function plan($schema)
     }
 
     elseif (is_array($schema)) {
-        // FIXME
-        //$validator = new ArrayValidator($schema);
+        if (empty($schema) || is_sequence($schema)) {
+            $validator = new SequenceValidator($schema);
+        } else {
+            $validator = new ArrayValidator($schema);
+        }
     }
 
     elseif (is_object($schema)) {
@@ -93,6 +96,146 @@ class ScalarValidator extends Validator
         }
 
         return $data;
+    }
+}
+
+/**
+ * An array with associative keys.
+ */
+class ArrayValidator extends Validator
+{
+    /**
+     * If true, the validation require all keys to be present. If is an array,
+     * it contains all keys that must be required. Otherwise no key will be.
+     *
+     * @var boolean|array
+     */
+    protected $required;
+
+    /**
+     * If true, the validation accept extra keys. Otherwise will throw an
+     * exception.
+     *
+     * @var boolean
+     */
+    protected $extra;
+
+    public function __construct($schema, $required=false, $extra=false)
+    {
+        if (!is_array($schema)) {
+            throw new SchemaException(
+                sprintf('Schema is not an array')
+            );
+        }
+
+        foreach ($schema as $key => $value) {
+            $schema[$key] = plan($value);
+        }
+
+        parent::__construct($schema);
+
+        $this->required = $required;
+        $this->extra = $extra;
+    }
+
+    public function __invoke($data)
+    {
+        $type = new ArrayType();
+        $data = $type($data);
+
+        $return = array();
+
+        if ($this->required === true) {
+            $required = array_keys($this->schema);
+        } elseif (is_array($this->required)) {
+            $required = $this->required;
+        } else {
+            $required = false;
+        }
+
+        foreach ($data as $dkey => $dvalue) {
+            if (array_key_exists($dkey, $this->schema)) {
+                $return[$dkey] = $this->schema[$dkey]($dvalue);
+            } elseif ($this->extra) {
+                $return[$dkey] = $dvalue;
+            } else {
+                throw new InvalidException('Extra keys not allowed');
+            }
+
+            if ($required !== false) {
+                $rkey = array_search($dkey, $required, true);
+
+                if ($rkey !== false) {
+                    unset($required[$rkey]);
+                }
+            }
+        }
+
+        if ($required !== false) {
+            foreach ($required as $rvalue) {
+                throw new InvalidException(
+                    sprintf('Required key %s not provided', $rvalue)
+                );
+            }
+        }
+
+        return $return;
+    }
+}
+
+/**
+ * An array that all indexes are numeric and in a sequence. Is treated as a set
+ * of valid values.
+ */
+class SequenceValidator extends Validator
+{
+    public function __construct($schema)
+    {
+        if (!is_array($schema)) {
+            throw new SchemaException(
+                sprintf('Schema is not an array')
+            );
+        }
+
+        if (!empty($schema) && !is_sequence($schema)) {
+            throw new SchemaException(
+                sprintf('Schema is not a sequence')
+            );
+        }
+
+        foreach ($schema as $key => $value) {
+            $schema[$key] = plan($value);
+        }
+
+        parent::__construct($schema);
+    }
+
+    public function __invoke($data)
+    {
+        $type = new ArrayType();
+        $data = $type($data);
+
+        // Empty sequence schema,
+        //     allow any data
+        if (empty($this->schema)) {
+            return $data;
+        }
+
+        $return = array();
+
+        foreach ($data as $dkey => $dvalue) {
+            foreach ($this->schema as $skey => $svalue) {
+                try {
+                    $value = $svalue($dvalue);
+                    $return[] = $value;
+                    break;
+                } catch (InvalidException $e) {
+                    //
+                }
+            }
+        }
+
+        return $return;
     }
 }
 
@@ -204,4 +347,13 @@ class ObjectType extends Type
     {
         parent::__construct('object');
     }
+}
+
+/**
+ * Little hack to check if all indexes from an array are numerical and in
+ * sequence.
+ */
+function is_sequence(array $array)
+{
+    return !count(array_diff_key($array, array_fill(0, count($array), null)));
 }

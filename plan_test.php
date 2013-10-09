@@ -35,6 +35,138 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ArrayValidator::__invoke
+     * @dataProvider testArrayProvider
+     */
+    public function testArray($in, $out)
+    {
+        $validator = plan($in);
+        $result = $validator($out);
+
+        $this->assertEquals($out, $result);
+    }
+
+    public function testArrayProvider()
+    {
+        return array(
+            # Test 1: Keys are not required by default
+            array(array('key' => 'value'),
+                  array()),
+
+            # Test 2: Literal value
+            array(array('key' => 'value'),
+                  array('key' => 'value')),
+
+            # Test 3: Type value
+            array(array('key' => new StringType()),
+                  array('key' => 'string')),
+
+            # Test 4: Multidimensional array
+            array(array('key' => array('foo' => 'bar')),
+                  array('key' => array('foo' => 'bar'))),
+        );
+    }
+
+    /**
+     * @expectedException        SchemaException
+     * @expectedExceptionMessage Schema is not an array
+     */
+    public function testArrayNotArrayException()
+    {
+        new ArrayValidator(123);
+    }
+
+    /**
+     * @expectedException        InvalidException
+     * @expectedExceptionMessage Required key c not provided
+     */
+    public function testArrayRequired()
+    {
+        $validator = new ArrayValidator(array('a' => 'b', 'c' => 'd'), true);
+        $validator(array('a' => 'b', ));
+    }
+
+    /**
+     * @expectedException        InvalidException
+     * @expectedExceptionMessage Required key two not provided
+     */
+    public function testArrayRequiredArray()
+    {
+        $array = array('one' => '1', 'two' => '2');
+
+        $validator = new ArrayValidator($array, array('two'));
+        $validator(array());
+    }
+
+    /**
+     * @covers ArrayValidator::__invoke
+     */
+    public function testArrayExtra()
+    {
+        $validator = new ArrayValidator(array('foo' => 'foo'), false, true);
+        $result = $validator(array('foo' => 'foo', 'bar' => 'bar'));
+
+        $this->assertEquals(array('foo' => 'foo', 'bar' => 'bar'), $result);
+    }
+
+    /**
+     * @expectedException        InvalidException
+     * @expectedExceptionMessage Extra keys not allowed
+     */
+    public function testArrayExtraInvalid()
+    {
+        $validator = new ArrayValidator(array('foo' => 'foo'), false, false);
+        $validator(array('foo' => 'foo', 'bar' => 'bar'));
+    }
+
+    /**
+     * @covers SequenceValidator::__invoke
+     * @dataProvider testSequenceProvider
+     */
+    public function testSequence($in, $out)
+    {
+        $validator = plan($in);
+        $result = $validator($out);
+
+        $this->assertEquals($out, $result);
+    }
+
+    public function testSequenceProvider()
+    {
+        return array(
+            # Test 1: One value is required
+            array(array('foo', array('a' => 'b'), new IntegerType()),
+                  array('foo')),
+
+            # Test 2: Values can be repeated by default
+            array(array('foo', array('a' => 'b'), new IntegerType()),
+                  array('foo', 'foo', array('a' => 'b'), 123, 321)),
+
+            # Test 3: Empty schema, allow any data
+            array(array(),
+                  array('123', 123, 'abc' => 'def')),
+        );
+    }
+
+    /**
+     * @expectedException        SchemaException
+     * @expectedExceptionMessage Schema is not an array
+     */
+    public function testSequenceNotArrayException()
+    {
+        new SequenceValidator(123);
+    }
+
+    /**
+     * @expectedException        SchemaException
+     * @expectedExceptionMessage Schema is not a sequence
+     */
+    public function testSequenceNotSequenceException()
+    {
+        new SequenceValidator(array('foo' => 'bar'));
+    }
+
+    /**
      * @covers Type::__invoke
      * @dataProvider testTypeProvider
      */
