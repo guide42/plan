@@ -19,7 +19,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     public function testTypeProvider()
     {
         return array(
-            array(bool(), true, false),
+            array(boolean(), true, false),
             array(int(), 0, PHP_INT_MAX),
             array(float(), 0.0, 7.9999999999999991118),
             array(str(), 'hello', 'world'),
@@ -181,7 +181,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testAny()
     {
-        $validator = plan(any('true', 'false', bool()));
+        $validator = plan(any('true', 'false', boolean()));
 
         $this->assertEquals('true', $validator('true'));
         $this->assertEquals('false', $validator('false'));
@@ -195,7 +195,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testAnyInvalid()
     {
-        $validator = plan(any('true', 'false', bool()));
+        $validator = plan(any('true', 'false', boolean()));
         $validator(array('true'));
     }
 
@@ -228,7 +228,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
             array(123, '123'),
             array(str(), 123),
             array(length(2, 4), array('a')),
-            array(any(str(), int(), bool()), array()),
+            array(any(str(), int(), boolean()), array()),
             array(all(str(), length(2, 4)), array('a', 'b', 'c')),
             array(array(1, '1'), array(1, '1', 2, '2')),
         );
@@ -252,7 +252,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
             array(123, 123),
             array(str(), 'string'),
             array(length(2, 4), array('a', 'b', 'c')),
-            array(any(str(), int(), bool()), true),
+            array(any(str(), int(), boolean()), true),
             array(all(str(), length(2, 4)), 'abc'),
             array(array(1, '1'), array(1, '1', 1, '1')),
         );
