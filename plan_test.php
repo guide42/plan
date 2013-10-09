@@ -27,10 +27,10 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        SchemaException
+     * @expectedException        \LogicException
      * @expectedExceptionMessage Schema is not callable
      */
-    public function testCallableSchemaException()
+    public function testCallableException()
     {
         new CallableValidator('hello');
     }
@@ -47,10 +47,10 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        SchemaException
+     * @expectedException        \LogicException
      * @expectedExceptionMessage Schema is not scalar
      */
-    public function testScalarSchemaException()
+    public function testScalarException()
     {
         new ScalarValidator(array());
     }
@@ -99,7 +99,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        SchemaException
+     * @expectedException        \LogicException
      * @expectedExceptionMessage Schema is not an array
      */
     public function testArrayNotArrayException()
@@ -180,7 +180,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        SchemaException
+     * @expectedException        \LogicException
      * @expectedExceptionMessage Schema is not an array
      */
     public function testSequenceNotArrayException()
@@ -189,7 +189,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        SchemaException
+     * @expectedException        \LogicException
      * @expectedExceptionMessage Schema is not a sequence
      */
     public function testSequenceNotSequenceException()
@@ -222,7 +222,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        SchemaException
+     * @expectedException        \LogicException
      * @expectedExceptionMessage Unknown type ravioli
      */
     public function testTypeUnknown()

@@ -24,18 +24,13 @@ function plan($schema)
     }
 
     else {
-        throw new SchemaException(
+        throw new \LogicException(
             sprintf('Unsupported type %s', gettype($schema))
         );
     }
 
     return $validator;
 }
-
-/**
- * Thrown when the schema has some unrepairable errors.
- */
-class SchemaException extends \Exception {}
 
 /**
  * Exception for all validation errors thrown by plan.
@@ -70,7 +65,7 @@ class CallableValidator extends Validator
     public function __construct($schema)
     {
         if (!is_callable($schema)) {
-            throw new SchemaException(
+            throw new \LogicException(
                 sprintf('Schema is not callable')
             );
         }
@@ -92,7 +87,7 @@ class ScalarValidator extends Validator
     public function __construct($schema)
     {
         if (!is_scalar($schema)) {
-            throw new SchemaException(
+            throw new \LogicException(
                 sprintf('Schema is not scalar')
             );
         }
@@ -140,7 +135,7 @@ class ArrayValidator extends Validator
     public function __construct($schema, $required=false, $extra=false)
     {
         if (!is_array($schema)) {
-            throw new SchemaException(
+            throw new \LogicException(
                 sprintf('Schema is not an array')
             );
         }
@@ -209,13 +204,13 @@ class SequenceValidator extends Validator
     public function __construct($schema)
     {
         if (!is_array($schema)) {
-            throw new SchemaException(
+            throw new \LogicException(
                 sprintf('Schema is not an array')
             );
         }
 
         if (!empty($schema) && !is_sequence($schema)) {
-            throw new SchemaException(
+            throw new \LogicException(
                 sprintf('Schema is not a sequence')
             );
         }
@@ -280,7 +275,7 @@ class Type
     public function __construct($type)
     {
         if (!in_array($type, $this->types, true)) {
-            throw new SchemaException(
+            throw new \LogicException(
                 sprintf('Unknown type %s', $type)
             );
         }
