@@ -77,18 +77,25 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     public function testSequenceProvider()
     {
         return array(
-            # Test 1: One value is required
-            array(array('foo', array('a' => 'b'), int()),
-                  array('foo')),
-
-            # Test 2: Values can be repeated by default
+            # Test 1: Values can be repeated by default
             array(array('foo', array('a' => 'b'), int()),
                   array('foo', 'foo', array('a' => 'b'), 123, 321)),
 
-            # Test 3: Empty schema, allow any data
+            # Test 2: Empty schema, allow any data
             array(array(),
                   array('123', 123, 'abc' => 'def')),
         );
+    }
+
+    /**
+     * @covers ::seq
+     * @expectedException        \UnexpectedValueException
+     * @expectedExceptionMessage Invalid 'foobar' value
+     */
+    public function testSequenceInvalid()
+    {
+        $validator = plan(array('foo', 'bar'));
+        $validator(array('foobar'));
     }
 
     /**

@@ -98,18 +98,25 @@ function seq($schema)
         }
 
         $return = array();
-
-        $d = 0;
         $dl = count($data);
 
-        for (; $d < $dl; $d++) {
+        for ($d = 0; $d < $dl; $d++) {
+            $found = null;
+
             for ($s = 0; $s < $sl; $s++) {
                 try {
                     $return[] = $compiled[$s]($data[$d]);
+                    $found = true;
                     break;
                 } catch (\UnexpectedValueException $e) {
-                    // Ignore
+                    $found = false;
                 }
+            }
+
+            if (!$found) {
+                throw new \UnexpectedValueException(
+                    sprintf('Invalid %s value', var_export($data[$d], true))
+                );
             }
         }
 
