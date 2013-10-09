@@ -171,26 +171,6 @@ function dict($schema, $required=false, $extra=false, $msg='')
 }
 
 /**
- * Base validator.
- */
-abstract class Validator
-{
-    /**
-     * RAW schema input by the user.
-     *
-     * @var unknown
-     */
-    protected $schema;
-
-    public function __construct($schema)
-    {
-        $this->schema = $schema;
-    }
-
-    abstract public function __invoke($data);
-}
-
-/**
  * Validator that test the type of the input data.
  */
 class Type
