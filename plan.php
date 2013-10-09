@@ -27,13 +27,13 @@ function plan($schema)
     return $validator;
 }
 
-function type($type, $msg='%s is not %s')
+function type($type)
 {
-    return function($data) use($type, $msg)
+    return function($data) use($type)
     {
         if (gettype($data) !== $type) {
             throw new \UnexpectedValueException(
-                sprintf($msg, var_export($data, true), $type)
+                sprintf('%s is not %s', var_export($data, true), $type)
             );
         }
 
@@ -41,35 +41,35 @@ function type($type, $msg='%s is not %s')
     };
 }
 
-function bool($msg='%s is not %s')
+function bool()
 {
-    return type('boolean', $msg);
+    return type('boolean');
 }
 
-function int($msg='%s is not %s')
+function int()
 {
-    return type('integer', $msg);
+    return type('integer');
 }
 
-function float($msg='%s is not %s')
+function float()
 {
-    return type('double', $msg);
+    return type('double');
 }
 
-function str($msg='%s is not %s')
+function str()
 {
-    return type('string', $msg);
+    return type('string');
 }
 
-function scalar($scalar, $msg='%s is not %s')
+function scalar($scalar)
 {
-    return function($data) use($scalar, $msg)
+    return function($data) use($scalar)
     {
-        $type = type(gettype($data), $msg);
+        $type = type(gettype($data));
         $data = $type($data);
 
         if ($data !== $scalar) {
-            throw new \UnexpectedValueException(sprintf($msg,
+            throw new \UnexpectedValueException(sprintf('%s is not %s',
                 var_export($data, true), var_export($scalar, true)
             ));
         }
@@ -78,7 +78,7 @@ function scalar($scalar, $msg='%s is not %s')
     };
 }
 
-function seq($schema, $msg='')
+function seq($schema)
 {
     $compiled = array();
 
@@ -86,7 +86,7 @@ function seq($schema, $msg='')
         $compiled[] = plan($schema[$s]);
     }
 
-    return function($data) use($compiled, $sl, $msg)
+    return function($data) use($compiled, $sl)
     {
         $type = type('array');
         $data = $type($data);
@@ -117,7 +117,7 @@ function seq($schema, $msg='')
     };
 }
 
-function dict($schema, $required=false, $extra=false, $msg='')
+function dict($schema, $required=false, $extra=false)
 {
     $compiled = array();
 
@@ -125,7 +125,7 @@ function dict($schema, $required=false, $extra=false, $msg='')
         $compiled[$key] = plan($value);
     }
 
-    return function($data) use($compiled, $required, $extra, $msg)
+    return function($data) use($compiled, $required, $extra)
     {
         $type = type('array');
         $data = $type($data);
