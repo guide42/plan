@@ -221,6 +221,29 @@ function all()
     };
 }
 
+function not($validator)
+{
+    $compiled = plan($validator);
+
+    return function($data) use($compiled)
+    {
+        $pass = null;
+
+        try {
+            $compiled($data);
+            $pass = true;
+        } catch (\UnexpectedValueException $e) {
+            $pass = false;
+        }
+
+        if ($pass) {
+            throw new \UnexpectedValueException('Validator passed');
+        }
+
+        return $data;
+    };
+}
+
 function length($min=null, $max=null)
 {
     return function($data) use($min, $max)

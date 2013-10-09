@@ -211,6 +211,54 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::not
+     * @dataProvider testNotProvider
+     */
+    public function testNot($schema, $input)
+    {
+        $validator = plan(not($schema));
+        $validated = $validator($input);
+
+        $this->assertEquals($input, $validated);
+    }
+
+    public function testNotProvider()
+    {
+        return array(
+            array(123, '123'),
+            array(str(), 123),
+            array(length(2, 4), array('a')),
+            array(any(str(), int(), bool()), array()),
+            array(all(str(), length(2, 4)), array('a', 'b', 'c')),
+            array(array(1, '1'), array(1, '1', 2, '2')),
+        );
+    }
+
+    /**
+     * @covers ::not
+     * @dataProvider testNotInvalidProvider
+     * @expectedException        \UnexpectedValueException
+     * @expectedExceptionMessage Validator passed
+     */
+    public function testNotInvalid($schema, $input)
+    {
+        $validator = plan(not($schema));
+        $validator($input);
+    }
+
+    public function testNotInvalidProvider()
+    {
+        return array(
+            array(123, 123),
+            array(str(), 'string'),
+            array(length(2, 4), array('a', 'b', 'c')),
+            array(any(str(), int(), bool()), true),
+            array(all(str(), length(2, 4)), 'abc'),
+            array(array(1, '1'), array(1, '1', 1, '1')),
+        );
+    }
+
+    /**
      * @covers ::length
      * @dataProvider testLengthProvider
      */
