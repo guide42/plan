@@ -191,4 +191,15 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator = plan(any('true', 'false', bool()));
         $validator(array('true'));
     }
+
+    /**
+     * @covers ::all
+     */
+    public function testAll()
+    {
+        $validator = plan(all(str(), 'string'));
+        $validated = $validator('string');
+
+        $this->assertEquals('string', $validated);
+    }
 }

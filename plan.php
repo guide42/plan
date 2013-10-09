@@ -194,6 +194,26 @@ function any()
     };
 }
 
+function all()
+{
+    $validators = func_get_args();
+    $count = func_num_args();
+    $schemas = array();
+
+    for ($i = 0; $i < $count; $i++) {
+        $schemas[] = plan($validators[$i]);
+    }
+
+    return function($data) use($schemas, $count)
+    {
+        for ($i = 0; $i < $count; $i++) {
+            $return = $schemas[$i]($data);
+        }
+
+        return $return;
+    };
+}
+
 /**
  * Little hack to check if all indexes from an array are numerical and in
  * sequence.
