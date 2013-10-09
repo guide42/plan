@@ -148,15 +148,15 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers SequenceValidator::__invoke
+     * @covers ::seq
      * @dataProvider testSequenceProvider
      */
-    public function testSequence($in, $out)
+    public function testSequence($schema, $input)
     {
-        $validator = plan($in);
-        $result = $validator($out);
+        $validator = plan($schema);
+        $validated = $validator($input);
 
-        $this->assertEquals($out, $result);
+        $this->assertEquals($input, $validated);
     }
 
     public function testSequenceProvider()
@@ -174,23 +174,5 @@ class PlanTest extends \PHPUnit_Framework_TestCase
             array(array(),
                   array('123', 123, 'abc' => 'def')),
         );
-    }
-
-    /**
-     * @expectedException        \LogicException
-     * @expectedExceptionMessage Schema is not an array
-     */
-    public function testSequenceNotArrayException()
-    {
-        new SequenceValidator(123);
-    }
-
-    /**
-     * @expectedException        \LogicException
-     * @expectedExceptionMessage Schema is not a sequence
-     */
-    public function testSequenceNotSequenceException()
-    {
-        new SequenceValidator(array('foo' => 'bar'));
     }
 }

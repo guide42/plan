@@ -8,7 +8,7 @@ function plan($schema)
 
     elseif (is_array($schema)) {
         if (empty($schema) || is_sequence($schema)) {
-            $validator = new SequenceValidator($schema);
+            $validator = seq($schema);
         } else {
             $validator = new ArrayValidator($schema);
         }
@@ -75,6 +75,45 @@ function scalar($scalar, $msg='%s is not %s')
         }
 
         return $data;
+    };
+}
+
+function seq($schema, $msg='')
+{
+    $compiled = array();
+
+    for ($s = 0, $sl = count($schema); $s < $sl; $s++) {
+        $compiled[] = plan($schema[$s]);
+    }
+
+    return function($data) use($compiled, $sl, $msg)
+    {
+        $type = type('array');
+        $data = $type($data);
+
+        // Empty sequence schema,
+        //     allow any data
+        if (empty($compiled)) {
+            return $data;
+        }
+
+        $return = array();
+
+        $d = 0;
+        $dl = count($data);
+
+        for (; $d < $dl; $d++) {
+            for ($s = 0; $s < $sl; $s++) {
+                try {
+                    $return[] = $compiled[$s]($data[$d]);
+                    break;
+                } catch (\UnexpectedValueException $e) {
+                    // Ignore
+                }
+            }
+        }
+
+        return $return;
     };
 }
 
@@ -175,62 +214,6 @@ class ArrayValidator extends Validator
                 throw new \UnexpectedValueException(
                     sprintf('Required key %s not provided', $rvalue)
                 );
-            }
-        }
-
-        return $return;
-    }
-}
-
-/**
- * An array that all indexes are numeric and in a sequence. Is treated as a set
- * of valid values.
- */
-class SequenceValidator extends Validator
-{
-    public function __construct($schema)
-    {
-        if (!is_array($schema)) {
-            throw new \LogicException(
-                sprintf('Schema is not an array')
-            );
-        }
-
-        if (!empty($schema) && !is_sequence($schema)) {
-            throw new \LogicException(
-                sprintf('Schema is not a sequence')
-            );
-        }
-
-        foreach ($schema as $key => $value) {
-            $schema[$key] = plan($value);
-        }
-
-        parent::__construct($schema);
-    }
-
-    public function __invoke($data)
-    {
-        $type = new ArrayType();
-        $data = $type($data);
-
-        // Empty sequence schema,
-        //     allow any data
-        if (empty($this->schema)) {
-            return $data;
-        }
-
-        $return = array();
-
-        foreach ($data as $dkey => $dvalue) {
-            foreach ($this->schema as $skey => $svalue) {
-                try {
-                    $value = $svalue($dvalue);
-                    $return[] = $value;
-                    break;
-                } catch (\UnexpectedValueException $e) {
-                    //
-                }
             }
         }
 
