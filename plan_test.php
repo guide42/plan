@@ -63,18 +63,18 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ArrayValidator::__invoke
-     * @dataProvider testArrayProvider
+     * @covers ::dict
+     * @dataProvider testDictionaryProvider
      */
-    public function testArray($in, $out)
+    public function testDictionary($schema, $input)
     {
-        $validator = plan($in);
-        $result = $validator($out);
+        $validator = plan($schema);
+        $validated = $validator($input);
 
-        $this->assertEquals($out, $result);
+        $this->assertEquals($input, $validated);
     }
 
-    public function testArrayProvider()
+    public function testDictionaryProvider()
     {
         return array(
             # Test 1: Keys are not required by default
@@ -86,7 +86,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
                   array('key' => 'value')),
 
             # Test 3: Type value
-            array(array('key' => new StringType()),
+            array(array('key' => str()),
                   array('key' => 'string')),
 
             # Test 4: Multidimensional array
@@ -96,21 +96,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \LogicException
-     * @expectedExceptionMessage Schema is not an array
-     */
-    public function testArrayNotArrayException()
-    {
-        new ArrayValidator(123);
-    }
-
-    /**
      * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage Required key c not provided
      */
-    public function testArrayRequired()
+    public function testDictionaryRequired()
     {
-        $validator = new ArrayValidator(array('a' => 'b', 'c' => 'd'), true);
+        $validator = dict(array('a' => 'b', 'c' => 'd'), true);
         $validator(array('a' => 'b', ));
     }
 
@@ -118,32 +109,34 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage Required key two not provided
      */
-    public function testArrayRequiredArray()
+    public function testDictionaryRequiredArray()
     {
-        $array = array('one' => '1', 'two' => '2');
+        $dict = array('one' => '1', 'two' => '2');
 
-        $validator = new ArrayValidator($array, array('two'));
+        $validator = dict($dict, array('two'));
         $validator(array());
     }
 
     /**
-     * @covers ArrayValidator::__invoke
+     * @covers ::dict
      */
-    public function testArrayExtra()
+    public function testDictionaryExtra()
     {
-        $validator = new ArrayValidator(array('foo' => 'foo'), false, true);
-        $result = $validator(array('foo' => 'foo', 'bar' => 'bar'));
+        $dict = array('foo' => 'foo', 'bar' => 'bar');
 
-        $this->assertEquals(array('foo' => 'foo', 'bar' => 'bar'), $result);
+        $validator = dict(array('foo' => 'foo'), false, true);
+        $validated = $validator($dict);
+
+        $this->assertEquals($dict, $validated);
     }
 
     /**
      * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage Extra keys not allowed
      */
-    public function testArrayExtraInvalid()
+    public function testDictionaryExtraInvalid()
     {
-        $validator = new ArrayValidator(array('foo' => 'foo'), false, false);
+        $validator = dict(array('foo' => 'foo'), false, false);
         $validator(array('foo' => 'foo', 'bar' => 'bar'));
     }
 

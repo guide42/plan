@@ -10,7 +10,7 @@ function plan($schema)
         if (empty($schema) || is_sequence($schema)) {
             $validator = seq($schema);
         } else {
-            $validator = new ArrayValidator($schema);
+            $validator = dict($schema);
         }
     }
 
@@ -117,6 +117,59 @@ function seq($schema, $msg='')
     };
 }
 
+function dict($schema, $required=false, $extra=false, $msg='')
+{
+    $compiled = array();
+
+    foreach ($schema as $key => $value) {
+        $compiled[$key] = plan($value);
+    }
+
+    return function($data) use($compiled, $required, $extra, $msg)
+    {
+        $type = type('array');
+        $data = $type($data);
+
+        $return = array();
+
+        if ($required === true) {
+            $required = array_keys($compiled);
+        } elseif (is_array($required)) {
+            // TODO Validate array
+        } else {
+            $required = false;
+        }
+
+        foreach ($data as $dkey => $dvalue) {
+            if (array_key_exists($dkey, $compiled)) {
+                $return[$dkey] = $compiled[$dkey]($dvalue);
+            } elseif ($extra) {
+                $return[$dkey] = $dvalue;
+            } else {
+                throw new \UnexpectedValueException('Extra keys not allowed');
+            }
+
+            if ($required !== false) {
+                $rkey = array_search($dkey, $required, true);
+
+                if ($rkey !== false) {
+                    unset($required[$rkey]);
+                }
+            }
+        }
+
+        if ($required !== false) {
+            foreach ($required as $rvalue) {
+                throw new \UnexpectedValueException(
+                        sprintf('Required key %s not provided', $rvalue)
+                );
+            }
+        }
+
+        return $return;
+    };
+}
+
 /**
  * Base validator.
  */
@@ -135,90 +188,6 @@ abstract class Validator
     }
 
     abstract public function __invoke($data);
-}
-
-/**
- * An array with associative keys.
- */
-class ArrayValidator extends Validator
-{
-    /**
-     * If true, the validation require all keys to be present. If is an array,
-     * it contains all keys that must be required. Otherwise no key will be.
-     *
-     * @var boolean|array
-     */
-    protected $required;
-
-    /**
-     * If true, the validation accept extra keys. Otherwise will throw an
-     * exception.
-     *
-     * @var boolean
-     */
-    protected $extra;
-
-    public function __construct($schema, $required=false, $extra=false)
-    {
-        if (!is_array($schema)) {
-            throw new \LogicException(
-                sprintf('Schema is not an array')
-            );
-        }
-
-        foreach ($schema as $key => $value) {
-            $schema[$key] = plan($value);
-        }
-
-        parent::__construct($schema);
-
-        $this->required = $required;
-        $this->extra = $extra;
-    }
-
-    public function __invoke($data)
-    {
-        $type = new ArrayType();
-        $data = $type($data);
-
-        $return = array();
-
-        if ($this->required === true) {
-            $required = array_keys($this->schema);
-        } elseif (is_array($this->required)) {
-            $required = $this->required;
-        } else {
-            $required = false;
-        }
-
-        foreach ($data as $dkey => $dvalue) {
-            if (array_key_exists($dkey, $this->schema)) {
-                $return[$dkey] = $this->schema[$dkey]($dvalue);
-            } elseif ($this->extra) {
-                $return[$dkey] = $dvalue;
-            } else {
-                throw new \UnexpectedValueException('Extra keys not allowed');
-            }
-
-            if ($required !== false) {
-                $rkey = array_search($dkey, $required, true);
-
-                if ($rkey !== false) {
-                    unset($required[$rkey]);
-                }
-            }
-        }
-
-        if ($required !== false) {
-            foreach ($required as $rvalue) {
-                throw new \UnexpectedValueException(
-                    sprintf('Required key %s not provided', $rvalue)
-                );
-            }
-        }
-
-        return $return;
-    }
 }
 
 /**
