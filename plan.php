@@ -33,11 +33,6 @@ function plan($schema)
 }
 
 /**
- * Exception for all validation errors thrown by plan.
- */
-class InvalidException extends \Exception {}
-
-/**
  * Base validator.
  */
 abstract class Validator
@@ -101,7 +96,7 @@ class ScalarValidator extends Validator
         $data = $type($data);
 
         if ($data !== $this->schema) {
-            throw new InvalidException(
+            throw new \UnexpectedValueException(
                 sprintf('%s is not %s', var_export($data, true),
                                         var_export($this->schema, true))
             );
@@ -171,7 +166,7 @@ class ArrayValidator extends Validator
             } elseif ($this->extra) {
                 $return[$dkey] = $dvalue;
             } else {
-                throw new InvalidException('Extra keys not allowed');
+                throw new \UnexpectedValueException('Extra keys not allowed');
             }
 
             if ($required !== false) {
@@ -185,7 +180,7 @@ class ArrayValidator extends Validator
 
         if ($required !== false) {
             foreach ($required as $rvalue) {
-                throw new InvalidException(
+                throw new \UnexpectedValueException(
                     sprintf('Required key %s not provided', $rvalue)
                 );
             }
@@ -241,7 +236,7 @@ class SequenceValidator extends Validator
                     $value = $svalue($dvalue);
                     $return[] = $value;
                     break;
-                } catch (InvalidException $e) {
+                } catch (\UnexpectedValueException $e) {
                     //
                 }
             }
@@ -286,7 +281,7 @@ class Type
     public function __invoke($data)
     {
         if (gettype($data) !== $this->type) {
-            throw new InvalidException(
+            throw new \UnexpectedValueException(
                 sprintf('%s is not of type %s', var_export($data, true)
                         , $this->type)
             );

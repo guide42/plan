@@ -15,7 +15,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
             $data = $type($data);
 
             if (strtolower($data) !== $data) {
-                throw new InvalidException(
+                throw new \UnexpectedValueException(
                     sprintf('%s is not lowercase', var_export($data, true))
                 );
             }
@@ -56,7 +56,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        InvalidException
+     * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage 'world' is not 'hello'
      */
     public function testScalarInvalid()
@@ -108,7 +108,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        InvalidException
+     * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage Required key c not provided
      */
     public function testArrayRequired()
@@ -118,7 +118,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        InvalidException
+     * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage Required key two not provided
      */
     public function testArrayRequiredArray()
@@ -141,7 +141,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        InvalidException
+     * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage Extra keys not allowed
      */
     public function testArrayExtraInvalid()
@@ -231,7 +231,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        InvalidException
+     * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage '123' is not of type integer
      */
     public function testTypeInvalid()
