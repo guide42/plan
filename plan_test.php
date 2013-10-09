@@ -36,23 +36,15 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ScalarValidator::__invoke
+     * @covers ::scalar
      */
     public function testScalar()
     {
-        $validator = plan('hello');
-        $result = $validator('hello');
+        $str = plan('hello');
+        $int = plan(1234567);
 
-        $this->assertEquals('hello', $result);
-    }
-
-    /**
-     * @expectedException        \LogicException
-     * @expectedExceptionMessage Schema is not scalar
-     */
-    public function testScalarException()
-    {
-        new ScalarValidator(array());
+        $this->assertEquals('hello', $str('hello'));
+        $this->assertEquals(1234567, $int(1234567));
     }
 
     /**

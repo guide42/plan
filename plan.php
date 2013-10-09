@@ -3,7 +3,7 @@
 function plan($schema)
 {
     if (is_scalar($schema)) {
-        $validator = new ScalarValidator($schema);
+        $validator = scalar($schema);
     }
 
     elseif (is_array($schema)) {
@@ -66,6 +66,23 @@ function str($msg='%s is not %s')
     return type('string');
 }
 
+function scalar($scalar, $msg='%s is not %s')
+{
+    return function($data) use($scalar, $msg)
+    {
+        $type = type(gettype($data), $msg);
+        $data = $type($data);
+
+        if ($data !== $scalar) {
+            throw new \UnexpectedValueException(sprintf($msg,
+                var_export($data, true), var_export($scalar, true)
+            ));
+        }
+
+        return $data;
+    };
+}
+
 /**
  * Base validator.
  */
@@ -105,38 +122,6 @@ class CallableValidator extends Validator
     public function __invoke($data)
     {
         return call_user_func($this->schema, $data);
-    }
-}
-
-/**
- * Test that data equals to the scalar input as schema.
- */
-class ScalarValidator extends Validator
-{
-    public function __construct($schema)
-    {
-        if (!is_scalar($schema)) {
-            throw new \LogicException(
-                sprintf('Schema is not scalar')
-            );
-        }
-
-        parent::__construct($schema);
-    }
-
-    public function __invoke($data)
-    {
-        $type = new Type(gettype($this->schema));
-        $data = $type($data);
-
-        if ($data !== $this->schema) {
-            throw new \UnexpectedValueException(
-                sprintf('%s is not %s', var_export($data, true),
-                                        var_export($this->schema, true))
-            );
-        }
-
-        return $data;
     }
 }
 
