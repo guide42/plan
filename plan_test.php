@@ -98,20 +98,27 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator(array('foobar'));
     }
 
-    /**
-     * @expectedException        Invalid
-     * @expectedExceptionMessage Invalid value at index 1 (value is {"name":"Jane","email":"ERROR"})
-     */
     public function testSequenceDeepException()
     {
-        $schema = array(array('name' => str(), 'email' => email()), str());
-
-        $validator = plan($schema);
-        $validator(array(
-            array('name' => 'John', 'email' => 'john@example.org'),
-            array('name' => 'Jane', 'email' => 'ERROR'),
-            'Other Doe <other@example.org>',
+        $validator = plan(array(
+            any(email(), str()),
+            array('name' => str(), 'email' => email()),
         ));
+
+        try {
+            $validator(array(
+                array('name' => 'John', 'email' => 'john@example.org'),
+                array('name' => 'Jane', 'email' => 'ERROR'),
+                'Other Doe <other@example.org>',
+            ));
+        } catch (Invalid $e) {
+            $this->assertEquals('Invalid value at key email (value is "ERROR")', $e->getMessage());
+            $this->assertEquals(array(1, 'email'), $e->getPath());
+
+            return;
+        }
+
+        $this->fail('Exception Invalid not thrown');
     }
 
     /**
@@ -192,26 +199,30 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator(array('foo' => 'foo', 'bar' => 'bar'));
     }
 
-    /**
-     * @expectedException        Invalid
-     * @expectedExceptionMessage Invalid value at key extra (value is {"emails":["ERROR","mysecondemail@ymail.com"]})
-     */
     public function testDictionaryDeepException()
     {
-        $dict = array(
+        $validator = plan(array(
             'email' => email(),
             'extra' => array(
                 'emails' => array(email()),
             ),
-        );
-
-        $validator = plan($dict);
-        $validator(array(
-            'email' => 'john@example.org',
-            'extra' => array(
-                'emails' => array('ERROR', 'mysecondemail@ymail.com')
-            )
         ));
+
+        try {
+            $validator(array(
+                'email' => 'john@example.org',
+                'extra' => array(
+                    'emails' => array('ERROR', 'mysecondemail@ymail.com')
+                )
+            ));
+        } catch (Invalid $e) {
+            $this->assertEquals('Invalid value at index 0 (value is "ERROR")', $e->getMessage());
+            $this->assertEquals(array('extra', 'emails', 0), $e->getPath());
+
+            return;
+        }
+
+        $this->fail('Exception Invalid not thrown');
     }
 
     /**

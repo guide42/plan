@@ -58,13 +58,13 @@ class Invalid extends Exception
 
 function type($type)
 {
-    return function($data) use($type)
+    return function($data, $path=null) use($type)
     {
         if (gettype($data) !== $type) {
             throw new Invalid('{data} is not {type}', array(
                 '{data}' => json_encode($data),
                 '{type}' => $type,
-            ));
+            ), $path);
         }
 
         return $data;
@@ -93,16 +93,16 @@ function str()
 
 function scalar($scalar)
 {
-    return function($data) use($scalar)
+    return function($data, $path=null) use($scalar)
     {
         $type = type(gettype($data));
-        $data = $type($data);
+        $data = $type($data, $path);
 
         if ($data !== $scalar) {
             throw new Invalid('{data} is not {scalar}', array(
                 '{data}'   => json_encode($data),
                 '{scalar}' => json_encode($scalar),
-            ));
+            ), $path);
         }
 
         return $data;
@@ -117,10 +117,10 @@ function seq($schema)
         $compiled[] = plan($schema[$s]);
     }
 
-    return function($data) use($compiled, $sl)
+    return function($data, $root=null) use($compiled, $sl)
     {
         $type = type('array');
-        $data = $type($data);
+        $data = $type($data, $root);
 
         // Empty sequence schema,
         //     allow any data
@@ -129,18 +129,25 @@ function seq($schema)
         }
 
         $return = array();
+        $root = null === $root ? array() : $root;
         $dl = count($data);
 
         for ($d = 0; $d < $dl; $d++) {
             $found = null;
 
+            $path = $root;
+            $path[] = $d;
+
             for ($s = 0; $s < $sl; $s++) {
                 try {
-                    $return[] = $compiled[$s]($data[$d]);
+                    $return[] = $compiled[$s]($data[$d], $path);
                     $found = true;
                     break;
                 } catch (Invalid $e) {
                     $found = false;
+                    if (count($e->getPath()) > count($path)) {
+                        throw $e;
+                    }
                 }
             }
 
@@ -149,7 +156,7 @@ function seq($schema)
                 throw new Invalid($msg, array(
                     '{index}' => $d,
                     '{value}' => json_encode($data[$d]),
-                ));
+                ), $path);
             }
         }
 
@@ -165,12 +172,13 @@ function dict($schema, $required=false, $extra=false)
         $compiled[$key] = plan($value);
     }
 
-    return function($data) use($compiled, $required, $extra)
+    return function($data, $root=null) use($compiled, $required, $extra)
     {
         $type = type('array');
-        $data = $type($data);
+        $data = $type($data, $root);
 
         $return = array();
+        $root = null === $root ? array() : $root;
 
         if ($required === true) {
             $required = array_keys($compiled);
@@ -181,22 +189,29 @@ function dict($schema, $required=false, $extra=false)
         }
 
         foreach ($data as $dkey => $dvalue) {
+            $path = $root;
+            $path[] = $dkey;
+
             if (array_key_exists($dkey, $compiled)) {
                 try {
-                    $return[$dkey] = $compiled[$dkey]($dvalue);
+                    $return[$dkey] = $compiled[$dkey]($dvalue, $path);
                 } catch (Invalid $e) {
-                    $msg = 'Invalid value at key {key} (value is {value})';
-                    throw new Invalid($msg, array(
-                        '{key}'   => $dkey,
-                        '{value}' => json_encode($dvalue),
-                    ), null, null, $e);
+                    if (count($e->getPath()) > count($path)) {
+                        throw $e; // Always throw deepest exception
+                    } else {
+                        $msg = 'Invalid value at key {key} (value is {value})';
+                        throw new Invalid($msg, array(
+                            '{key}'   => $dkey,
+                            '{value}' => json_encode($dvalue),
+                        ), $path, null, $e);
+                    }
                 }
             } elseif ($extra) {
                 $return[$dkey] = $dvalue;
             } else {
                 throw new Invalid('Extra key {key} not allowed', array(
                     '{key}' => $dkey,
-                ));
+                ), $path);
             }
 
             if ($required !== false) {
@@ -210,9 +225,12 @@ function dict($schema, $required=false, $extra=false)
 
         if ($required !== false) {
             foreach ($required as $rvalue) {
+                $path = $root;
+                $path[] = $rvalue;
+
                 throw new Invalid('Required key {key} not provided', array(
                     '{key}' => $rvalue,
-                ));
+                ), $path);
             }
         }
 
@@ -230,7 +248,7 @@ function any()
         $schemas[] = plan($validators[$i]);
     }
 
-    return function($data) use($schemas, $count)
+    return function($data, $path=null) use($schemas, $count)
     {
         for ($i = 0; $i < $count; $i++) {
             try {
@@ -241,7 +259,7 @@ function any()
             }
         }
 
-        throw new Invalid('No valid value found');
+        throw new Invalid('No valid value found', array(), $path);
     };
 }
 
@@ -255,7 +273,7 @@ function all()
         $schemas[] = plan($validators[$i]);
     }
 
-    return function($data) use($schemas, $count)
+    return function($data, $path=null) use($schemas, $count)
     {
         $return = $data;
 
@@ -271,19 +289,19 @@ function not($validator)
 {
     $compiled = plan($validator);
 
-    return function($data) use($compiled)
+    return function($data, $path=null) use($compiled)
     {
         $pass = null;
 
         try {
-            $compiled($data);
+            $compiled($data, $path);
             $pass = true;
         } catch (Invalid $e) {
             $pass = false;
         }
 
         if ($pass) {
-            throw new Invalid('Validator passed');
+            throw new Invalid('Validator passed', array(), $path);
         }
 
         return $data;
@@ -292,7 +310,7 @@ function not($validator)
 
 function length($min=null, $max=null)
 {
-    return function($data) use($min, $max)
+    return function($data, $path=null) use($min, $max)
     {
         if (gettype($data) === 'string') {
             $count = function($data) { return strlen($data); };
@@ -303,13 +321,13 @@ function length($min=null, $max=null)
         if ($min !== null && $count($data) < $min) {
             throw new Invalid('Value must be at least {limit}', array(
                 '{limit}' => $min,
-            ));
+            ), $path);
         }
 
         if ($max !== null && $count($data) > $max) {
             throw new Invalid('Value must be at most {limit}', array(
                 '{limit}' => $max,
-            ));
+            ), $path);
         }
 
         return $data;
@@ -320,13 +338,13 @@ function validate($name)
 {
     $id = filter_id($name);
 
-    return function($data) use($name, $id)
+    return function($data, $path=null) use($name, $id)
     {
         if (filter_var($data, $id) === false) {
             throw new Invalid('Validation {name} for {value} failed', array(
                 '{name}'  => $name,
                 '{value}' => json_encode($data),
-            ));
+            ), $path);
         }
 
         return $data;
