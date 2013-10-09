@@ -31,7 +31,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \UnexpectedValueException
+     * @expectedException        Invalid
      * @expectedExceptionMessage "123" is not integer
      */
     public function testTypeInvalid()
@@ -53,7 +53,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \UnexpectedValueException
+     * @expectedException        Invalid
      * @expectedExceptionMessage "world" is not "hello"
      */
     public function testScalarInvalid()
@@ -89,7 +89,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers                   ::seq
-     * @expectedException        \UnexpectedValueException
+     * @expectedException        Invalid
      * @expectedExceptionMessage Invalid value at index 0 (value is "foobar")
      */
     public function testSequenceInvalid()
@@ -99,7 +99,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \UnexpectedValueException
+     * @expectedException        Invalid
      * @expectedExceptionMessage Invalid value at index 1 (value is {"name":"Jane","email":"ERROR"})
      */
     public function testSequenceDeepException()
@@ -148,7 +148,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \UnexpectedValueException
+     * @expectedException        Invalid
      * @expectedExceptionMessage Required key c not provided
      */
     public function testDictionaryRequired()
@@ -158,7 +158,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \UnexpectedValueException
+     * @expectedException        Invalid
      * @expectedExceptionMessage Required key two not provided
      */
     public function testDictionaryRequiredArray()
@@ -183,8 +183,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage Extra key "bar" not allowed
+     * @expectedException        Invalid
+     * @expectedExceptionMessage Extra key bar not allowed
      */
     public function testDictionaryExtraInvalid()
     {
@@ -193,8 +193,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage Invalid value at key "extra" (value is {"emails":["ERROR","mysecondemail@ymail.com"]})
+     * @expectedException        Invalid
+     * @expectedExceptionMessage Invalid value at key extra (value is {"emails":["ERROR","mysecondemail@ymail.com"]})
      */
     public function testDictionaryDeepException()
     {
@@ -228,7 +228,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \UnexpectedValueException
+     * @expectedException        Invalid
      * @expectedExceptionMessage No valid value found
      */
     public function testAnyInvalid()
@@ -275,7 +275,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers                   ::not
      * @dataProvider             testNotInvalidProvider
-     * @expectedException        \UnexpectedValueException
+     * @expectedException        Invalid
      * @expectedExceptionMessage Validator passed
      */
     public function testNotInvalid($schema, $input)
@@ -341,8 +341,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \UnexpectedValueException
-     * @expectedExceptionMessage Validation "validate_email" for 123 failed
+     * @expectedException        Invalid
+     * @expectedExceptionMessage Validation validate_email for 123 failed
      */
     public function testValidateInvalid()
     {

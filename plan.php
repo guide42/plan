@@ -27,14 +27,44 @@ function plan($schema)
     return $validator;
 }
 
+class Invalid extends Exception
+{
+    /**
+     * Path from the root to the exception.
+     *
+     * @var array
+     */
+    protected $path;
+
+    public function __construct($message, array $params=array(),
+                                array $path=null, $code=null, $previous=null)
+    {
+        $this->path = null === $path ? array() : $path;
+        $message = strtr($message, $params);
+
+        parent::__construct($message, $code, $previous);
+    }
+
+    /**
+     * Retrieve the path.
+     *
+     * @return array
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+}
+
 function type($type)
 {
     return function($data) use($type)
     {
         if (gettype($data) !== $type) {
-            throw new \UnexpectedValueException(
-                sprintf('%s is not %s', json_encode($data), $type)
-            );
+            throw new Invalid('{data} is not {type}', array(
+                '{data}' => json_encode($data),
+                '{type}' => $type,
+            ));
         }
 
         return $data;
@@ -69,8 +99,9 @@ function scalar($scalar)
         $data = $type($data);
 
         if ($data !== $scalar) {
-            throw new \UnexpectedValueException(sprintf('%s is not %s',
-                json_encode($data), json_encode($scalar)
+            throw new Invalid('{data} is not {scalar}', array(
+                '{data}'   => json_encode($data),
+                '{scalar}' => json_encode($scalar),
             ));
         }
 
@@ -108,16 +139,17 @@ function seq($schema)
                     $return[] = $compiled[$s]($data[$d]);
                     $found = true;
                     break;
-                } catch (\UnexpectedValueException $e) {
+                } catch (Invalid $e) {
                     $found = false;
                 }
             }
 
             if ($found !== true) {
-                $msg = sprintf('Invalid value at index %d (value is %s)', $d
-                               , json_encode($data[$d]));
-
-                throw new \UnexpectedValueException($msg);
+                $msg = 'Invalid value at index {index} (value is {value})';
+                throw new Invalid($msg, array(
+                    '{index}' => $d,
+                    '{value}' => json_encode($data[$d]),
+                ));
             }
         }
 
@@ -152,18 +184,19 @@ function dict($schema, $required=false, $extra=false)
             if (array_key_exists($dkey, $compiled)) {
                 try {
                     $return[$dkey] = $compiled[$dkey]($dvalue);
-                } catch (\UnexpectedValueException $e) {
-                    $msg = sprintf('Invalid value at key %s (value is %s)'
-                                   , json_encode($dkey)
-                                   , json_encode($dvalue));
-                    throw new \UnexpectedValueException($msg, null, $e);
+                } catch (Invalid $e) {
+                    $msg = 'Invalid value at key {key} (value is {value})';
+                    throw new Invalid($msg, array(
+                        '{key}'   => $dkey,
+                        '{value}' => json_encode($dvalue),
+                    ), null, null, $e);
                 }
             } elseif ($extra) {
                 $return[$dkey] = $dvalue;
             } else {
-                throw new \UnexpectedValueException(
-                    sprintf('Extra key %s not allowed', json_encode($dkey))
-                );
+                throw new Invalid('Extra key {key} not allowed', array(
+                    '{key}' => $dkey,
+                ));
             }
 
             if ($required !== false) {
@@ -177,9 +210,9 @@ function dict($schema, $required=false, $extra=false)
 
         if ($required !== false) {
             foreach ($required as $rvalue) {
-                throw new \UnexpectedValueException(
-                    sprintf('Required key %s not provided', $rvalue)
-                );
+                throw new Invalid('Required key {key} not provided', array(
+                    '{key}' => $rvalue,
+                ));
             }
         }
 
@@ -202,12 +235,13 @@ function any()
         for ($i = 0; $i < $count; $i++) {
             try {
                 return $schemas[$i]($data);
-            } catch (\UnexpectedValueException $e) {
+            } catch (Invalid $e) {
                 // Ignore
+                // XXX Explain why
             }
         }
 
-        throw new \UnexpectedValueException('No valid value found');
+        throw new Invalid('No valid value found');
     };
 }
 
@@ -244,12 +278,12 @@ function not($validator)
         try {
             $compiled($data);
             $pass = true;
-        } catch (\UnexpectedValueException $e) {
+        } catch (Invalid $e) {
             $pass = false;
         }
 
         if ($pass) {
-            throw new \UnexpectedValueException('Validator passed');
+            throw new Invalid('Validator passed');
         }
 
         return $data;
@@ -267,32 +301,31 @@ function length($min=null, $max=null)
         }
 
         if ($min !== null && $count($data) < $min) {
-            throw new \UnexpectedValueException(
-                sprintf('Value must be at least %d', $min)
-            );
+            throw new Invalid('Value must be at least {limit}', array(
+                '{limit}' => $min,
+            ));
         }
 
         if ($max !== null && $count($data) > $max) {
-            throw new \UnexpectedValueException(
-                sprintf('Value must be at most %d', $max)
-            );
+            throw new Invalid('Value must be at most {limit}', array(
+                '{limit}' => $max,
+            ));
         }
 
         return $data;
     };
 }
 
-function validate($filtername)
+function validate($name)
 {
-    $filterid = filter_id($filtername);
+    $id = filter_id($name);
 
-    return function($data) use($filtername, $filterid)
+    return function($data) use($name, $id)
     {
-        if (filter_var($data, $filterid) === false) {
-            throw new \UnexpectedValueException(sprintf(
-                'Validation %s for %s failed'
-                , json_encode($filtername)
-                , json_encode($data)
+        if (filter_var($data, $id) === false) {
+            throw new Invalid('Validation {name} for {value} failed', array(
+                '{name}'  => $name,
+                '{value}' => json_encode($data),
             ));
         }
 
