@@ -214,6 +214,32 @@ function all()
     };
 }
 
+function length($min=null, $max=null)
+{
+    return function($data) use($min, $max)
+    {
+        if (gettype($data) === 'string') {
+            $count = function($data) { return strlen($data); };
+        } else {
+            $count = function($data) { return count($data); };
+        }
+
+        if ($min !== null && $count($data) < $min) {
+            throw new \UnexpectedValueException(
+                sprintf('Value must be at least %d', $min)
+            );
+        }
+
+        if ($max !== null && $count($data) > $max) {
+            throw new \UnexpectedValueException(
+                sprintf('Value must be at most %d', $max)
+            );
+        }
+
+        return $data;
+    };
+}
+
 /**
  * Little hack to check if all indexes from an array are numerical and in
  * sequence.

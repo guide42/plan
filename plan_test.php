@@ -202,4 +202,24 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('string', $validated);
     }
+
+    /**
+     * @covers ::length
+     * @dataProvider testLengthProvider
+     */
+    public function testLength($input)
+    {
+        $validator = plan(length(2, 4));
+        $validated = $validator($input);
+
+        $this->assertEquals($input, $validated);
+    }
+
+    public function testLengthProvider()
+    {
+        return array(
+            array('abc'),
+            array(array('a', 'b', 'c')),
+        );
+    }
 }
