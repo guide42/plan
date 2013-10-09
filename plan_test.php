@@ -63,6 +63,35 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::seq
+     * @dataProvider testSequenceProvider
+     */
+    public function testSequence($schema, $input)
+    {
+        $validator = plan($schema);
+        $validated = $validator($input);
+
+        $this->assertEquals($input, $validated);
+    }
+
+    public function testSequenceProvider()
+    {
+        return array(
+            # Test 1: One value is required
+            array(array('foo', array('a' => 'b'), int()),
+                  array('foo')),
+
+            # Test 2: Values can be repeated by default
+            array(array('foo', array('a' => 'b'), int()),
+                  array('foo', 'foo', array('a' => 'b'), 123, 321)),
+
+            # Test 3: Empty schema, allow any data
+            array(array(),
+                  array('123', 123, 'abc' => 'def')),
+        );
+    }
+
+    /**
      * @covers ::dict
      * @dataProvider testDictionaryProvider
      */
@@ -138,34 +167,5 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     {
         $validator = dict(array('foo' => 'foo'), false, false);
         $validator(array('foo' => 'foo', 'bar' => 'bar'));
-    }
-
-    /**
-     * @covers ::seq
-     * @dataProvider testSequenceProvider
-     */
-    public function testSequence($schema, $input)
-    {
-        $validator = plan($schema);
-        $validated = $validator($input);
-
-        $this->assertEquals($input, $validated);
-    }
-
-    public function testSequenceProvider()
-    {
-        return array(
-            # Test 1: One value is required
-            array(array('foo', array('a' => 'b'), int()),
-                  array('foo')),
-
-            # Test 2: Values can be repeated by default
-            array(array('foo', array('a' => 'b'), int()),
-                  array('foo', 'foo', array('a' => 'b'), 123, 321)),
-
-            # Test 3: Empty schema, allow any data
-            array(array(),
-                  array('123', 123, 'abc' => 'def')),
-        );
     }
 }
