@@ -161,7 +161,7 @@ function dict($schema, $required=false, $extra=false)
         if ($required !== false) {
             foreach ($required as $rvalue) {
                 throw new \UnexpectedValueException(
-                        sprintf('Required key %s not provided', $rvalue)
+                    sprintf('Required key %s not provided', $rvalue)
                 );
             }
         }
