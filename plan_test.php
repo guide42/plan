@@ -5,7 +5,7 @@ include 'plan.php';
 class PlanTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers ::type
+     * @covers       ::type
      * @dataProvider testTypeProvider
      */
     public function testType($instance, $test1, $test2)
@@ -63,7 +63,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::seq
+     * @covers       ::seq
      * @dataProvider testSequenceProvider
      */
     public function testSequence($schema, $input)
@@ -88,7 +88,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::seq
+     * @covers                   ::seq
      * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage Invalid 'foobar' value
      */
@@ -99,7 +99,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::dict
+     * @covers       ::dict
      * @dataProvider testDictionaryProvider
      */
     public function testDictionary($schema, $input)
@@ -211,7 +211,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::not
+     * @covers       ::not
      * @dataProvider testNotProvider
      */
     public function testNot($schema, $input)
@@ -235,8 +235,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::not
-     * @dataProvider testNotInvalidProvider
+     * @covers                   ::not
+     * @dataProvider             testNotInvalidProvider
      * @expectedException        \UnexpectedValueException
      * @expectedExceptionMessage Validator passed
      */
@@ -259,7 +259,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::length
+     * @covers       ::length
      * @dataProvider testLengthProvider
      */
     public function testLength($input)
