@@ -14,18 +14,13 @@ function plan($schema)
         }
     }
 
-    elseif (is_object($schema)) {
-        if ($schema instanceof Type || $schema instanceof Validator) {
-            $validator = $schema;
-        } else {
-            // FIXME
-            //$validator = ObjectValidator($schema);
-        }
+    elseif (is_object($schema) && ($schema instanceof Type ||
+                                   $schema instanceof Validator)) {
+        $validator = $schema;
     }
 
     elseif (is_callable($schema)) {
-        // FIXME
-        //$validator = CallableValidator($schema);
+        $validator = new CallableValidator($schema);
     }
 
     else {
@@ -65,6 +60,28 @@ abstract class Validator
     }
 
     abstract public function __invoke($data);
+}
+
+/**
+ * Wraps a callable to be a validator.
+ */
+class CallableValidator extends Validator
+{
+    public function __construct($schema)
+    {
+        if (!is_callable($schema)) {
+            throw new SchemaException(
+                sprintf('Schema is not callable')
+            );
+        }
+
+        parent::__construct($schema);
+    }
+
+    public function __invoke($data)
+    {
+        return call_user_func($this->schema, $data);
+    }
 }
 
 /**

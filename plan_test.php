@@ -5,6 +5,37 @@ include 'plan.php';
 class PlanTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers CallableValidator::__invoke
+     */
+    public function testCallable()
+    {
+        $validator = plan(function($data)
+        {
+            $type = new StringType();
+            $data = $type($data);
+
+            if (strtolower($data) !== $data) {
+                throw new InvalidException(
+                    sprintf('%s is not lowercase', var_export($data, true))
+                );
+            }
+
+            return $data;
+        });
+
+        $this->assertEquals('hello', $validator('hello'));
+    }
+
+    /**
+     * @expectedException        SchemaException
+     * @expectedExceptionMessage Schema is not callable
+     */
+    public function testCallableSchemaException()
+    {
+        new CallableValidator('hello');
+    }
+
+    /**
      * @covers ScalarValidator::__invoke
      */
     public function testScalar()
