@@ -1,5 +1,7 @@
 <?php
 
+namespace plan;
+
 class Schema
 {
     public function __construct($schema)
@@ -23,14 +25,14 @@ class Schema
     public static function compile($schema)
     {
         if (is_scalar($schema)) {
-            $validator = literal($schema);
+            $validator = assert\literal($schema);
         }
 
         elseif (is_array($schema)) {
-            if (empty($schema) || is_sequence($schema)) {
-                $validator = seq($schema);
+            if (empty($schema) || util\is_sequence($schema)) {
+                $validator = assert\seq($schema);
             } else {
-                $validator = dict($schema);
+                $validator = assert\dict($schema);
             }
         }
 
@@ -97,6 +99,12 @@ class InvalidList extends \Exception implements \IteratorAggregate
         return new \ArrayIterator($this->errors);
     }
 }
+
+namespace plan\assert;
+
+use plan\Schema;
+use plan\Invalid;
+use plan\InvalidList;
 
 function type($type)
 {
@@ -431,6 +439,8 @@ function ip()
 {
     return validate('validate_ip');
 }
+
+namespace plan\util;
 
 /**
  * Little hack to check if all indexes from an array are numerical and in
