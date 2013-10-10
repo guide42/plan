@@ -1,6 +1,6 @@
 <?php
 
-function plan($schema)
+function schema($schema)
 {
     if (is_scalar($schema)) {
         $validator = scalar($schema);
@@ -114,7 +114,7 @@ function seq($schema)
     $compiled = array();
 
     for ($s = 0, $sl = count($schema); $s < $sl; $s++) {
-        $compiled[] = plan($schema[$s]);
+        $compiled[] = schema($schema[$s]);
     }
 
     return function($data, $root=null) use($compiled, $sl)
@@ -169,7 +169,7 @@ function dict($schema, $required=false, $extra=false)
     $compiled = array();
 
     foreach ($schema as $key => $value) {
-        $compiled[$key] = plan($value);
+        $compiled[$key] = schema($value);
     }
 
     return function($data, $root=null) use($compiled, $required, $extra)
@@ -245,7 +245,7 @@ function any()
     $schemas = array();
 
     for ($i = 0; $i < $count; $i++) {
-        $schemas[] = plan($validators[$i]);
+        $schemas[] = schema($validators[$i]);
     }
 
     return function($data, $path=null) use($schemas, $count)
@@ -270,7 +270,7 @@ function all()
     $schemas = array();
 
     for ($i = 0; $i < $count; $i++) {
-        $schemas[] = plan($validators[$i]);
+        $schemas[] = schema($validators[$i]);
     }
 
     return function($data, $path=null) use($schemas, $count)
@@ -287,7 +287,7 @@ function all()
 
 function not($validator)
 {
-    $compiled = plan($validator);
+    $compiled = schema($validator);
 
     return function($data, $path=null) use($compiled)
     {
