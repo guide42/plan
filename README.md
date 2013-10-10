@@ -114,6 +114,92 @@ See [Literals](#literals).
 
 See [Sequences](#sequences).
 
+This is normally accepted as "a list of something (or something else)".
+
+*   A list of email? `new plan([assert\email()])`.
+*   A list of people, but some of them are in text and some as a dictionary?
+
+        $schema = new plan([assert\str(), array(
+            'name'  => assert\str(),
+            'email' => assert\email(),
+        )]);
+        $schema([
+            array('name' => 'Kevin', 'email' => 'k@viewaskew.com'),
+            array('name' => 'Jane', 'email' => 'jane@example.org'),
+            'John Doe <john@example.org>',
+        ]);
+
+### `dict`
+
+See [Dictionaries](#dictionaries).
+
+Because, by default keys are not required and extra keys throw exceptions,
+the _validator_ `dict` accept two more parameters to change this behavior.
+
+    $required = true;  // Will require ALL keys
+    $extra    = false; // Accept extra keys
+    
+    $person = array('name' => 'John', 'age' => 42);
+    $schema = new plan(assert\dict($person, $required, $extra);
+    $schema(array(
+        'name' => 'John',
+        'age'  => 42,
+        'sex'  => 'male', // This could be whatever
+                          // as it would not be validated
+    ));
+
+### `any`
+
+Accept any of the given list of _validators_, as a valid value. This is useful
+when you only need one choice a of set of values. If you need any quantity
+of choices use a [sequence](#sequence) instead.
+
+    $schema = new plan(array(
+        'Connection' => assert\any('ethernet', 'wireless'),
+    ));
+    $schema(array('Connection' => 'ethernet'));
+    $schema(array('Connection' => 'wireless'));
+
+### `all`
+
+Require all _validators_ to be valid.
+
+    $schema = new plan(assert\all(assert\str(), assert\length(3, 17)));
+    $schema('Hello World');
+
+### `not`
+
+Negative the given _validator_.
+
+    $schema = new plan(assert\not(assert\str()));
+    $schema(true);
+    $schema(123);
+    
+    try {
+        $schema('fail');
+    } catch (InvalidList $e) {
+        // Multiple invalid: ["Validator passed"]
+    }
+
+### `length`
+
+The given data length is between some minimum and maximum value. This works
+with strings using `strlen` or `count` for everything else.
+
+    $schema = new plan(assert\length(2, 4));
+    $schema('abc');
+    $schema(array('a', 'b', 'c'));
+
+### `validate`
+
+A wrapper for validate filters using `filter_var`. It accepts the name of the
+filter as listed [here](http://php.net/manual/en/filter.filters.validate.php).
+
+    $schema = new plan(assert\validate('validate_email'));
+    $schema('john@example.org');
+
+Aliases are: `url`, `email`, `ip`.
+
 Acknowledgments
 ---------------
 
