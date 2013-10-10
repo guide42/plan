@@ -56,6 +56,22 @@ class Invalid extends \Exception
     }
 }
 
+class InvalidList extends \Exception
+{
+    public function __construct(array $errors, $previous=null)
+    {
+        $this->errors = $errors;
+
+        $messages = array();
+        foreach ($errors as $error) {
+            $messages[] = $error->getMessage();
+        }
+        $message = 'Multiple invalid: ' . json_encode($messages);
+
+        parent::__construct($message, null, $previous);
+    }
+}
+
 function type($type)
 {
     return function($data, $path=null) use($type)
@@ -178,6 +194,7 @@ function dict($schema, $required=false, $extra=false)
         $data = $type($data, $root);
 
         $return = array();
+        $exceptions = array();
         $root = null === $root ? array() : $root;
 
         if ($required === true) {
@@ -197,21 +214,25 @@ function dict($schema, $required=false, $extra=false)
                     $return[$dkey] = $compiled[$dkey]($dvalue, $path);
                 } catch (Invalid $e) {
                     if (count($e->getPath()) > count($path)) {
-                        throw $e; // Always throw deepest exception
-                    } else {
-                        $msg = 'Invalid value at key {key} (value is {value})';
-                        throw new Invalid($msg, array(
-                            '{key}'   => $dkey,
-                            '{value}' => json_encode($dvalue),
-                        ), $path, null, $e);
+                        // Always greb deepest exception
+                        // It will contain the path through here
+                        $exceptions[] = $e;
+                        continue;
                     }
+
+                    $msg = 'Invalid value at key {key} (value is {value})';
+                    $vars = array(
+                        '{key}'   => $dkey,
+                        '{value}' => json_encode($dvalue)
+                    );
+
+                    $exceptions[] = new Invalid($msg, $vars, $path, null, $e);
                 }
             } elseif ($extra) {
                 $return[$dkey] = $dvalue;
             } else {
-                throw new Invalid('Extra key {key} not allowed', array(
-                    '{key}' => $dkey,
-                ), $path);
+                $exceptions[] = new Invalid('Extra key {key} not allowed',
+                    array('{key}' => $dkey), $path);
             }
 
             if ($required !== false) {
@@ -228,10 +249,16 @@ function dict($schema, $required=false, $extra=false)
                 $path = $root;
                 $path[] = $rvalue;
 
-                throw new Invalid('Required key {key} not provided', array(
-                    '{key}' => $rvalue,
-                ), $path);
+                $exceptions[] = new Invalid('Required key {key} not provided',
+                    array('{key}' => $rvalue), $path);
             }
+        }
+
+        if (!empty($exceptions)) {
+            if (count($exceptions) === 1) {
+                throw $exceptions[0];
+            }
+            throw new InvalidList($exceptions);
         }
 
         return $return;

@@ -360,4 +360,17 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator = plan(email());
         $validator(123);
     }
+
+    /**
+     * @expectedException        InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Invalid value at key age (value is \"18 years old\")","Extra key sex not allowed","Required key name not provided"]
+     */
+    public function testMultipleInvalid()
+    {
+        $validator = dict(array('name' => str(), 'age'  => int()), true);
+        $validator(array(
+            'age' => '18 years old',
+            'sex' => 'female',
+        ));
+    }
 }
