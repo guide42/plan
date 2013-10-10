@@ -133,6 +133,19 @@ function str()
     return type('string');
 }
 
+function scalar()
+{
+    return function($data, $path=null)
+    {
+        if (!is_scalar($data)) {
+            throw new Invalid('{data} is not scalar',
+                array('{data}' => json_encode($data)), $path);
+        }
+
+        return $data;
+    };
+}
+
 function literal($literal)
 {
     return function($data, $path=null) use($literal)

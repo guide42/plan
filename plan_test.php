@@ -43,6 +43,38 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers       ::scalar
+     * @dataProvider testScalarProvider
+     */
+    public function testScalar($test1, $test2)
+    {
+        $validator = new plan(scalar());
+
+        $this->assertEquals($test1, $validator($test1));
+        $this->assertEquals($test2, $validator($test2));
+    }
+
+    public function testScalarProvider()
+    {
+        return array(
+            array(true, false),
+            array(0, PHP_INT_MAX),
+            array(0.0, 7.9999999999999991118),
+            array('hello', 'world'),
+        );
+    }
+
+    /**
+     * @expectedException        InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["[] is not scalar"]
+     */
+    public function testScalarInvalid()
+    {
+        $validator = new plan(scalar());
+        $validator(array());
+    }
+
+    /**
      * @covers ::literal
      */
     public function testLiteral()
