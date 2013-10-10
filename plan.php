@@ -246,8 +246,6 @@ function dict($schema, $required=false, $extra=false)
 
         if ($required === true) {
             $required = array_keys($compiled);
-        } elseif (is_array($required)) {
-            // TODO Validate array
         } else {
             $required = false;
         }
@@ -261,7 +259,7 @@ function dict($schema, $required=false, $extra=false)
                     $return[$dkey] = $compiled[$dkey]($dvalue, $path);
                 } catch (Invalid $e) {
                     if (count($e->getPath()) > count($path)) {
-                        // Always greb deepest exception
+                        // Always grab deepest exception
                         // It will contain the path through here
                         $exceptions[] = $e;
                         continue;

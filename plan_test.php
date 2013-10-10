@@ -200,18 +200,6 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        \plan\Invalid
-     * @expectedExceptionMessage Required key two not provided
-     */
-    public function testDictionaryRequiredArray()
-    {
-        $dict = array('one' => '1', 'two' => '2');
-
-        $validator = assert\dict($dict, array('two'));
-        $validator(array());
-    }
-
-    /**
      * @covers ::dict
      */
     public function testDictionaryExtra()
