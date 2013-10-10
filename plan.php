@@ -440,6 +440,11 @@ function ip()
     return validate('validate_ip');
 }
 
+function regexp()
+{
+    return validate('validate_regexp');
+}
+
 namespace plan\util;
 
 /**

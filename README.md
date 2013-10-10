@@ -198,7 +198,7 @@ filter as listed [here](http://php.net/manual/en/filter.filters.validate.php).
     $schema = new plan(assert\validate('validate_email'));
     $schema('john@example.org');
 
-Aliases are: `url`, `email`, `ip`.
+Aliases are: `url`, `email`, `ip`, `regexp`.
 
 Acknowledgments
 ---------------
