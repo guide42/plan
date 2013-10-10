@@ -230,12 +230,21 @@ function seq($schema)
 function dict($schema, $required=false, $extra=false)
 {
     $compiled = array();
+    $reqkeys = array();
 
     foreach ($schema as $key => $value) {
         $compiled[$key] = Schema::compile($value);
     }
 
-    return function($data, $root=null) use($compiled, $required, $extra)
+    if ($required === true) {
+        $reqkeys = array_keys($compiled);
+    } elseif (is_array($required)) {
+        $reqkeys = array_values($required);
+    } else {
+        $reqkeys = array();
+    }
+
+    return function($data, $root=null) use($compiled, $reqkeys, $extra)
     {
         $type = type('array');
         $data = $type($data, $root);
@@ -243,12 +252,6 @@ function dict($schema, $required=false, $extra=false)
         $return = array();
         $exceptions = array();
         $root = null === $root ? array() : $root;
-
-        if ($required === true) {
-            $required = array_keys($compiled);
-        } else {
-            $required = false;
-        }
 
         foreach ($data as $dkey => $dvalue) {
             $path = $root;
@@ -280,23 +283,19 @@ function dict($schema, $required=false, $extra=false)
                     array('{key}' => $dkey), $path);
             }
 
-            if ($required !== false) {
-                $rkey = array_search($dkey, $required, true);
+            $rkey = array_search($dkey, $reqkeys, true);
 
-                if ($rkey !== false) {
-                    unset($required[$rkey]);
-                }
+            if ($rkey !== false) {
+                unset($reqkeys[$rkey]);
             }
         }
 
-        if ($required !== false) {
-            foreach ($required as $rvalue) {
-                $path = $root;
-                $path[] = $rvalue;
+        foreach ($reqkeys as $rvalue) {
+            $path = $root;
+            $path[] = $rvalue;
 
-                $exceptions[] = new Invalid('Required key {key} not provided',
-                    array('{key}' => $rvalue), $path);
-            }
+            $exceptions[] = new Invalid('Required key {key} not provided',
+                array('{key}' => $rvalue), $path);
         }
 
         if (!empty($exceptions)) {
