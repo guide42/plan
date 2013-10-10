@@ -27,7 +27,7 @@ function schema($schema)
     return $validator;
 }
 
-class Invalid extends Exception
+class Invalid extends \Exception
 {
     /**
      * Path from the root to the exception.
