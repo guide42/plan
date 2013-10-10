@@ -10,7 +10,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testType($instance, $test1, $test2)
     {
-        $validator = schema($instance);
+        $validator = plan($instance);
 
         $this->assertEquals($test1, $validator($test1));
         $this->assertEquals($test2, $validator($test2));
@@ -36,7 +36,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testTypeInvalid()
     {
-        $validator = schema(int());
+        $validator = plan(int());
         $validator('123');
     }
 
@@ -45,8 +45,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testScalar()
     {
-        $str = schema('hello');
-        $int = schema(1234567);
+        $str = plan('hello');
+        $int = plan(1234567);
 
         $this->assertEquals('hello', $str('hello'));
         $this->assertEquals(1234567, $int(1234567));
@@ -58,7 +58,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testScalarInvalid()
     {
-        $validator = schema('hello');
+        $validator = plan('hello');
         $validator('world');
     }
 
@@ -68,7 +68,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testSequence($schema, $input)
     {
-        $validator = schema($schema);
+        $validator = plan($schema);
         $validated = $validator($input);
 
         $this->assertEquals($input, $validated);
@@ -94,13 +94,13 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testSequenceInvalid()
     {
-        $validator = schema(array('foo', 'bar'));
+        $validator = plan(array('foo', 'bar'));
         $validator(array('foobar'));
     }
 
     public function testSequenceDeepException()
     {
-        $validator = schema(array(
+        $validator = plan(array(
             any(email(), str()),
             array('name' => str(), 'email' => email()),
         ));
@@ -127,7 +127,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testDictionary($schema, $input)
     {
-        $validator = schema($schema);
+        $validator = plan($schema);
         $validated = $validator($input);
 
         $this->assertEquals($input, $validated);
@@ -201,7 +201,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     public function testDictionaryDeepException()
     {
-        $validator = schema(array(
+        $validator = plan(array(
             'email' => email(),
             'extra' => array(
                 'emails' => array(email()),
@@ -230,7 +230,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testAny()
     {
-        $validator = schema(any('true', 'false', boolean()));
+        $validator = plan(any('true', 'false', boolean()));
 
         $this->assertEquals('true', $validator('true'));
         $this->assertEquals('false', $validator('false'));
@@ -244,7 +244,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testAnyInvalid()
     {
-        $validator = schema(any('true', 'false', boolean()));
+        $validator = plan(any('true', 'false', boolean()));
         $validator(array('true'));
     }
 
@@ -253,7 +253,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testAll()
     {
-        $validator = schema(all(str(), 'string'));
+        $validator = plan(all(str(), 'string'));
         $validated = $validator('string');
 
         $this->assertEquals('string', $validated);
@@ -265,7 +265,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testNot($schema, $input)
     {
-        $validator = schema(not($schema));
+        $validator = plan(not($schema));
         $validated = $validator($input);
 
         $this->assertEquals($input, $validated);
@@ -291,7 +291,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testNotInvalid($schema, $input)
     {
-        $validator = schema(not($schema));
+        $validator = plan(not($schema));
         $validator($input);
     }
 
@@ -313,7 +313,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testLength($input)
     {
-        $validator = schema(length(2, 4));
+        $validator = plan(length(2, 4));
         $validated = $validator($input);
 
         $this->assertEquals($input, $validated);
@@ -333,7 +333,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testValidate($filter, $test)
     {
-        $validator = schema(validate($filter));
+        $validator = plan(validate($filter));
         $validated = $validator($test);
 
         $this->assertEquals($test, $validated);
@@ -357,7 +357,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testValidateInvalid()
     {
-        $validator = schema(email());
+        $validator = plan(email());
         $validator(123);
     }
 }
