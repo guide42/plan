@@ -2,7 +2,7 @@
 
 include 'plan.php';
 
-class schemaTest extends \PHPUnit_Framework_TestCase
+class PlanTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers       ::type
