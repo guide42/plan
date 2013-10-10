@@ -87,6 +87,33 @@ Validators
 
 All core _validators_ live in `\plan\assert` _namespace_.
 
+### `type`
+
+Will validate the type of data. The data type will be not casted.
+
+    $schema = new plan(assert\type('int'));
+    $schema(123);
+    
+    try {
+        $schema('123');
+    } catch (InvalidList $e) {
+        // Multiple invalid: ["123 not boolean"]
+    }
+
+Aliases of this _validator_ are: `boolean`, `int`, `float`, `str`.
+
+### `scalar`
+
+Wrapper around `is_scalar` function.
+
+### `literal`
+
+See [Literals](#literals).
+
+### `seq`
+
+See [Sequences](#sequences).
+
 Acknowledgments
 ---------------
 
