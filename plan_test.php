@@ -43,9 +43,9 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::scalar
+     * @covers ::literal
      */
-    public function testScalar()
+    public function testLiteral()
     {
         $str = new plan('hello');
         $int = new plan(1234567);
@@ -58,7 +58,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      * @expectedException        InvalidList
      * @expectedExceptionMessage Multiple invalid: ["\"world\" is not \"hello\""]
      */
-    public function testScalarInvalid()
+    public function testLiteralInvalid()
     {
         $validator = new plan('hello');
         $validator('world');

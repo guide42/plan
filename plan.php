@@ -23,7 +23,7 @@ class Schema
     public static function compile($schema)
     {
         if (is_scalar($schema)) {
-            $validator = scalar($schema);
+            $validator = literal($schema);
         }
 
         elseif (is_array($schema)) {
@@ -133,17 +133,17 @@ function str()
     return type('string');
 }
 
-function scalar($scalar)
+function literal($literal)
 {
-    return function($data, $path=null) use($scalar)
+    return function($data, $path=null) use($literal)
     {
-        $type = type(gettype($data));
+        $type = type(gettype($literal));
         $data = $type($data, $path);
 
-        if ($data !== $scalar) {
-            throw new Invalid('{data} is not {scalar}', array(
-                '{data}'   => json_encode($data),
-                '{scalar}' => json_encode($scalar),
+        if ($data !== $literal) {
+            throw new Invalid('{data} is not {literal}', array(
+                '{data}'    => json_encode($data),
+                '{literal}' => json_encode($literal),
             ), $path);
         }
 
