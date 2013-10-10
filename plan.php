@@ -1,30 +1,51 @@
 <?php
 
-function plan($schema)
+class Schema
 {
-    if (is_scalar($schema)) {
-        $validator = scalar($schema);
+    public function __construct($schema)
+    {
+        $this->compiled = self::compile($schema);
     }
 
-    elseif (is_array($schema)) {
-        if (empty($schema) || is_sequence($schema)) {
-            $validator = seq($schema);
-        } else {
-            $validator = dict($schema);
+    public function __invoke($data)
+    {
+        $validator = $this->compiled;
+
+        try {
+            return $validator($data);
+        } catch (InvalidList $e) {
+            throw $e;
+        } catch (Invalid $e) {
+            throw new InvalidList(array($e));
         }
     }
 
-    elseif (is_callable($schema)) {
-        $validator = $schema;
-    }
+    public static function compile($schema)
+    {
+        if (is_scalar($schema)) {
+            $validator = scalar($schema);
+        }
 
-    else {
-        throw new \LogicException(
-            sprintf('Unsupported type %s', gettype($schema))
-        );
-    }
+        elseif (is_array($schema)) {
+            if (empty($schema) || is_sequence($schema)) {
+                $validator = seq($schema);
+            } else {
+                $validator = dict($schema);
+            }
+        }
 
-    return $validator;
+        elseif (is_callable($schema)) {
+            $validator = $schema;
+        }
+
+        else {
+            throw new \LogicException(
+                sprintf('Unsupported type %s', gettype($schema))
+            );
+        }
+
+        return $validator;
+    }
 }
 
 class Invalid extends \Exception
@@ -135,7 +156,7 @@ function seq($schema)
     $compiled = array();
 
     for ($s = 0, $sl = count($schema); $s < $sl; $s++) {
-        $compiled[] = plan($schema[$s]);
+        $compiled[] = Schema::compile($schema[$s]);
     }
 
     return function($data, $root=null) use($compiled, $sl)
@@ -190,7 +211,7 @@ function dict($schema, $required=false, $extra=false)
     $compiled = array();
 
     foreach ($schema as $key => $value) {
-        $compiled[$key] = plan($value);
+        $compiled[$key] = Schema::compile($value);
     }
 
     return function($data, $root=null) use($compiled, $required, $extra)
@@ -277,7 +298,7 @@ function any()
     $schemas = array();
 
     for ($i = 0; $i < $count; $i++) {
-        $schemas[] = plan($validators[$i]);
+        $schemas[] = Schema::compile($validators[$i]);
     }
 
     return function($data, $path=null) use($schemas, $count)
@@ -302,7 +323,7 @@ function all()
     $schemas = array();
 
     for ($i = 0; $i < $count; $i++) {
-        $schemas[] = plan($validators[$i]);
+        $schemas[] = Schema::compile($validators[$i]);
     }
 
     return function($data, $path=null) use($schemas, $count)
@@ -319,7 +340,7 @@ function all()
 
 function not($validator)
 {
-    $compiled = plan($validator);
+    $compiled = Schema::compile($validator);
 
     return function($data, $path=null) use($compiled)
     {

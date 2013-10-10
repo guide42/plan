@@ -2,6 +2,8 @@
 
 include 'plan.php';
 
+use Schema as plan;
+
 class PlanTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -10,7 +12,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testType($instance, $test1, $test2)
     {
-        $validator = plan($instance);
+        $validator = new plan($instance);
 
         $this->assertEquals($test1, $validator($test1));
         $this->assertEquals($test2, $validator($test2));
@@ -31,12 +33,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        Invalid
-     * @expectedExceptionMessage "123" is not integer
+     * @expectedException        InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["\"123\" is not integer"]
      */
     public function testTypeInvalid()
     {
-        $validator = plan(int());
+        $validator = new plan(int());
         $validator('123');
     }
 
@@ -45,20 +47,20 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testScalar()
     {
-        $str = plan('hello');
-        $int = plan(1234567);
+        $str = new plan('hello');
+        $int = new plan(1234567);
 
         $this->assertEquals('hello', $str('hello'));
         $this->assertEquals(1234567, $int(1234567));
     }
 
     /**
-     * @expectedException        Invalid
-     * @expectedExceptionMessage "world" is not "hello"
+     * @expectedException        InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["\"world\" is not \"hello\""]
      */
     public function testScalarInvalid()
     {
-        $validator = plan('hello');
+        $validator = new plan('hello');
         $validator('world');
     }
 
@@ -68,7 +70,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testSequence($schema, $input)
     {
-        $validator = plan($schema);
+        $validator = new plan($schema);
         $validated = $validator($input);
 
         $this->assertEquals($input, $validated);
@@ -89,18 +91,18 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers                   ::seq
-     * @expectedException        Invalid
-     * @expectedExceptionMessage Invalid value at index 0 (value is "foobar")
+     * @expectedException        InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Invalid value at index 0 (value is \"foobar\")"]
      */
     public function testSequenceInvalid()
     {
-        $validator = plan(array('foo', 'bar'));
+        $validator = new plan(array('foo', 'bar'));
         $validator(array('foobar'));
     }
 
     public function testSequenceDeepException()
     {
-        $validator = plan(array(
+        $validator = seq(array(
             any(email(), str()),
             array('name' => str(), 'email' => email()),
         ));
@@ -127,7 +129,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testDictionary($schema, $input)
     {
-        $validator = plan($schema);
+        $validator = new plan($schema);
         $validated = $validator($input);
 
         $this->assertEquals($input, $validated);
@@ -201,7 +203,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     public function testDictionaryDeepException()
     {
-        $validator = plan(array(
+        $validator = dict(array(
             'email' => email(),
             'extra' => array(
                 'emails' => array(email()),
@@ -230,7 +232,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testAny()
     {
-        $validator = plan(any('true', 'false', boolean()));
+        $validator = new plan(any('true', 'false', boolean()));
 
         $this->assertEquals('true', $validator('true'));
         $this->assertEquals('false', $validator('false'));
@@ -239,12 +241,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        Invalid
-     * @expectedExceptionMessage No valid value found
+     * @expectedException        InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["No valid value found"]
      */
     public function testAnyInvalid()
     {
-        $validator = plan(any('true', 'false', boolean()));
+        $validator = new plan(any('true', 'false', boolean()));
         $validator(array('true'));
     }
 
@@ -253,7 +255,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testAll()
     {
-        $validator = plan(all(str(), 'string'));
+        $validator = new plan(all(str(), 'string'));
         $validated = $validator('string');
 
         $this->assertEquals('string', $validated);
@@ -265,7 +267,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testNot($schema, $input)
     {
-        $validator = plan(not($schema));
+        $validator = new plan(not($schema));
         $validated = $validator($input);
 
         $this->assertEquals($input, $validated);
@@ -286,12 +288,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers                   ::not
      * @dataProvider             testNotInvalidProvider
-     * @expectedException        Invalid
-     * @expectedExceptionMessage Validator passed
+     * @expectedException        InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Validator passed"]
      */
     public function testNotInvalid($schema, $input)
     {
-        $validator = plan(not($schema));
+        $validator = new plan(not($schema));
         $validator($input);
     }
 
@@ -313,7 +315,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testLength($input)
     {
-        $validator = plan(length(2, 4));
+        $validator = new plan(length(2, 4));
         $validated = $validator($input);
 
         $this->assertEquals($input, $validated);
@@ -333,7 +335,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testValidate($filter, $test)
     {
-        $validator = plan(validate($filter));
+        $validator = new plan(validate($filter));
         $validated = $validator($test);
 
         $this->assertEquals($test, $validated);
@@ -352,12 +354,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException        Invalid
-     * @expectedExceptionMessage Validation validate_email for 123 failed
+     * @expectedException        InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Validation validate_email for 123 failed"]
      */
     public function testValidateInvalid()
     {
-        $validator = plan(email());
+        $validator = new plan(email());
         $validator(123);
     }
 
