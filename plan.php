@@ -56,7 +56,7 @@ class Invalid extends \Exception
     }
 }
 
-class InvalidList extends \Exception
+class InvalidList extends \Exception implements \IteratorAggregate
 {
     public function __construct(array $errors, $previous=null)
     {
@@ -69,6 +69,11 @@ class InvalidList extends \Exception
         $message = 'Multiple invalid: ' . json_encode($messages);
 
         parent::__construct($message, null, $previous);
+    }
+
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->errors);
     }
 }
 
