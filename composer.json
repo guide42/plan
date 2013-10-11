@@ -1,0 +1,21 @@
+{
+    "name": "guide42/plan",
+    "type": "library",
+    "description": "Fast and Simple Validation",
+    "keywords": ["validation"],
+    "license": "ISC",
+    "authors": [
+        {
+            "name": "Juan M Martínez",
+            "email": "jm--at--guide42.com",
+            "homepage": "http://jm.guide42.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.8"
+    },
+    "autoload": {
+        "classmap": ["plan.php"]
+    }
+}
