@@ -458,6 +458,21 @@ function regexp()
     return validate('validate_regexp');
 }
 
+function booleanval()
+{
+    return validate('boolean');
+}
+
+function intval()
+{
+    return validate('int');
+}
+
+function floatval()
+{
+    return validate('float');
+}
+
 namespace plan\util;
 
 /**

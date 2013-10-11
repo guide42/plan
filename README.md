@@ -213,6 +213,11 @@ filter as listed [here](http://php.net/manual/en/filter.filters.validate.php).
 
 Aliases are: `url`, `email`, `ip`, `regexp`.
 
+And the "like-type": `booleanval`, `intval`, `floatval`. Note that this will
+check that a string resemble to a boolean/int/float; for checking if the input
+data **IS** a boolean/int/float use the `type` _validator_. None of this will
+modify the input data.
+
 Filters
 -------
 
