@@ -98,6 +98,29 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::instance
+     */
+    public function testInstance()
+    {
+        $object = new \stdClass();
+
+        $validator = new plan(assert\instance('\stdClass'));
+        $validated = $validator($object);
+
+        $this->assertEquals($object, $validated);
+    }
+
+    /**
+     * @expectedException        \plan\InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Expected \\stdClass (is ArrayObject)"]
+     */
+    public function testInstanceInvalid()
+    {
+        $validator = new plan(assert\instance('\stdClass'));
+        $validator(new \ArrayObject());
+    }
+
+    /**
      * @covers       ::seq
      * @dataProvider testSequenceProvider
      */

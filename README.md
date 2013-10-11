@@ -106,6 +106,10 @@ Aliases of this _validator_ are: `boolean`, `int`, `float`, `str`.
 
 Wrapper around `is_scalar` function.
 
+### `instance`
+
+Wrapper around `instanceof` type operator.
+
 ### `literal`
 
 See [Literals](#literals).

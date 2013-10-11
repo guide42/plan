@@ -154,6 +154,22 @@ function scalar()
     };
 }
 
+function instance($class)
+{
+    return function($data, $path=null) use($class)
+    {
+        if (!($data instanceof $class)) {
+            throw new Invalid('Expected {class} (is {data_class})', array(
+                '{class}'      => $class,
+                '{data_class}' => is_object($data) ? get_class($data)
+                                                   : 'not an object',
+            ));
+        }
+
+        return $data;
+    };
+}
+
 function literal($literal)
 {
     return function($data, $path=null) use($literal)
