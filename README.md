@@ -149,8 +149,8 @@ See [Dictionaries](#dictionaries).
 Because, by default keys are not required and extra keys throw exceptions,
 the _validator_ `dict` accept two more parameters to change this behavior.
 
-    $required = true;  // Will require ALL keys
-    $extra    = false; // Accept extra keys
+    $required = true; // Will require ALL keys
+    $extra    = true; // Accept extra keys
     
     $dict = array('name' => 'John', 'age' => 42);
     $plan = new plan(assert\dict($dict, $required, $extra);
