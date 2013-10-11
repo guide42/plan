@@ -25,6 +25,8 @@ through the `\plan\Schema` class. This object, when called like a function,
 will validate the data and return the modified (or not) data. If any error
 occurs and exception will be thrown.
 
+    <?php
+    
     use plan\Schema as plan; // Alias it to make it nicer.
     use plan\InvalidList;    // A list of `Invalid` exceptions will be
                              // always forced by `Schema`.
