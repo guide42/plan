@@ -4,6 +4,8 @@ include 'plan.php';
 
 use plan\Schema as plan;
 use plan\assert;
+use plan\Invalid;
+use plan\InvalidList;
 
 class PlanTest extends \PHPUnit_Framework_TestCase
 {
@@ -432,5 +434,60 @@ class PlanTest extends \PHPUnit_Framework_TestCase
             'age' => '18 years old',
             'sex' => 'female',
         ));
+    }
+
+    public function testCustomValidator()
+    {
+        $passwordStrength = function($data, $path=null)
+        {
+            $type = assert\str();
+            $data = $type($data);
+
+            $errors = array();
+
+            if (strlen($data) < 8) {
+                $errors[] = new Invalid(
+                    'Password must be at least 8 characters'
+                );
+            }
+
+            if (!preg_match('/[A-Z]/', $data)) {
+                $errors[] = new Invalid(
+                    'Password must contain at least one uppercase letter'
+                );
+            }
+
+            if (!preg_match('/[a-z]/', $data)) {
+                $errors[] = new Invalid(
+                    'Password must contain at least one lowercase letter'
+                );
+            }
+
+            if (!preg_match('/\d/', $data)) {
+                $errors[] = new Invalid(
+                    'Password must contain at least one digit'
+                );
+            }
+
+            if (count($errors) > 0) {
+                throw new InvalidList($errors);
+            }
+
+            return $data;
+        };
+
+        $validator = new plan($passwordStrength);
+        $validated = $validator('heLloW0rld');
+
+        try {
+            $validator('badpwd');
+        } catch (InvalidList $e) {
+            $this->assertEquals(
+                'Multiple invalid: ["Password must be at least 8 characters",' .
+                                   '"Password must contain at least one uppercase letter",' .
+                                   '"Password must contain at least one digit"]'
+                , $e->getMessage()
+            );
+        }
     }
 }
