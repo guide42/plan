@@ -2,7 +2,7 @@
     "name": "guide42/plan",
     "type": "library",
     "description": "Fast and Simple Validation",
-    "keywords": ["validation"],
+    "keywords": ["validator", "validation"],
     "license": "ISC",
     "authors": [
         {
