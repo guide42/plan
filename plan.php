@@ -158,7 +158,7 @@ function instance($class)
 {
     return function($data, $path=null) use($class)
     {
-        if (!($data instanceof $class)) {
+        if (!$data instanceof $class) {
             throw new Invalid('Expected {class} (is {data_class})', array(
                 '{class}'      => $class,
                 '{data_class}' => is_object($data) ? get_class($data)
@@ -262,7 +262,7 @@ function dict($schema, $required=false, $extra=false)
 
     return function($data, $root=null) use($compiled, $reqkeys, $extra)
     {
-        $type = type('array');
+        $type = any(type('array'), instance('\Traversable'));
         $data = $type($data, $root);
 
         $return = array();
