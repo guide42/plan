@@ -121,6 +121,15 @@ use plan\Schema;
 use plan\Invalid;
 use plan\InvalidList;
 
+/**
+ * Check that the input data is of the given $type. The data type will not be
+ * casted.
+ *
+ * @param string $type something that `gettype` could return
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function type($type)
 {
     return function($data, $path=null) use($type)
@@ -136,26 +145,44 @@ function type($type)
     };
 }
 
+/**
+ * Alias of `type('boolean')`;
+ */
 function boolean()
 {
     return type('boolean');
 }
 
+/**
+ * Alias of `type('integer')`;
+ */
 function int()
 {
     return type('integer');
 }
 
+/**
+ * Alias of `type('double')`;
+ */
 function float()
 {
     return type('double');
 }
 
+/**
+ * Alias of `type('string')`;
+ */
 function str()
 {
     return type('string');
 }
 
+/**
+ * Wrapper for `is_scalar`.
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function scalar()
 {
     return function($data, $path=null)
@@ -169,6 +196,14 @@ function scalar()
     };
 }
 
+/**
+ * Wrapper for `instanceof` type operator.
+ *
+ * @param string|Class $class
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function instance($class)
 {
     return function($data, $path=null) use($class)
