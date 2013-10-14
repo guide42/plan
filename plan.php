@@ -19,6 +19,17 @@ namespace plan;
 
 class Schema
 {
+    /**
+     * This is the root validator. It's what we get from compiled schemas. If
+     * it has children, will be the validator in charge of call them.
+     *
+     * @var callable
+     */
+    protected $compiled;
+
+    /**
+     * @param mixed $schema the plan schema
+     */
     public function __construct($schema)
     {
         $this->compiled = self::compile($schema);
@@ -37,6 +48,17 @@ class Schema
         }
     }
 
+    /**
+     * Compile the schema depending on it's type. Will return always a callable
+     * or throw a \LogicException otherwise. If $schema is already a callable
+     * will return it without modification. If not will wrap it around the
+     * proper validation function.
+     *
+     * @param mixed $schema the plan schema
+     *
+     * @throws \LogicException
+     * @return callable
+     */
     public static function compile($schema)
     {
         if (is_scalar($schema)) {
@@ -74,6 +96,13 @@ class Invalid extends \Exception
      */
     protected $path;
 
+    /**
+     * @param string $message  template for final message
+     * @param array  $params   parameters for message template
+     * @param array  $path     list of indexes/keys inside the tree
+     * @param string $code     error identity code
+     * @param string $previous previous exception
+     */
     public function __construct($message, array $params=array(),
                                 array $path=null, $code=null, $previous=null)
     {
@@ -96,6 +125,10 @@ class Invalid extends \Exception
 
 class InvalidList extends \Exception implements \IteratorAggregate
 {
+    /**
+     * @param array  $errors   are a list of `\plan\Invalid` exceptions
+     * @param string $previous previous exception
+     */
     public function __construct(array $errors, $previous=null)
     {
         $this->errors = $errors;
@@ -109,6 +142,10 @@ class InvalidList extends \Exception implements \IteratorAggregate
         parent::__construct($message, null, $previous);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \IteratorAggregate::getIterator()
+     */
     public function getIterator()
     {
         return new \ArrayIterator($this->errors);
@@ -199,7 +236,7 @@ function scalar()
 /**
  * Wrapper for `instanceof` type operator.
  *
- * @param string|Class $class
+ * @param string|object $class right operator of `instanceof`
  *
  * @throws \plan\Invalid
  * @return \Closure
@@ -220,6 +257,14 @@ function instance($class)
     };
 }
 
+/**
+ * Compare $data with $literal using the identity operator.
+ *
+ * @param mixed $literal something to compare to
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function literal($literal)
 {
     return function($data, $path=null) use($literal)
@@ -238,12 +283,21 @@ function literal($literal)
     };
 }
 
-function seq($schema)
+/**
+ * The given schema has to be a list of possible valid values to validate from.
+ * If empty, will accept any value.
+ *
+ * @param array $values list of values
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
+function seq(array $values)
 {
     $compiled = array();
 
-    for ($s = 0, $sl = count($schema); $s < $sl; $s++) {
-        $compiled[] = Schema::compile($schema[$s]);
+    for ($s = 0, $sl = count($values); $s < $sl; $s++) {
+        $compiled[] = Schema::compile($values[$s]);
     }
 
     return function($data, $root=null) use($compiled, $sl)
@@ -293,12 +347,23 @@ function seq($schema)
     };
 }
 
-function dict($schema, $required=false, $extra=false)
+/**
+ * Validate the structure of the data.
+ *
+ * @param array   $structure key/validator array
+ * @param boolean $required  if require all keys to be present
+ * @param boolean $extra     if accept extra keys
+ *
+ * @throws \plan\Invalid
+ * @throws \plan\InvalidList
+ * @return \Closure
+ */
+function dict(array $structure, $required=false, $extra=false)
 {
     $compiled = array();
     $reqkeys = array();
 
-    foreach ($schema as $key => $value) {
+    foreach ($structure as $key => $value) {
         $compiled[$key] = Schema::compile($value);
     }
 
@@ -375,6 +440,12 @@ function dict($schema, $required=false, $extra=false)
     };
 }
 
+/**
+ * Validate at least one of the given _validators_ of throw an exception.
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function any()
 {
     $validators = func_get_args();
@@ -391,8 +462,8 @@ function any()
             try {
                 return $schemas[$i]($data);
             } catch (Invalid $e) {
-                // Ignore
-                // XXX Explain why
+                // Ignore: We want to validate only one, if this is not, it was
+                //         not meant to be.
             }
         }
 
@@ -400,6 +471,12 @@ function any()
     };
 }
 
+/**
+ * Validate all given _validators_ or throw an exception.
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function all()
 {
     $validators = func_get_args();
@@ -422,6 +499,14 @@ function all()
     };
 }
 
+/**
+ * Check that the given _validator_ fail or throw an exception.
+ *
+ * @param mixed $validator to check
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function not($validator)
 {
     $compiled = Schema::compile($validator);

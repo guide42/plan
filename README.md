@@ -41,6 +41,9 @@ occurs and exception will be thrown.
         }
     }
 
+Schema information will be always be trusted, therefore will not be validate.
+Contrary input data will be never be trusted.
+
 ### Literals
 
 Scalars are treated as literals that are matched using the identity operator:
