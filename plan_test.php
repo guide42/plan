@@ -10,7 +10,7 @@ use plan\InvalidList;
 class PlanTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers       ::type
+     * @covers       ::plan\assert\type
      * @dataProvider testTypeProvider
      */
     public function testType($instance, $test1, $test2)
@@ -46,7 +46,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers       ::scalar
+     * @covers       ::plan\assert\scalar
      * @dataProvider testScalarProvider
      */
     public function testScalar($test1, $test2)
@@ -78,7 +78,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::literal
+     * @covers ::plan\assert\literal
      */
     public function testLiteral()
     {
@@ -100,7 +100,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::instance
+     * @covers ::plan\assert\instance
      */
     public function testInstance()
     {
@@ -123,7 +123,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers       ::seq
+     * @covers       ::plan\assert\seq
      * @dataProvider testSequenceProvider
      */
     public function testSequence($schema, $input)
@@ -148,7 +148,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers                   ::seq
+     * @covers                   ::plan\assert\seq
      * @expectedException        \plan\InvalidList
      * @expectedExceptionMessage Multiple invalid: ["Invalid value at index 0 (value is \"foobar\")"]
      */
@@ -182,7 +182,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers       ::dict
+     * @covers       ::plan\assert\dict
      * @dataProvider testDictionaryProvider
      */
     public function testDictionary($schema, $input)
@@ -237,7 +237,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::dict
+     * @covers ::plan\assert\dict
      */
     public function testDictionaryExtra()
     {
@@ -286,7 +286,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::any
+     * @covers ::plan\assert\any
      */
     public function testAny()
     {
@@ -309,7 +309,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::all
+     * @covers ::plan\assert\all
      */
     public function testAll()
     {
@@ -320,7 +320,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers       ::not
+     * @covers       ::plan\assert\not
      * @dataProvider testNotProvider
      */
     public function testNot($schema, $input)
@@ -344,7 +344,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers                   ::not
+     * @covers                   ::plan\assert\not
      * @dataProvider             testNotInvalidProvider
      * @expectedException        \plan\InvalidList
      * @expectedExceptionMessage Multiple invalid: ["Validator passed"]
@@ -368,7 +368,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers       ::length
+     * @covers       ::plan\assert\length
      * @dataProvider testLengthProvider
      */
     public function testLength($input)
@@ -388,7 +388,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers       ::validate
+     * @covers       ::plan\assert\validate
      * @dataProvider testValidateProvider
      */
     public function testValidate($filter, $test)
