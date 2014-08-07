@@ -659,11 +659,11 @@ function boolval()
  *
  * @return \Closure
  */
-function intval()
+function intval($base=10)
 {
-    return function($data, $path=null)
+    return function($data, $path=null) use($base)
     {
-        return \intval($data);
+        return \intval($data, $base);
     };
 }
 
