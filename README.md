@@ -294,3 +294,8 @@ Acknowledgments
 This library is heavily inspired in [Voluptuous][] by Alec Thomas.
 
 [Voluptuous]: https://github.com/alecthomas/voluptuous
+
+Badges
+------
+
+[![Build Status](https://travis-ci.org/guide42/plan.svg)](https://travis-ci.org/guide42/plan)
