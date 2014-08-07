@@ -137,7 +137,7 @@ class InvalidList extends \Exception implements \IteratorAggregate
         foreach ($errors as $error) {
             $messages[] = $error->getMessage();
         }
-        $message = 'Multiple invalid: ' . json_encode($messages);
+        $message = 'Multiple invalid: ' . \json_encode($messages);
 
         parent::__construct($message, null, $previous);
     }
@@ -171,9 +171,9 @@ function type($type)
 {
     return function($data, $path=null) use($type)
     {
-        if (gettype($data) !== $type) {
+        if (\gettype($data) !== $type) {
             throw new Invalid('{data} is not {type}', array(
-                '{data}' => json_encode($data),
+                '{data}' => \json_encode($data),
                 '{type}' => $type,
             ), $path);
         }
@@ -224,9 +224,9 @@ function scalar()
 {
     return function($data, $path=null)
     {
-        if (!is_scalar($data)) {
+        if (!\is_scalar($data)) {
             throw new Invalid('{data} is not scalar',
-                array('{data}' => json_encode($data)), $path);
+                array('{data}' => \json_encode($data)), $path);
         }
 
         return $data;
@@ -248,8 +248,8 @@ function instance($class)
         if (!$data instanceof $class) {
             throw new Invalid('Expected {class} (is {data_class})', array(
                 '{class}'      => $class,
-                '{data_class}' => is_object($data) ? get_class($data)
-                                                   : 'not an object',
+                '{data_class}' => \is_object($data) ? \get_class($data)
+                                                    : 'not an object',
             ));
         }
 
@@ -269,13 +269,13 @@ function literal($literal)
 {
     return function($data, $path=null) use($literal)
     {
-        $type = type(gettype($literal));
+        $type = type(\gettype($literal));
         $data = $type($data, $path);
 
         if ($data !== $literal) {
             throw new Invalid('{data} is not {literal}', array(
-                '{data}'    => json_encode($data),
-                '{literal}' => json_encode($literal),
+                '{data}'    => \json_encode($data),
+                '{literal}' => \json_encode($literal),
             ), $path);
         }
 
@@ -296,7 +296,7 @@ function seq(array $values)
 {
     $compiled = array();
 
-    for ($s = 0, $sl = count($values); $s < $sl; $s++) {
+    for ($s = 0, $sl = \count($values); $s < $sl; $s++) {
         $compiled[] = Schema::compile($values[$s]);
     }
 
@@ -313,7 +313,7 @@ function seq(array $values)
 
         $return = array();
         $root = null === $root ? array() : $root;
-        $dl = count($data);
+        $dl = \count($data);
 
         for ($d = 0; $d < $dl; $d++) {
             $found = null;
@@ -328,7 +328,7 @@ function seq(array $values)
                     break;
                 } catch (Invalid $e) {
                     $found = false;
-                    if (count($e->getPath()) > count($path)) {
+                    if (\count($e->getPath()) > \count($path)) {
                         throw $e;
                     }
                 }
@@ -338,7 +338,7 @@ function seq(array $values)
                 $msg = 'Invalid value at index {index} (value is {value})';
                 throw new Invalid($msg, array(
                     '{index}' => $d,
-                    '{value}' => json_encode($data[$d]),
+                    '{value}' => \json_encode($data[$d]),
                 ), $path);
             }
         }
@@ -368,9 +368,9 @@ function dict(array $structure, $required=false, $extra=false)
     }
 
     if ($required === true) {
-        $reqkeys = array_keys($compiled);
-    } elseif (is_array($required)) {
-        $reqkeys = array_values($required);
+        $reqkeys = \array_keys($compiled);
+    } elseif (\is_array($required)) {
+        $reqkeys = \array_values($required);
     } else {
         $reqkeys = array();
     }
@@ -388,11 +388,11 @@ function dict(array $structure, $required=false, $extra=false)
             $path = $root;
             $path[] = $dkey;
 
-            if (array_key_exists($dkey, $compiled)) {
+            if (\array_key_exists($dkey, $compiled)) {
                 try {
                     $return[$dkey] = $compiled[$dkey]($dvalue, $path);
                 } catch (Invalid $e) {
-                    if (count($e->getPath()) > count($path)) {
+                    if (\count($e->getPath()) > \count($path)) {
                         // Always grab deepest exception
                         // It will contain the path through here
                         $exceptions[] = $e;
@@ -402,7 +402,7 @@ function dict(array $structure, $required=false, $extra=false)
                     $msg = 'Invalid value at key {key} (value is {value})';
                     $vars = array(
                         '{key}'   => $dkey,
-                        '{value}' => json_encode($dvalue)
+                        '{value}' => \json_encode($dvalue)
                     );
 
                     $exceptions[] = new Invalid($msg, $vars, $path, null, $e);
@@ -414,7 +414,7 @@ function dict(array $structure, $required=false, $extra=false)
                     array('{key}' => $dkey), $path);
             }
 
-            $rkey = array_search($dkey, $reqkeys, true);
+            $rkey = \array_search($dkey, $reqkeys, true);
 
             if ($rkey !== false) {
                 unset($reqkeys[$rkey]);
@@ -430,7 +430,7 @@ function dict(array $structure, $required=false, $extra=false)
         }
 
         if (!empty($exceptions)) {
-            if (count($exceptions) === 1) {
+            if (\count($exceptions) === 1) {
                 throw $exceptions[0];
             }
             throw new InvalidList($exceptions);
@@ -448,8 +448,8 @@ function dict(array $structure, $required=false, $extra=false)
  */
 function any()
 {
-    $validators = func_get_args();
-    $count = func_num_args();
+    $validators = \func_get_args();
+    $count = \func_num_args();
     $schemas = array();
 
     for ($i = 0; $i < $count; $i++) {
@@ -479,8 +479,8 @@ function any()
  */
 function all()
 {
-    $validators = func_get_args();
-    $count = func_num_args();
+    $validators = \func_get_args();
+    $count = \func_num_args();
     $schemas = array();
 
     for ($i = 0; $i < $count; $i++) {
@@ -535,9 +535,9 @@ function length($min=null, $max=null)
     return function($data, $path=null) use($min, $max)
     {
         if (gettype($data) === 'string') {
-            $count = function($data) { return strlen($data); };
+            $count = function($data) { return \strlen($data); };
         } else {
-            $count = function($data) { return count($data); };
+            $count = function($data) { return \count($data); };
         }
 
         if ($min !== null && $count($data) < $min) {
@@ -558,14 +558,14 @@ function length($min=null, $max=null)
 
 function validate($name)
 {
-    $id = filter_id($name);
+    $id = \filter_id($name);
 
     return function($data, $path=null) use($name, $id)
     {
-        if (filter_var($data, $id) === false) {
+        if (\filter_var($data, $id) === false) {
             throw new Invalid('Validation {name} for {value} failed', array(
                 '{name}'  => $name,
-                '{value}' => json_encode($data),
+                '{value}' => \json_encode($data),
             ), $path);
         }
 
@@ -624,11 +624,11 @@ function type($type)
 {
     return function($data, $path=null) use($type)
     {
-        $ret = @settype($data, $type);
+        $ret = @\settype($data, $type);
 
         if ($ret === false) {
             throw new Invalid('Cannot cast {data} into {type}', array(
-                '{data}' => json_encode($data),
+                '{data}' => \json_encode($data),
                 '{type}' => $type,
             ), $path);
         }
