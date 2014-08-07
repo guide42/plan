@@ -1,6 +1,6 @@
 #### Licensing
 
-The lobsters codebase is under ISC license. All code submitted must be licensed
+The plan codebase is under ISC license. All code submitted must be licensed
 under these terms (2-clause BSD, MIT, etc.).
 
 #### Making Changes
