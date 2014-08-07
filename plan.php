@@ -624,6 +624,10 @@ function type($type)
 {
     return function($data, $path=null) use($type)
     {
+        // We need to mute the warning here. The function will return false if
+        // it fails anyways and will throw our Invalid exception if that
+        // happend. Also, PHPUnit convert warnings into exceptions and make the
+        // test fail.
         $ret = @\settype($data, $type);
 
         if ($ret === false) {
