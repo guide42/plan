@@ -299,3 +299,4 @@ Badges
 ------
 
 [![Build Status](https://travis-ci.org/guide42/plan.svg)](https://travis-ci.org/guide42/plan)
+[![Total Downloads](https://poser.pugx.org/guide42/plan/downloads.svg)](https://packagist.org/packages/guide42/plan)
