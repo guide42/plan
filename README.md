@@ -111,10 +111,10 @@ Will validate the type of data. The data type will be not casted.
     try {
         $plan('123');
     } catch (InvalidList $e) {
-        // Multiple invalid: ["123 not boolean"]
+        // Multiple invalid: ["123 not int"]
     }
 
-Aliases of this _validator_ are: `boolean`, `int`, `float`, `str`.
+Aliases of this _validator_ are: `bool`, `int`, `float`, `str`.
 
 ### `scalar`
 
@@ -218,9 +218,9 @@ filter as listed [here](http://php.net/manual/en/filter.filters.validate.php).
 
 Aliases are: `url`, `email`, `ip`, `regexp`.
 
-And the "like-type": `booleanval`, `intval`, `floatval`. Note that this will
-check that a string resemble to a boolean/int/float; for checking if the input
-data **IS** a boolean/int/float use the `type` _validator_. None of this will
+And the "like-type": `boolval`, `intval`, `floatval`. Note that this will check
+that a string resemble to a boolean/int/float; for checking if the input data
+**IS** a boolean/int/float use the `type` _validator_. None of this will
 modify the input data.
 
 Filters
@@ -239,7 +239,7 @@ Will cast the data into the given type.
     $plan = new plan(filter\type('int'));
     $plan('123 users'); // Returns 123
 
-Note that `booleanval`, `intval`, `floatval` are not aliases of this filter but
+Note that `boolval`, `intval`, `floatval` are not aliases of this filter but
 wrappers of the homonymous functions.
 
 Writing Validators

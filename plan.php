@@ -185,7 +185,7 @@ function type($type)
 /**
  * Alias of `type('boolean')`;
  */
-function boolean()
+function bool()
 {
     return type('boolean');
 }
@@ -593,7 +593,7 @@ function regexp()
     return validate('validate_regexp');
 }
 
-function booleanval()
+function boolval()
 {
     return validate('boolean');
 }
@@ -646,7 +646,7 @@ function type($type)
  *
  * @return \Closure
  */
-function booleanval()
+function boolval()
 {
     return function($data, $path=null)
     {

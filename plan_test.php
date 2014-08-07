@@ -25,7 +25,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     public function testTypeProvider()
     {
         return array(
-            array(assert\boolean(), true, false),
+            array(assert\bool(), true, false),
             array(assert\int(), 0, PHP_INT_MAX),
             array(assert\float(), 0.0, 7.9999999999999991118),
             array(assert\str(), 'hello', 'world'),
@@ -291,7 +291,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testAny()
     {
-        $validator = new plan(assert\any('true', 'false', assert\boolean()));
+        $validator = new plan(assert\any('true', 'false', assert\bool()));
 
         $this->assertEquals('true', $validator('true'));
         $this->assertEquals('false', $validator('false'));
@@ -305,7 +305,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testAnyInvalid()
     {
-        $validator = new plan(assert\any('true', 'false', assert\boolean()));
+        $validator = new plan(assert\any('true', 'false', assert\bool()));
         $validator(array('true'));
     }
 
@@ -338,7 +338,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
             array(123, '123'),
             array(assert\str(), 123),
             array(assert\length(2, 4), array('a')),
-            array(assert\any(assert\str(), assert\boolean()), array()),
+            array(assert\any(assert\str(), assert\bool()), array()),
             array(assert\all(assert\str(), assert\length(2, 4)), array('a', 'b', 'c')),
             array(array(1, '1'), array(1, '1', 2, '2')),
         );
@@ -362,7 +362,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
             array(123, 123),
             array(assert\str(), 'string'),
             array(assert\length(2, 4), array('a', 'b', 'c')),
-            array(assert\any(assert\str(), assert\boolean()), true),
+            array(assert\any(assert\str(), assert\bool()), true),
             array(assert\all(assert\str(), assert\length(2, 4)), 'abc'),
             array(array(1, '1'), array(1, '1', 1, '1')),
         );
@@ -437,7 +437,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     public function testTypeFilterProvider()
     {
         return array(
-            array('boolean', true, 'something true'),
+            array('bool', true, 'something true'),
             array('integer', 678, '0678 people are wrong'),
             array('float', 3.14, '3.14 < pi'),
             array('string', '3.1415926535898', pi()),
@@ -455,12 +455,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers       ::plan\filter\booleanval
+     * @covers       ::plan\filter\boolval
      * @dataProvider testBooleanFilterProvider
      */
     public function testBooleanFilter($expected, $test1, $test2, $test3)
     {
-        $validator = new plan(filter\booleanval());
+        $validator = new plan(filter\boolval());
 
         $this->assertEquals($expected, $validator($test1));
         $this->assertEquals($expected, $validator($test2));
