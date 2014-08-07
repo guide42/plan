@@ -650,7 +650,9 @@ function boolval()
 {
     return function($data, $path=null)
     {
-        return \boolval($data);
+        // Native function \boolval is not used because
+        // is only available since PHP 5.5
+        return (boolean) $data;
     };
 }
 
