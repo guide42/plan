@@ -232,6 +232,16 @@ the input data; and _filter_ when modification to the data are performed.
 
 Core _filters_ will be found in the `\plan\filter` _namespace_.
 
+### `type`
+
+Will cast the data into the given type.
+
+    $plan = new plan(filter\type('int'));
+    $plan('123 users'); // Returns 123
+
+Note that `booleanval`, `intval`, `floatval` are not aliases of this filter but
+wrappers of the homonymous functions.
+
 Writing Validators
 ------------------
 
