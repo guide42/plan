@@ -422,7 +422,6 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator(123);
     }
 
-
     /**
      * @covers       ::plan\filter\type
      * @dataProvider testTypeFilterProvider
@@ -453,6 +452,69 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     {
         $validator = new plan(filter\type('unknown type'));
         $validator('123');
+    }
+
+    /**
+     * @covers       ::plan\filter\booleanval
+     * @dataProvider testBooleanFilterProvider
+     */
+    public function testBooleanFilter($expected, $test1, $test2, $test3)
+    {
+        $validator = new plan(filter\booleanval());
+
+        $this->assertEquals($expected, $validator($test1));
+        $this->assertEquals($expected, $validator($test2));
+        $this->assertEquals($expected, $validator($test3));
+    }
+
+    public function testBooleanFilterProvider()
+    {
+        return array(
+            array(true, array(1), 'true', new \stdClass()),
+            array(false, array(), '', '0'),
+        );
+    }
+
+    /**
+     * @covers       ::plan\filter\intval
+     * @dataProvider testIntegerFilterProvider
+     */
+    public function testIntegerFilter($expected, $test1, $test2, $test3)
+    {
+        $validator = new plan(filter\intval());
+
+        $this->assertEquals($expected, $validator($test1));
+        $this->assertEquals($expected, $validator($test2));
+        $this->assertEquals($expected, $validator($test3));
+    }
+
+    public function testIntegerFilterProvider()
+    {
+        return array(
+            array(42, '42', '042', '42e10'),
+            array(34, '+34', 042, 0x22),
+        );
+    }
+
+    /**
+     * @covers       ::plan\filter\floatval
+     * @dataProvider testFloatFilterProvider
+     */
+    public function testFloatFilter($expected, $test1, $test2, $test3)
+    {
+        $validator = new plan(filter\floatval());
+
+        $this->assertEquals($expected, $validator($test1));
+        $this->assertEquals($expected, $validator($test2));
+        $this->assertEquals($expected, $validator($test3));
+    }
+
+    public function testFloatFilterProvider()
+    {
+        return array(
+            array(0, 'PI = 3.14', '$ 19.332,35-', '0,76'),
+            array(1.999, '1.999,369', '0001.999', '1.99900000000000000000009'),
+        );
     }
 
     /**

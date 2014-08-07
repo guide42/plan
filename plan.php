@@ -637,35 +637,42 @@ function type($type)
     };
 }
 
-function boolean()
+/**
+ * Wrapper for `boolval`.
+ *
+ * @return \Closure
+ */
+function booleanval()
 {
     return function($data, $path=null)
     {
-        return boolval($data);
+        return \boolval($data);
     };
 }
 
-function int()
+/**
+ * Wrapper for `intval`.
+ *
+ * @return \Closure
+ */
+function intval()
 {
     return function($data, $path=null)
     {
-        return intval($data);
+        return \intval($data);
     };
 }
 
-function float()
+/**
+ * Wrapper for `floatval`.
+ *
+ * @return \Closure
+ */
+function floatval()
 {
     return function($data, $path=null)
     {
-        return doubleval($data);
-    };
-}
-
-function str()
-{
-    return function($data, $path=null)
-    {
-        return strval($data);
+        return \floatval($data);
     };
 }
 
