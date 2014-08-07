@@ -3,9 +3,10 @@
 include 'plan.php';
 
 use plan\Schema as plan;
-use plan\assert;
 use plan\Invalid;
 use plan\InvalidList;
+use plan\assert;
+use plan\filter;
 
 class PlanTest extends \PHPUnit_Framework_TestCase
 {
@@ -419,6 +420,39 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     {
         $validator = new plan(assert\email());
         $validator(123);
+    }
+
+
+    /**
+     * @covers       ::plan\filter\type
+     * @dataProvider testTypeFilterProvider
+     */
+    public function testTypeFilter($type, $expected, $test)
+    {
+        $validator = new plan(filter\type($type));
+        $result = $validator($test);
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testTypeFilterProvider()
+    {
+        return array(
+            array('boolean', true, 'something true'),
+            array('integer', 678, '0678 people are wrong'),
+            array('float', 3.14, '3.14 < pi'),
+            array('string', '3.1415926535898', pi()),
+        );
+    }
+
+    /**
+     * @expectedException        \plan\InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Cannot cast \"123\" into unknown type"]
+     */
+    public function testTypeFilterInvalid()
+    {
+        $validator = new plan(filter\type('unknown type'));
+        $validator('123');
     }
 
     /**

@@ -608,6 +608,67 @@ function floatval()
     return validate('float');
 }
 
+namespace plan\filter;
+
+use plan\Invalid;
+
+/**
+ * Cast data type into given $type.
+ *
+ * @param string $type given to `settype`
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
+function type($type)
+{
+    return function($data, $path=null) use($type)
+    {
+        $ret = @settype($data, $type);
+
+        if ($ret === false) {
+            throw new Invalid('Cannot cast {data} into {type}', array(
+                '{data}' => json_encode($data),
+                '{type}' => $type,
+            ), $path);
+        }
+
+        return $data;
+    };
+}
+
+function boolean()
+{
+    return function($data, $path=null)
+    {
+        return boolval($data);
+    };
+}
+
+function int()
+{
+    return function($data, $path=null)
+    {
+        return intval($data);
+    };
+}
+
+function float()
+{
+    return function($data, $path=null)
+    {
+        return doubleval($data);
+    };
+}
+
+function str()
+{
+    return function($data, $path=null)
+    {
+        return strval($data);
+    };
+}
+
 namespace plan\util;
 
 /**
