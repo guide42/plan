@@ -388,7 +388,7 @@ function dict(array $structure, $required=false, $extra=false)
         $data = $type($data, $root);
 
         $return = array();
-        $exceptions = array();
+        $errors = array();
         $root = null === $root ? array() : $root;
 
         foreach ($data as $dkey => $dvalue) {
@@ -402,7 +402,7 @@ function dict(array $structure, $required=false, $extra=false)
                     if (\count($e->getPath()) > \count($path)) {
                         // Always grab deepest exception
                         // It will contain the path through here
-                        $exceptions[] = $e;
+                        $errors[] = $e;
                         continue;
                     }
 
@@ -412,12 +412,12 @@ function dict(array $structure, $required=false, $extra=false)
                         '{value}' => \json_encode($dvalue)
                     );
 
-                    $exceptions[] = new Invalid($msg, $vars, $path, null, $e);
+                    $errors[] = new Invalid($msg, $vars, $path, null, $e);
                 }
             } elseif ($extra) {
                 $return[$dkey] = $dvalue;
             } else {
-                $exceptions[] = new Invalid('Extra key {key} not allowed',
+                $errors[] = new Invalid('Extra key {key} not allowed',
                     array('{key}' => $dkey), $path);
             }
 
@@ -432,15 +432,15 @@ function dict(array $structure, $required=false, $extra=false)
             $path = $root;
             $path[] = $rvalue;
 
-            $exceptions[] = new Invalid('Required key {key} not provided',
+            $errors[] = new Invalid('Required key {key} not provided',
                 array('{key}' => $rvalue), $path);
         }
 
-        if (!empty($exceptions)) {
-            if (\count($exceptions) === 1) {
-                throw $exceptions[0];
+        if (!empty($errors)) {
+            if (\count($errors) === 1) {
+                throw $errors[0];
             }
-            throw new InvalidList($exceptions);
+            throw new InvalidList($errors);
         }
 
         return $return;
