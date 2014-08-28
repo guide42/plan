@@ -257,7 +257,7 @@ function instance($class)
                 '{class}'      => $class,
                 '{data_class}' => \is_object($data) ? \get_class($data)
                                                     : 'not an object',
-            ));
+            ), $path);
         }
 
         return $data;
