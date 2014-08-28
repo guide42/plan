@@ -389,6 +389,16 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException        \plan\InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Value must be at most 4"]
+     */
+    public function testLengthInvalid()
+    {
+        $validator = new plan(assert\length(2, 4));
+        $validator('Hello World');
+    }
+
+    /**
      * @covers       ::plan\assert\validate
      * @dataProvider testValidateProvider
      */
