@@ -534,7 +534,7 @@ function length($min=null, $max=null)
 {
     return function($data, $path=null) use($min, $max)
     {
-        if (gettype($data) === 'string') {
+        if (\gettype($data) === 'string') {
             $count = function($data) { return \strlen($data); };
         } else {
             $count = function($data) { return \count($data); };
