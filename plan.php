@@ -126,6 +126,13 @@ class Invalid extends \Exception
 class InvalidList extends \Exception implements \IteratorAggregate
 {
     /**
+     * List of exceptions.
+     *
+     * @var array
+     */
+    protected $errors;
+
+    /**
      * @param array  $errors   are a list of `\plan\Invalid` exceptions
      * @param string $previous previous exception
      */
