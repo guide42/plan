@@ -98,18 +98,16 @@ class Invalid extends \Exception
 
     /**
      * @param string $message  template for final message
-     * @param array  $params   parameters for message template
-     * @param array  $path     list of indexes/keys inside the tree
      * @param string $code     error identity code
      * @param string $previous previous exception
+     * @param array  $path     list of indexes/keys inside the tree
      */
-    public function __construct($message, array $params=array(),
-                                array $path=null, $code=null, $previous=null)
+    public function __construct($message, $code=null, $previous=null,
+        array $path=null)
     {
-        $this->path = null === $path ? array() : $path;
-        $message = strtr($message, $params);
-
         parent::__construct($message, $code, $previous);
+
+        $this->path = null === $path ? array() : $path;
     }
 
     /**
@@ -179,10 +177,12 @@ function type($type)
     return function($data, $path=null) use($type)
     {
         if (\gettype($data) !== $type) {
-            throw new Invalid('{data} is not {type}', array(
+            $msg = \strtr('{data} is not {type}', array(
                 '{data}' => \json_encode($data),
                 '{type}' => $type,
-            ), $path);
+            ));
+
+            throw new Invalid($msg, null, null, $path);
         }
 
         return $data;
@@ -232,8 +232,11 @@ function scalar()
     return function($data, $path=null)
     {
         if (!\is_scalar($data)) {
-            throw new Invalid('{data} is not scalar',
-                array('{data}' => \json_encode($data)), $path);
+            $msg = \strtr('{data} is not scalar', array(
+                '{data}' => \json_encode($data),
+            ));
+
+            throw new Invalid($msg, null, null, $path);
         }
 
         return $data;
@@ -253,11 +256,13 @@ function instance($class)
     return function($data, $path=null) use($class)
     {
         if (!$data instanceof $class) {
-            throw new Invalid('Expected {class} (is {data_class})', array(
+            $msg = \strtr('Expected {class} (is {data_class})', array(
                 '{class}'      => $class,
                 '{data_class}' => \is_object($data) ? \get_class($data)
                                                     : 'not an object',
-            ), $path);
+            ));
+
+            throw new Invalid($msg, null, null, $path);
         }
 
         return $data;
@@ -280,10 +285,12 @@ function literal($literal)
         $data = $type($data, $path);
 
         if ($data !== $literal) {
-            throw new Invalid('{data} is not {literal}', array(
+            $msg = \strtr('{data} is not {literal}', array(
                 '{data}'    => \json_encode($data),
                 '{literal}' => \json_encode($literal),
-            ), $path);
+            ));
+
+            throw new Invalid($msg, null, null, $path);
         }
 
         return $data;
@@ -342,11 +349,13 @@ function seq(array $values)
             }
 
             if ($found !== true) {
-                $msg = 'Invalid value at index {index} (value is {value})';
-                throw new Invalid($msg, array(
+                $str = 'Invalid value at index {index} (value is {value})';
+                $msg = \strtr($str, array(
                     '{index}' => $d,
                     '{value}' => \json_encode($data[$d]),
-                ), $path);
+                ));
+
+                throw new Invalid($msg, null, null, $path);
             }
         }
 
@@ -406,19 +415,25 @@ function dict(array $structure, $required=false, $extra=false)
                         continue;
                     }
 
-                    $msg = 'Invalid value at key {key} (value is {value})';
-                    $vars = array(
+                    $str = 'Invalid value at key {key} (value is {value})';
+                    $msg = \strtr($str, array(
                         '{key}'   => $dkey,
                         '{value}' => \json_encode($dvalue)
-                    );
+                    ));
 
-                    $errors[] = new Invalid($msg, $vars, $path, null, $e);
+                    $errors[] = new Invalid($msg, null, $e, $path);
+
+                    unset($str);
+                    unset($msg);
                 }
             } elseif ($extra) {
                 $return[$dkey] = $dvalue;
             } else {
-                $errors[] = new Invalid('Extra key {key} not allowed',
-                    array('{key}' => $dkey), $path);
+                $msg = \strtr('Extra key {key} not allowed', array(
+                    '{key}' => $dkey,
+                ));
+
+                $errors[] = new Invalid($msg, null, null, $path);
             }
 
             $rkey = \array_search($dkey, $reqkeys, true);
@@ -432,8 +447,11 @@ function dict(array $structure, $required=false, $extra=false)
             $path = $root;
             $path[] = $rvalue;
 
-            $errors[] = new Invalid('Required key {key} not provided',
-                array('{key}' => $rvalue), $path);
+            $msg = \strtr('Required key {key} not provided', array(
+                '{key}' => $rvalue,
+            ));
+
+            $errors[] = new Invalid($msg, null, null, $path);
         }
 
         if (!empty($errors)) {
@@ -474,7 +492,7 @@ function any()
             }
         }
 
-        throw new Invalid('No valid value found', array(), $path);
+        throw new Invalid('No valid value found', null, null, $path);
     };
 }
 
@@ -530,7 +548,7 @@ function not($validator)
         }
 
         if ($pass) {
-            throw new Invalid('Validator passed', array(), $path);
+            throw new Invalid('Validator passed', null, null, $path);
         }
 
         return $data;
@@ -548,15 +566,19 @@ function length($min=null, $max=null)
         }
 
         if ($min !== null && $count($data) < $min) {
-            throw new Invalid('Value must be at least {limit}', array(
+            $msg = \strtr('Value must be at least {limit}', array(
                 '{limit}' => $min,
-            ), $path);
+            ));
+
+            throw new Invalid($msg, null, null, $path);
         }
 
         if ($max !== null && $count($data) > $max) {
-            throw new Invalid('Value must be at most {limit}', array(
+            $msg = \strtr('Value must be at most {limit}', array(
                 '{limit}' => $max,
-            ), $path);
+            ));
+
+            throw new Invalid($msg, null, null, $path);
         }
 
         return $data;
@@ -570,10 +592,12 @@ function validate($name)
     return function($data, $path=null) use($name, $id)
     {
         if (\filter_var($data, $id) === false) {
-            throw new Invalid('Validation {name} for {value} failed', array(
+            $msg = \strtr('Validation {name} for {value} failed', array(
                 '{name}'  => $name,
                 '{value}' => \json_encode($data),
-            ), $path);
+            ));
+
+            throw new Invalid($msg, null, null, $path);
         }
 
         return $data;
@@ -638,10 +662,12 @@ function type($type)
         $ret = @\settype($data, $type);
 
         if ($ret === false) {
-            throw new Invalid('Cannot cast {data} into {type}', array(
+            $msg = \strtr('Cannot cast {data} into {type}', array(
                 '{data}' => \json_encode($data),
                 '{type}' => $type,
-            ), $path);
+            ));
+
+            throw new Invalid($msg, null, null, $path);
         }
 
         return $data;
@@ -698,10 +724,12 @@ function sanitize($name)
         $newdata = \filter_var($data, $id);
 
         if ($newdata === false) {
-            throw new Invalid('Sanitization {name} for {value} failed', array(
+            $msg = \strtr('Sanitization {name} for {value} failed', array(
                 '{name}'  => $name,
                 '{value}' => \json_encode($data),
-            ), $path);
+            ));
+
+            throw new Invalid($msg, null, null, $path);
         }
 
         return $newdata;
