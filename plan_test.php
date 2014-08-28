@@ -466,9 +466,9 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\boolval
-     * @dataProvider testBooleanFilterProvider
+     * @dataProvider testBooleanProvider
      */
-    public function testBooleanFilter($expected, $test1, $test2, $test3)
+    public function testBoolean($expected, $test1, $test2, $test3)
     {
         $validator = new plan(filter\boolval());
 
@@ -477,7 +477,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $validator($test3));
     }
 
-    public function testBooleanFilterProvider()
+    public function testBooleanProvider()
     {
         return array(
             array(true, array(1), 'true', new \stdClass()),
@@ -487,9 +487,9 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\intval
-     * @dataProvider testIntegerFilterProvider
+     * @dataProvider testIntegerProvider
      */
-    public function testIntegerFilter($expected, $test1, $test2, $test3)
+    public function testInteger($expected, $test1, $test2, $test3)
     {
         $validator = new plan(filter\intval());
 
@@ -498,7 +498,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $validator($test3));
     }
 
-    public function testIntegerFilterProvider()
+    public function testIntegerProvider()
     {
         return array(
             array(42, '42', '042', '42e10'),
@@ -508,9 +508,9 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\floatval
-     * @dataProvider testFloatFilterProvider
+     * @dataProvider testFloatProvider
      */
-    public function testFloatFilter($expected, $test1, $test2, $test3)
+    public function testFloat($expected, $test1, $test2, $test3)
     {
         $validator = new plan(filter\floatval());
 
@@ -519,7 +519,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $validator($test3));
     }
 
-    public function testFloatFilterProvider()
+    public function testFloatProvider()
     {
         return array(
             array(0, 'PI = 3.14', '$ 19.332,35-', '0,76'),
