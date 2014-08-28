@@ -689,6 +689,35 @@ function floatval()
     };
 }
 
+function sanitize($name)
+{
+    $id = \filter_id($name);
+
+    return function($data, $path=null) use($name, $id)
+    {
+        $newdata = \filter_var($data, $id);
+
+        if ($newdata === false) {
+            throw new Invalid('Sanitization {name} for {value} failed', array(
+                '{name}'  => $name,
+                '{value}' => \json_encode($data),
+            ), $path);
+        }
+
+        return $newdata;
+    };
+}
+
+function url()
+{
+    return sanitize('url');
+}
+
+function email()
+{
+    return sanitize('email');
+}
+
 namespace plan\util;
 
 /**

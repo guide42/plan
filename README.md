@@ -242,6 +242,15 @@ Will cast the data into the given type.
 Note that `boolval`, `intval`, `floatval` are not aliases of this filter but
 wrappers of the homonymous functions.
 
+### `sanitize`
+
+Sanitization [filters](http://php.net/manual/en/filter.filters.sanitize.php).
+
+    $plan = new plan(filter\sanitize('email'));
+    $plan('(john)@example.org'); // Returns 'john@example.org'
+
+Aliases are: `url`, `email`.
+
 Writing Validators
 ------------------
 

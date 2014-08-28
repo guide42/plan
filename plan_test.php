@@ -528,6 +528,26 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers       ::plan\filter\sanitize
+     * @dataProvider testSanitizeProvider
+     */
+    public function testSanitize($filter, $expected, $invalid)
+    {
+        $validator = new plan(filter\sanitize($filter));
+        $validated = $validator($invalid);
+
+        $this->assertEquals($expected, $validated);
+    }
+
+    public function testSanitizeProvider()
+    {
+        return array(
+            array('url', 'example.org', 'example¶.org'),
+            array('email', 'john@example.org', '(john)@example¶.org'),
+        );
+    }
+
+    /**
      * @expectedException        \plan\InvalidList
      * @expectedExceptionMessage Multiple invalid: ["Invalid value at key age (value is \"18 years old\")","Extra key sex not allowed","Required key name not provided"]
      */
