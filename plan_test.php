@@ -286,6 +286,18 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->fail('Exception Invalid not thrown');
     }
 
+    public function testDictionaryClosure()
+    {
+        $expected = array('name' => 'rand');
+        $validator = assert\dict(array('name' => assert\str()));
+
+        $test1 = $validator(array('name' => function() { return 'rand'; }));
+        $test2 = $validator(array('name' => 'rand'));
+
+        $this->assertEquals($expected, $test1);
+        $this->assertEquals($expected, $test2);
+    }
+
     /**
      * @covers ::plan\assert\any
      */

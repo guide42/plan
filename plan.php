@@ -37,6 +37,10 @@ class Schema
 
     public function __invoke($data)
     {
+        if (is_callable($data)) {
+            $data = $data();
+        }
+
         $validator = $this->compiled;
 
         try {
@@ -330,14 +334,19 @@ function seq(array $values)
         $dl = \count($data);
 
         for ($d = 0; $d < $dl; $d++) {
-            $found = null;
-
             $path = $root;
             $path[] = $d;
 
+            $found = null;
+            $value = $data[$d];
+
+            if (is_callable($value)) {
+                $value = $value();
+            }
+
             for ($s = 0; $s < $sl; $s++) {
                 try {
-                    $return[] = $compiled[$s]($data[$d], $path);
+                    $return[] = $compiled[$s]($value, $path);
                     $found = true;
                     break;
                 } catch (Invalid $e) {
@@ -352,7 +361,7 @@ function seq(array $values)
                 $str = 'Invalid value at index {index} (value is {value})';
                 $msg = \strtr($str, array(
                     '{index}' => $d,
-                    '{value}' => \json_encode($data[$d]),
+                    '{value}' => \json_encode($value),
                 ));
 
                 throw new Invalid($msg, null, null, $path);
@@ -403,6 +412,10 @@ function dict(array $structure, $required=false, $extra=false)
         foreach ($data as $dkey => $dvalue) {
             $path = $root;
             $path[] = $dkey;
+
+            if (is_callable($dvalue)) {
+                $dvalue = $dvalue();
+            }
 
             if (\array_key_exists($dkey, $compiled)) {
                 try {
