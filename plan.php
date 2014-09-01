@@ -792,6 +792,9 @@ function vars($recursive=false, $inscope=true)
             $replace = array();
 
             foreach ($vars as $key => $value) {
+                // XXX Why not this?
+                //     $tmp = \explode("\0", $key);
+                //     $key = $tmp[\count($tmp) - 1];
                 if ($key[0] === "\0") {
                     unset($vars[$key]);
 
