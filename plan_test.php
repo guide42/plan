@@ -310,6 +310,33 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::plan\assert\object
+     */
+    public function testObject()
+    {
+        $validator = new plan(assert\object(array(
+            'name' => 'John',
+            'age' => assert\int(),
+            'email' => filter\sanitize('email'),
+        ), 'stdClass'));
+
+        $expected = (object) array('name' => 'John', 'age' => 42, 'email' => 'john@example.org');
+        $object = (object) array('name' => 'John', 'age' => 42, 'email' => '(john)@example¶.org');
+
+        $this->assertEquals($expected, $validator($object));
+    }
+
+    /**
+     * @expectedException        \plan\InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Invalid value at key age (value is \"21 years old\")"]
+     */
+    public function testObjectInvalid()
+    {
+        $validator = new plan(assert\object(array('age' => 42)));
+        $validator((object) array('name' => 'John', 'age' => '21 years old'));
+    }
+
+    /**
      * @covers ::plan\assert\any
      */
     public function testAny()

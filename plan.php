@@ -164,6 +164,7 @@ use plan\Invalid;
 use plan\InvalidList;
 
 use plan\assert;
+use plan\filter;
 
 /**
  * Check that the input data is of the given $type. The data type will not be
@@ -473,6 +474,42 @@ function dict(array $structure, $required=false, $extra=false)
         }
 
         return $return;
+    };
+}
+
+function object(array $structure, $class=null)
+{
+    $type = assert\all(
+        assert\type('object'),
+        function($data, $path=null) use($class)
+        {
+            if (null !== $class) {
+                $type = assert\instance($class);
+                $data = $type($data, $path);
+            }
+            return $data;
+        },
+        filter\vars(false, true),
+        assert\dict($structure, false, true)
+    );
+
+    return function($data, $path=null) use($type)
+    {
+        $clone = clone $data;
+
+        $fill = function($vars, $path=null) use($clone)
+        {
+            foreach ($vars as $key => $value) {
+                $clone->$key = $value;
+            }
+
+            return $clone;
+        };
+
+        $vars = $type($data, $path);
+        $data = $fill($vars, $path);
+
+        return $data;
     };
 }
 
