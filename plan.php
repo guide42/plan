@@ -746,6 +746,55 @@ function email()
     return sanitize('email');
 }
 
+function vars($recursive=false, $inscope=true)
+{
+    return function($data, $path=null) use($recursive, $inscope)
+    {
+        if (!\is_object($data)) {
+            return $data;
+        }
+
+        if ($inscope) {
+            $vars = \get_object_vars($data);
+        } else {
+            $vars = (array) $data;
+
+            $clkey = "\0" . get_class($data) . "\0";
+            $cllen = strlen($clkey);
+
+            $replace = array();
+
+            foreach ($vars as $key => $value) {
+                if ($key[0] === "\0") {
+                    unset($vars[$key]);
+
+                    if ($key[1] === '*') {
+                        $key = substr($key, 3);
+                    } elseif (substr($key, 0, $cllen) === $clkey) {
+                        $key = substr($key, $cllen);
+                    }
+
+                    $replace[$key] = $value;
+                }
+            }
+
+            if (!empty($replace)) {
+                $vars = array_replace($vars, $replace);
+            }
+        }
+
+        $vars = array_filter($vars, function($value) {
+            return $value !== null;
+        });
+
+        if ($recursive) {
+            $vars = array_map(vars($recursive, $inscope), $vars);
+        }
+
+        return $vars;
+    };
+}
+
 namespace plan\util;
 
 /**

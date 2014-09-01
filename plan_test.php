@@ -548,6 +548,54 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers       ::plan\filter\vars
+     * @dataProvider testVarsProvider
+     */
+    public function testVarsObject($recursive, $inscope, $expected, $object, $fix=null)
+    {
+        $validator = new plan(filter\vars($recursive, $inscope));
+        $validated = $validator($object);
+
+        if (\is_callable($fix)) {
+            $fix($validated);
+        }
+
+        $this->assertEquals($expected, $validated);
+    }
+
+    public function testVarsProvider()
+    {
+        $tests = array();
+
+        $arr = array(
+            'name' => 'John',
+            'dog' => array(
+                'name' => 'Einstein',
+            ),
+        );
+
+        $obj = new \stdClass();
+        $obj->name = 'John';
+        $obj->age = null;
+        $obj->dog = new \stdClass();
+        $obj->dog->name = 'Einstein';
+
+        $tests[] = array(true, true, $arr, $obj);
+
+        $arr = array('message' => 'ok', 'code' => 42, 'string' => '', 'file' => __FILE__, 'line' => __LINE__ + 1);
+        $obj = new \Exception('ok', 42);
+
+        $tests[] = array(false, false, $arr, $obj, function(&$array) {
+            // Because we cannot preview the stacktrace,
+            // is "fix" it by removing it from the
+            // result array.
+            unset($array['trace']);
+        });
+
+        return $tests;
+    }
+
+    /**
      * @expectedException        \plan\InvalidList
      * @expectedExceptionMessage Multiple invalid: ["Invalid value at key age (value is \"18 years old\")","Extra key sex not allowed","Required key name not provided"]
      */
