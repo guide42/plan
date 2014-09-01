@@ -1,4 +1,6 @@
-### 1.0.0
+### Last Version
+
+### 1.0.0-RC2 (2014-09-01)
 
   * Add base to filter\intval
   * Make filter\boolval php <5.5 compatible
