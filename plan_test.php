@@ -162,8 +162,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     public function testSequenceDeepException()
     {
         $validator = assert\seq(array(
-            assert\any(assert\email(), assert\str()),
-            array('name' => assert\str(), 'email' => assert\email()),
+            assert\any(assert\validate('validate_email'), assert\str()),
+            array('name' => assert\str(), 'email' => assert\validate('validate_email')),
         ));
 
         try {
@@ -286,9 +286,9 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     public function testDictionaryDeepException()
     {
         $validator = assert\dict(array(
-            'email' => assert\email(),
+            'email' => assert\validate('validate_email'),
             'extra' => array(
-                'emails' => array(assert\email()),
+                'emails' => array(assert\validate('validate_email')),
             ),
         ));
 
@@ -451,7 +451,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testValidateInvalid()
     {
-        $validator = new plan(assert\email());
+        $validator = new plan(assert\validate('validate_email'));
         $validator(123);
     }
 
