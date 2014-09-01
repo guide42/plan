@@ -260,6 +260,29 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator(array('foo' => 'foo', 'bar' => 'bar'));
     }
 
+    /**
+     * @covers ::plan\assert\dict
+     */
+    public function testDictionaryExtraArray()
+    {
+        $dict = array('foo' => 'foo', 'bar' => 'bar');
+
+        $validator = assert\dict(array('foo' => 'foo'), false, array('bar'));
+        $validated = $validator($dict);
+
+        $this->assertEquals($dict, $validated);
+    }
+
+    /**
+     * @expectedException        \plan\Invalid
+     * @expectedExceptionMessage Extra key bar not allowed
+     */
+    public function testDictionaryExtraArrayInvalid()
+    {
+        $validator = assert\dict(array(), false, array('foo'));
+        $validator(array('foo' => 'foo', 'bar' => 'bar'));
+    }
+
     public function testDictionaryDeepException()
     {
         $validator = assert\dict(array(

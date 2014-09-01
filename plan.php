@@ -393,6 +393,12 @@ function dict(array $structure, $required=false, $extra=false)
         $reqkeys = array();
     }
 
+    if (\is_array($extra)) {
+        $extra = \array_flip(\array_values($extra));
+    } else {
+        $extra = $extra === true ?: array();
+    }
+
     return function($data, $root=null) use($compiled, $reqkeys, $extra)
     {
         $type = assert\any(
@@ -431,7 +437,7 @@ function dict(array $structure, $required=false, $extra=false)
                     unset($str);
                     unset($msg);
                 }
-            } elseif ($extra) {
+            } elseif ($extra === true || \array_key_exists($dkey, $extra)) {
                 $return[$dkey] = $dvalue;
             } else {
                 $msg = \strtr('Extra key {key} not allowed', array(

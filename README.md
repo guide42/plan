@@ -166,15 +166,19 @@ the _validator_ `dict` accept two more parameters to change this behavior.
                           // as it would not be validated
     ));
 
-The parameter `required` could be an array of required keys:
+Both parameters (`required` and `extra`) could be arrays, so only the given
+keys will be taken in account.
 
-    $plan = new plan(assert\dict($dict, ['age']));
-    $plan(array('name' => 'John', 'age' => 42));
+    $plan = new plan(assert\dict($dict, ['age'], ['sex']));
+    $plan(array('name' => 'John', 'age' => 42, 'sex' => 'male'));
     
     try {
-        $plan(array('name' => 'John'));
+        $plan(array('name' => 'John', 'hobby' => 'sailing'));
     } catch (InvalidList $e) {
-        // Multiple invalid: ["Required key age not provided"]
+        // Multiple invalid: [
+        //     "Extra key hobby not allowed",
+        //     "Required key age not provided"
+        // ]
     }
 
 ### `any`
