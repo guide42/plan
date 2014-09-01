@@ -746,9 +746,17 @@ function email()
     return sanitize('email');
 }
 
+/**
+ * Will take an object and return an associative array from it's properties.
+ *
+ * @param boolean $recursive if true will process with recursion
+ * @param boolean $inscope   if true will only return public properties
+ *
+ * @return \Closure
+ */
 function vars($recursive=false, $inscope=true)
 {
-    return function($data, $path=null) use($recursive, $inscope)
+    $closure = function($data, $path=null) use($recursive, $inscope, &$closure)
     {
         if (!\is_object($data)) {
             return $data;
@@ -788,11 +796,23 @@ function vars($recursive=false, $inscope=true)
         });
 
         if ($recursive) {
-            $vars = array_map(vars($recursive, $inscope), $vars);
+            // This is a ingenius way of doing recursion, but because we don't
+            // send the $path variable if in the future this function throw an
+            // exception it should be doing manually:
+            //
+            //     $root = null === $path ? array() : $path;
+            //     foreach ($vars as $key => $value) {
+            //         $path = $root;
+            //         $path[] = $key;
+            //         $vars[$key] = $fn($value, $path);
+            //     }
+            $vars = array_map($closure, $vars);
         }
 
         return $vars;
     };
+
+    return $closure;
 }
 
 namespace plan\util;
