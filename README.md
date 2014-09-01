@@ -158,13 +158,24 @@ the _validator_ `dict` accept two more parameters to change this behavior.
     $extra    = true; // Accept extra keys
     
     $dict = array('name' => 'John', 'age' => 42);
-    $plan = new plan(assert\dict($dict, $required, $extra);
+    $plan = new plan(assert\dict($dict, $required, $extra));
     $plan(array(
         'name' => 'John',
         'age'  => 42,
         'sex'  => 'male', // This could be whatever
                           // as it would not be validated
     ));
+
+The parameter `required` could be an array of required keys:
+
+    $plan = new plan(assert\dict($dict, ['age']));
+    $plan(array('name' => 'John', 'age' => 42));
+    
+    try {
+        $plan(array('name' => 'John'));
+    } catch (InvalidList $e) {
+        // Multiple invalid: ["Required key age not provided"]
+    }
 
 ### `any`
 
