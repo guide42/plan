@@ -780,8 +780,8 @@ function vars($recursive=false, $inscope=true)
         } else {
             $vars = (array) $data;
 
-            $clkey = "\0" . get_class($data) . "\0";
-            $cllen = strlen($clkey);
+            $clkey = "\0" . \get_class($data) . "\0";
+            $cllen = \strlen($clkey);
 
             $replace = array();
 
@@ -790,9 +790,9 @@ function vars($recursive=false, $inscope=true)
                     unset($vars[$key]);
 
                     if ($key[1] === '*') {
-                        $key = substr($key, 3);
-                    } elseif (substr($key, 0, $cllen) === $clkey) {
-                        $key = substr($key, $cllen);
+                        $key = \substr($key, 3);
+                    } elseif (\substr($key, 0, $cllen) === $clkey) {
+                        $key = \substr($key, $cllen);
                     }
 
                     $replace[$key] = $value;
@@ -800,7 +800,7 @@ function vars($recursive=false, $inscope=true)
             }
 
             if (!empty($replace)) {
-                $vars = array_replace($vars, $replace);
+                $vars = \array_replace($vars, $replace);
             }
         }
 
@@ -815,7 +815,7 @@ function vars($recursive=false, $inscope=true)
             //         $path[] = $key;
             //         $vars[$key] = $fn($value, $path);
             //     }
-            $vars = array_map($closure, $vars);
+            $vars = \array_map($closure, $vars);
         }
 
         return $vars;
