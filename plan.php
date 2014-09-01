@@ -163,6 +163,8 @@ use plan\Schema;
 use plan\Invalid;
 use plan\InvalidList;
 
+use plan\assert;
+
 /**
  * Check that the input data is of the given $type. The data type will not be
  * casted.
@@ -190,35 +192,35 @@ function type($type)
 }
 
 /**
- * Alias of `type('boolean')`;
+ * Alias of `plan\assert\type('boolean')`.
  */
 function bool()
 {
-    return type('boolean');
+    return assert\type('boolean');
 }
 
 /**
- * Alias of `type('integer')`;
+ * Alias of `plan\assert\type('integer')`.
  */
 function int()
 {
-    return type('integer');
+    return assert\type('integer');
 }
 
 /**
- * Alias of `type('double')`;
+ * Alias of `plan\assert\type('double')`.
  */
 function float()
 {
-    return type('double');
+    return assert\type('double');
 }
 
 /**
- * Alias of `type('string')`;
+ * Alias of `plan\assert\type('string')`.
  */
 function str()
 {
-    return type('string');
+    return assert\type('string');
 }
 
 /**
@@ -281,7 +283,7 @@ function literal($literal)
 {
     return function($data, $path=null) use($literal)
     {
-        $type = type(\gettype($literal));
+        $type = assert\type(\gettype($literal));
         $data = $type($data, $path);
 
         if ($data !== $literal) {
@@ -316,7 +318,7 @@ function seq(array $values)
 
     return function($data, $root=null) use($compiled, $sl)
     {
-        $type = type('array');
+        $type = assert\type('array');
         $data = $type($data, $root);
 
         // Empty sequence schema,
@@ -393,7 +395,10 @@ function dict(array $structure, $required=false, $extra=false)
 
     return function($data, $root=null) use($compiled, $reqkeys, $extra)
     {
-        $type = any(type('array'), instance('\Traversable'));
+        $type = assert\any(
+            assert\type('array'),
+            assert\instance('\Traversable')
+        );
         $data = $type($data, $root);
 
         $return = array();
@@ -606,42 +611,44 @@ function validate($name)
 
 function url()
 {
-    return validate('validate_url');
+    return assert\validate('validate_url');
 }
 
 function email()
 {
-    return validate('validate_email');
+    return assert\validate('validate_email');
 }
 
 function ip()
 {
-    return validate('validate_ip');
+    return assert\validate('validate_ip');
 }
 
 function regexp()
 {
-    return validate('validate_regexp');
+    return assert\validate('validate_regexp');
 }
 
 function boolval()
 {
-    return validate('boolean');
+    return assert\validate('boolean');
 }
 
 function intval()
 {
-    return validate('int');
+    return assert\validate('int');
 }
 
 function floatval()
 {
-    return validate('float');
+    return assert\validate('float');
 }
 
 namespace plan\filter;
 
 use plan\Invalid;
+
+use plan\filter;
 
 /**
  * Cast data type into given $type.
@@ -736,14 +743,20 @@ function sanitize($name)
     };
 }
 
+/**
+ * Alias of `plan\filter\sanitize('url')`.
+ */
 function url()
 {
-    return sanitize('url');
+    return filter\sanitize('url');
 }
 
+/**
+ * Alias of `plan\filter\sanitize('email')`.
+ */
 function email()
 {
-    return sanitize('email');
+    return filter\sanitize('email');
 }
 
 /**
