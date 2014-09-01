@@ -791,10 +791,6 @@ function vars($recursive=false, $inscope=true)
             }
         }
 
-        $vars = array_filter($vars, function($value) {
-            return $value !== null;
-        });
-
         if ($recursive) {
             // This is a ingenius way of doing recursion, but because we don't
             // send the $path variable if in the future this function throw an

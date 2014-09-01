@@ -569,6 +569,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
         $arr = array(
             'name' => 'John',
+            'age' => null,
             'dog' => array(
                 'name' => 'Einstein',
             ),
@@ -582,7 +583,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
         $tests[] = array(true, true, $arr, $obj);
 
-        $arr = array('message' => 'ok', 'code' => 42, 'string' => '', 'file' => __FILE__, 'line' => __LINE__ + 1);
+        $arr = array('message' => 'ok', 'code' => 42, 'string' => '', 'file' => __FILE__, 'line' => __LINE__ + 1, 'previous' => null);
         $obj = new \Exception('ok', 42);
 
         $tests[] = array(false, false, $arr, $obj, function(&$array) {
