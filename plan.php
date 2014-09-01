@@ -495,9 +495,15 @@ function object(array $structure, $class=null)
 
     return function($data, $path=null) use($type)
     {
-        $clone = clone $data;
+        $clone = false; // FIXME
 
-        $fill = function($vars, $path=null) use($clone)
+        if ($clone) {
+            $object = clone $data;
+        } else {
+            $object = $data;
+        }
+
+        $fill = function($vars, $path=null) use($object)
         {
             foreach ($vars as $key => $value) {
                 $clone->$key = $value;
