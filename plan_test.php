@@ -581,6 +581,16 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException        \plan\InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Sanitization asd for \"asd\" failed"]
+     */
+    public function testSanitizeInvalid()
+    {
+        $validator = new plan(filter\sanitize('asd'));
+        $validator('asd');
+    }
+
+    /**
      * @covers       ::plan\filter\vars
      * @dataProvider testVarsProvider
      */
