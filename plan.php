@@ -506,10 +506,10 @@ function object(array $structure, $class=null)
         $fill = function($vars, $path=null) use($object)
         {
             foreach ($vars as $key => $value) {
-                $clone->$key = $value;
+                $object->$key = $value;
             }
 
-            return $clone;
+            return $object;
         };
 
         $vars = $type($data, $path);
