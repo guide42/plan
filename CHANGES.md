@@ -1,5 +1,9 @@
 ### Last Version
 
+### 1.0
+
+  * New assert\iif for simple conditionals
+
 ### 1.0.0-RC2 (2014-09-01)
 
   * Add base to filter\intval

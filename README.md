@@ -214,6 +214,16 @@ Negative the given _validator_.
         // Multiple invalid: ["Validator passed"]
     }
 
+### `iif`
+
+Simple conditional.
+
+    $plan = new plan(assert\iif(null !== $class,
+        assert\instance($class),
+        assert\type('object')
+    ));
+    $plan($object);
+
 ### `length`
 
 The given data length is between some minimum and maximum value. This works

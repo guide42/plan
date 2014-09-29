@@ -419,6 +419,26 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers       ::plan\assert\iif
+     * @dataProvider testIifProvider
+     */
+    public function testIif($input, $condition, $true, $false)
+    {
+        $validator = new plan(assert\iif($condition, $true, $false));
+        $validated = $validator($input);
+
+        $this->assertEquals($input, $validated);
+    }
+
+    public function testIifProvider()
+    {
+        return array(
+            array(12345, true, assert\int(), assert\str()),
+            array('HI', false, assert\int(), assert\str()),
+        );
+    }
+
+    /**
      * @covers       ::plan\assert\length
      * @dataProvider testLengthProvider
      */

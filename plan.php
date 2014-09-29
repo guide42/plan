@@ -609,6 +609,35 @@ function not($validator)
     };
 }
 
+/**
+ * Simple condition validator.
+ *
+ * @param boolean $condition to check
+ * @param string  $true      validator if the condition is true
+ * @param string  $false     validator if the condition is false
+ *
+ * @return \Closure
+ */
+function iif($condition, $true=null, $false=null)
+{
+    $validator = function($data, $path=null) { return $data; };
+
+    if ($condition) {
+        if (null !== $true) {
+            $validator = Schema::compile($true);
+        }
+    } else {
+        if (null !== $false) {
+            $validator = Schema::compile($false);
+        }
+    }
+
+    return function($data, $path=null) use($validator)
+    {
+        return $validator($data, $path);
+    };
+}
+
 function length($min=null, $max=null)
 {
     return function($data, $path=null) use($min, $max)
