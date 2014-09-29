@@ -638,6 +638,15 @@ function iif($condition, $true=null, $false=null)
     };
 }
 
+/**
+ * The given $data length is between $min and $max value.
+ *
+ * @param integer|null $min the minimum value
+ * @param integer|null $max the maximum value
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function length($min=null, $max=null)
 {
     return function($data, $path=null) use($min, $max)
@@ -668,6 +677,14 @@ function length($min=null, $max=null)
     };
 }
 
+/**
+ * A wrapper for validate filters using `filter_var`.
+ *
+ * @param string $name of the the filter
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function validate($name)
 {
     $id = \filter_id($name);
@@ -800,6 +817,14 @@ function floatval()
     };
 }
 
+/**
+ * A wrapper for sanitize filters using `filter_var`.
+ *
+ * @param string $name of the filter
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
 function sanitize($name)
 {
     $id = \filter_id($name);
