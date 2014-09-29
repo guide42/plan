@@ -79,7 +79,7 @@ schema. Elements can be repeated.
 An empty array will be a sequence that accept any value.
 
     $plan = new plan([]);
-    $plan(['anything', 123, true);
+    $plan(['anything', 123, true]);
 
 #### Dictionaries
 
