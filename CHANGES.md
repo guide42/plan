@@ -3,6 +3,7 @@
 ### 1.0
 
   * New assert\iif for simple conditionals
+  * Finish a basic assert\object
 
 ### 1.0.0-RC2 (2014-09-01)
 

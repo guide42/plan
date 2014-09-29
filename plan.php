@@ -477,6 +477,15 @@ function dict(array $structure, $required=false, $extra=false)
     };
 }
 
+/**
+ * Validate the structure of an object.
+ *
+ * @param array  $structure to be validation in given $data
+ * @param string $class     the class name of the object
+ * @param string $byref     if false, a new object will be created
+ *
+ * @return \Closure
+ */
 function object(array $structure, $class=null, $byref=true)
 {
     $type = assert\all(

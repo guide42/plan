@@ -181,6 +181,17 @@ keys will be taken in account.
         // ]
     }
 
+### `object`
+
+The structure of an object can also be validated.
+
+    $structure = array('name' => assert\str());
+    $class     = 'stdClass';
+    $byref     = true;
+    
+    $plan = new plan(assert\object($structure, $class, $byref));
+    $plan((object) array('name' => 'John'));
+
 ### `any`
 
 Accept any of the given list of _validators_, as a valid value. This is useful
