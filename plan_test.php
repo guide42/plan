@@ -314,16 +314,32 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testObject()
     {
-        $validator = new plan(assert\object(array(
-            'name' => 'John',
-            'age' => assert\int(),
-            'email' => filter\sanitize('email'),
-        ), 'stdClass'));
+        $structure = array('name' => 'John', 'age' => assert\int(), 'email' => filter\sanitize('email'));
+        $validator = new plan(assert\object($structure, 'stdClass'));
 
-        $expected = (object) array('name' => 'John', 'age' => 42, 'email' => 'john@example.org');
+        $expect = (object) array('name' => 'John', 'age' => 42, 'email' => 'john@example.org');
         $object = (object) array('name' => 'John', 'age' => 42, 'email' => '(john)@example¶.org');
+        $result = $validator($object);
 
-        $this->assertEquals($expected, $validator($object));
+        $this->assertSame($object, $result);
+        $this->assertEquals($expect, $result);
+        $this->assertEquals($expect, $object);
+    }
+
+    /**
+     * @covers ::plan\assert\object
+     */
+    public function testObjectNew()
+    {
+        $validator = new plan(assert\object(array('email' => filter\sanitize('email')), 'stdClass', false));
+
+        $expect = (object) array('email' => 'john@example.org');
+        $object = (object) array('email' => '(john)@example¶.org');
+        $result = $validator($object);
+
+        $this->assertEquals($expect, $result);
+        $this->assertNotEquals($expect, $object);
+        $this->assertNotSame($object, $result);
     }
 
     /**

@@ -477,30 +477,21 @@ function dict(array $structure, $required=false, $extra=false)
     };
 }
 
-function object(array $structure, $class=null)
+function object(array $structure, $class=null, $byref=true)
 {
     $type = assert\all(
         assert\type('object'),
-        function($data, $path=null) use($class)
-        {
-            if (null !== $class) {
-                $type = assert\instance($class);
-                $data = $type($data, $path);
-            }
-            return $data;
-        },
+        assert\iif(null !== $class, assert\instance($class)),
         filter\vars(false, true),
         assert\dict($structure, false, true)
     );
 
-    return function($data, $path=null) use($type)
+    return function($data, $path=null) use($type, $byref)
     {
-        $clone = false; // FIXME
-
-        if ($clone) {
-            $object = clone $data;
-        } else {
+        if ($byref) {
             $object = $data;
+        } else {
+            $object = clone $data;
         }
 
         $fill = function($vars, $path=null) use($object)
