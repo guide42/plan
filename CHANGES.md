@@ -1,6 +1,6 @@
 ### Last Version
 
-### 1.0
+### 1.0.0 (2014-09-29)
 
   * New assert\iif for simple conditionals
   * Finish a basic assert\object
