@@ -1,4 +1,5 @@
 vendor/
+htmlcov/
 coverage/
 composer.phar
 .buildpath
