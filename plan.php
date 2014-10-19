@@ -914,15 +914,15 @@ function vars($recursive=false, $inscope=true)
         }
 
         if ($recursive) {
-            // This is a ingenius way of doing recursion, but because we don't
-            // send the $path variable if in the future this function throw an
+            // This is a ingenius way of doing recursion because we don't send
+            // the $path variable. If in the future this function throw an
             // exception it should be doing manually:
             //
             //     $root = null === $path ? array() : $path;
             //     foreach ($vars as $key => $value) {
             //         $path = $root;
             //         $path[] = $key;
-            //         $vars[$key] = $fn($value, $path);
+            //         $vars[$key] = $closure($value, $path);
             //     }
             $vars = \array_map($closure, $vars);
         }
