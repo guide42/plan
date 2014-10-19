@@ -1,5 +1,9 @@
 ### Last Version
 
+### 1.0.1 (2014-10-19)
+
+  * Move type validators outside closures.
+
 ### 1.0.0 (2014-09-29)
 
   * New assert\iif for simple conditionals
