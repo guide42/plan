@@ -282,9 +282,10 @@ function instance($class)
  */
 function literal($literal)
 {
-    return function($data, $path=null) use($literal)
+    $type = assert\type(\gettype($literal));
+
+    return function($data, $path=null) use($type, $literal)
     {
-        $type = assert\type(\gettype($literal));
         $data = $type($data, $path);
 
         if ($data !== $literal) {
@@ -317,9 +318,10 @@ function seq(array $values)
         $compiled[] = Schema::compile($values[$s]);
     }
 
-    return function($data, $root=null) use($compiled, $sl)
+    $type = assert\type('array');
+
+    return function($data, $root=null) use($type, $compiled, $sl)
     {
-        $type = assert\type('array');
         $data = $type($data, $root);
 
         // Empty sequence schema,
@@ -400,12 +402,13 @@ function dict(array $structure, $required=false, $extra=false)
         $extra = $extra === true ?: array();
     }
 
-    return function($data, $root=null) use($compiled, $reqkeys, $extra)
+    $type = assert\any(
+        assert\type('array'),
+        assert\instance('\Traversable')
+    );
+
+    return function($data, $root=null) use($type, $compiled, $reqkeys, $extra)
     {
-        $type = assert\any(
-            assert\type('array'),
-            assert\instance('\Traversable')
-        );
         $data = $type($data, $root);
 
         $return = array();
