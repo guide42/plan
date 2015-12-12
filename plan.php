@@ -745,7 +745,6 @@ function floatval()
 namespace plan\filter;
 
 use plan\Invalid;
-
 use plan\filter;
 
 /**
