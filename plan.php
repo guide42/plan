@@ -61,11 +61,11 @@ class Schema
      */
     public static function compile($schema)
     {
-        if (is_scalar($schema)) {
+        if (\is_scalar($schema)) {
             $validator = assert\literal($schema);
         }
 
-        elseif (is_array($schema)) {
+        elseif (\is_array($schema)) {
             if (empty($schema) || util\is_sequence($schema)) {
                 $validator = assert\seq($schema);
             } else {
@@ -73,7 +73,7 @@ class Schema
             }
         }
 
-        elseif (is_callable($schema)) {
+        elseif (\is_callable($schema)) {
             $validator = $schema;
         }
 
