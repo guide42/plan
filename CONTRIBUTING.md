@@ -5,7 +5,7 @@ under these terms (2-clause BSD, MIT, etc.).
 
 #### Making Changes
 
-1. Fork guide42/plan on Github.
+1. Fork [guide42/plan](https://github.com/guide42/plan) on Github.
 2. Create a topic branch: `git checkout -b BRANCH_NAME`.
 3. Wrap code at 80 characters with 4-space soft tabs. Coding standards are
    pretty much the same as everywhere with some little differences; you will
