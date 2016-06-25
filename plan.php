@@ -594,7 +594,7 @@ function all()
         $return = $data;
 
         for ($i = 0; $i < $count; $i++) {
-            $return = $schemas[$i]($return);
+            $return = $schemas[$i]($return, $path);
         }
 
         return $return;

@@ -407,6 +407,24 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::plan\assert\all
+     */
+    public function testAllShouldPassPath()
+    {
+        $validator = new plan(assert\dict(array(
+            'foo' => assert\all(function($data, $path=null)
+            {
+                PHPUnit_Framework_Assert::assertEquals('bar', $data);
+                PHPUnit_Framework_Assert::assertEquals(array('foo'), $path);
+
+                return $data;
+            }),
+        )));
+
+        $validator(array('foo' => 'bar'));
+    }
+
+    /**
      * @covers       ::plan\assert\not
      * @dataProvider testNotProvider
      */
