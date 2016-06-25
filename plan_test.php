@@ -330,6 +330,32 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException        \plan\Invalid
+     * @expectedExceptionMessage Required key name not provided
+     */
+    public function testRequired()
+    {
+        $dict = array('name' => assert\all(assert\required(), 'John'));
+
+        $validator = assert\dict($dict, false);
+        $validator(array());
+    }
+
+    /**
+     * @expectedException        \plan\Invalid
+     * @expectedExceptionMessage Required key name not provided
+     */
+    public function testRequiredSchema()
+    {
+        $dict = array(
+            'name' => assert\required('John'),
+        );
+
+        $validator = assert\dict($dict, false);
+        $validator(array('name' => 'John'));
+    }
+
+    /**
      * @covers ::plan\assert\object
      */
     public function testObject()

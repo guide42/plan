@@ -501,6 +501,31 @@ function dict(array $structure, $required=false, $extra=false)
 }
 
 /**
+ * When used inside assert\dict will make that item required. It accepts
+ * another validator to wrap and delegate real validation.
+ *
+ * @param mixed $validator to be called
+ *
+ * @return \Closure
+ */
+function required($validator=null)
+{
+    if ($validator !== null) {
+        $compiled = Schema::compile($validator);
+    } else {
+        $compiled = function($data, $path=null)
+        {
+            return $data;
+        };
+    }
+
+    return function($data, $path=null) use($compiled)
+    {
+        return $compiled($data, $path);
+    };
+}
+
+/**
  * Validate the structure of an object.
  *
  * @param array  $structure to be validation in given $data
