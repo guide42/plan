@@ -2,6 +2,7 @@ vendor/
 htmlcov/
 coverage/
 composer.phar
+phpunit*.phar
 .buildpath
 .project
 .settings/
