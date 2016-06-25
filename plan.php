@@ -636,8 +636,8 @@ function not($validator)
  * Simple condition validator.
  *
  * @param boolean $condition to check
- * @param string  $true      validator if the condition is true
- * @param string  $false     validator if the condition is false
+ * @param mixed   $true      validator if the condition is true
+ * @param mixed   $false     validator if the condition is false
  *
  * @return \Closure
  */
