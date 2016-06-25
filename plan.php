@@ -165,6 +165,7 @@ use plan\InvalidList;
 
 use plan\assert;
 use plan\filter;
+use plan\util;
 
 /**
  * Check that the input data is of the given $type. The data type will not be
@@ -397,9 +398,16 @@ function dict(array $structure, $required=false, $extra=false)
     }
 
     if (\is_array($extra)) {
-        $extra = \array_flip(\array_values($extra));
+        if (util\is_sequence($extra)) {
+            $cextra = \array_flip(\array_values($extra));
+        } else {
+            $cextra = array();
+            foreach ($extra as $dextra => $vextra) {
+                $cextra[$dextra] = Schema::compile($vextra);
+            }
+        }
     } else {
-        $extra = $extra === true ?: array();
+        $cextra = $extra === true ?: array();
     }
 
     $type = assert\any(
@@ -407,7 +415,7 @@ function dict(array $structure, $required=false, $extra=false)
         assert\instance('\Traversable')
     );
 
-    return function($data, $root=null) use($type, $compiled, $reqkeys, $extra)
+    return function($data, $root=null) use($type, $compiled, $reqkeys, $cextra)
     {
         $data = $type($data, $root);
 
@@ -441,8 +449,20 @@ function dict(array $structure, $required=false, $extra=false)
                     unset($str);
                     unset($msg);
                 }
-            } elseif ($extra === true || \array_key_exists($dkey, $extra)) {
-                $return[$dkey] = $dvalue;
+            } elseif ($cextra === true || \array_key_exists($dkey, $cextra)) {
+                if (\is_callable($cextra[$dkey])) {
+                    try {
+                        $return[$dkey] = $cextra[$dkey]($dvalue, $path);
+                    } catch (Invalid $e) {
+                        $msg = \strtr('Extra key {key} is not valid', array(
+                            '{key}' => $dkey,
+                        ));
+
+                        $errors[] = new Invalid($msg, null, $e, $path);
+                    }
+                } else {
+                    $return[$dkey] = $dvalue;
+                }
             } else {
                 $msg = \strtr('Extra key {key} not allowed', array(
                     '{key}' => $dkey,

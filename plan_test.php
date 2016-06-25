@@ -284,6 +284,25 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator(array('foo' => 'foo', 'bar' => 'bar'));
     }
 
+    /**
+     * @covers ::plan\assert\dict
+     */
+    public function testDirectoryExtraSchema()
+    {
+      $validator = assert\dict(array(), false, array('two' => '2'));
+      $validator(array('two' => '2'));
+    }
+
+    /**
+     * @expectedException        \plan\Invalid
+     * @expectedExceptionMessage Extra key two is not valid
+     */
+    public function testDirectoryExtraSchemaInvalid()
+    {
+      $validator = assert\dict(array(), false, array('two' => '2'));
+      $validator(array('two' => '3'));
+    }
+
     public function testDictionaryDeepException()
     {
         $validator = assert\dict(array(

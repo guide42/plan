@@ -1,5 +1,7 @@
 ### Last Version
 
+  * Parameter extra for assert\dict accepts a schema dict
+
 ### 1.0.1 (2014-10-19)
 
   * Move type validators outside closures.

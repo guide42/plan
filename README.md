@@ -181,6 +181,22 @@ keys will be taken in account.
         // ]
     }
 
+If the `extra` parameter is a dictionary it will be compiled and treat it as
+a validator for each extra key.
+
+    $extra = array('dob' => assert\instance('\\DateTime'));
+    
+    $plan = new plan(assert\dict($dict, true, $extra));
+    $plan(array('name' => 'John', 'age' => 42, 'dob' => new \DateTime));
+    
+    try {
+        $plan(array('name' => 'John', 'age' => 42, 'dob' => '1970-01-01'));
+    } catch (InvalidList $e) {
+        // Multiple invalid: [
+        //     "Extra key dob is not valid"
+        // ]
+    }
+
 ### `object`
 
 The structure of an object can also be validated.
