@@ -520,6 +520,8 @@ function object(array $structure, $class=null, $byref=true)
 
     return function($data, $path=null) use($type, $byref)
     {
+        $vars = $type($data, $path);
+
         if ($byref) {
             $object = $data;
         } else {
@@ -535,7 +537,6 @@ function object(array $structure, $class=null, $byref=true)
             return $object;
         };
 
-        $vars = $type($data, $path);
         $data = $fill($vars, $path);
 
         return $data;

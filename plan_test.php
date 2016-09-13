@@ -373,6 +373,16 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException        \plan\InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["{\"age\":42} is not object"]
+     */
+    public function testObjectInvalidTypeCloned()
+    {
+        $validator = new plan(assert\object(array('age' => 42), null, false));
+        $validator(array('age' => 42));
+    }
+
+    /**
      * @covers ::plan\assert\any
      */
     public function testAny()
