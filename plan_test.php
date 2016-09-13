@@ -335,7 +335,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     public function testObject()
     {
         $structure = array('name' => 'John', 'age' => assert\int(), 'email' => filter\sanitize('email'));
-        $validator = new plan(assert\object($structure, 'stdClass'));
+        $validator = new plan(assert\object($structure, 'stdClass', true));
 
         $expect = (object) array('name' => 'John', 'age' => 42, 'email' => 'john@example.org');
         $object = (object) array('name' => 'John', 'age' => 42, 'email' => '(john)@example¶.org');
