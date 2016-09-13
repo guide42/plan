@@ -1,5 +1,7 @@
 ### Last Version
 
+### 1.1.0 (2016-09-13)
+
   * Fix bug with calling assert\object with a non object and ask to be cloned
   * Fix $path in schemas called by assert\all
   * Parameter extra for assert\dict accepts a schema dict
