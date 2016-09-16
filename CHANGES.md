@@ -1,5 +1,7 @@
 ### Last Version
 
+  * Add assert\match as wrapper around preg_match
+
 ### 1.1.0 (2016-09-13)
 
   * Fix bug with calling assert\object with a non object and ask to be cloned

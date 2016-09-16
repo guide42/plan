@@ -763,6 +763,29 @@ function floatval()
     return assert\validate('float');
 }
 
+/**
+ * A wrapper around `preg_match` in a match/notmatch fashion.
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
+function match($pattern)
+{
+    return function($data, $path=null) use($pattern)
+    {
+        if (!\preg_match($pattern, $data)) {
+            $msg = \strtr('Value {value} doesn\'t follow {pattern}', array(
+                '{pattern}' => $pattern,
+                '{value}'   => \json_encode($data),
+            ));
+
+            throw new Invalid($msg, null, null, $path);
+        }
+
+        return $data;
+    };
+}
+
 namespace plan\filter;
 
 use plan\Invalid;

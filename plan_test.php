@@ -577,6 +577,36 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers       ::plan\assert\match
+     * @dataProvider testMatchProvider
+     */
+    public function testMatch($pattern, $test)
+    {
+        $validator = new plan(assert\match($pattern));
+        $validated = $validator($test);
+
+        $this->assertEquals($test, $validated);
+    }
+
+    public function testMatchProvider()
+    {
+        return array(
+            array('/[a-z]/', 'a'),
+            array('/[0-9]/', '0'),
+        );
+    }
+
+    /**
+     * @expectedException        \plan\InvalidList
+     * @expectedExceptionMessage Multiple invalid: ["Value 0 doesn't follow \/[a-z]\/"]
+     */
+    public function testMatchInvalid()
+    {
+        $validator = new plan(assert\match('/[a-z]/'));
+        $validator(0);
+    }
+
+    /**
      * @covers       ::plan\filter\type
      * @dataProvider testTypeFilterProvider
      */
