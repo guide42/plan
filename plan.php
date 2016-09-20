@@ -976,6 +976,61 @@ function vars($recursive=false, $inscope=true)
     return $closure;
 }
 
+namespace plan\filter\intl;
+
+use plan\util;
+
+/**
+ * Keep only langauge chars.
+ *
+ * @param boolean $lower      keep lower case letters
+ * @param boolean $upper      keep upper case letters
+ * @param boolean $number     keep numbers
+ * @param boolean $whitespace keep whitespace
+ *
+ * @return \Closure
+ */
+function chars($lower=true, $upper=true, $number=true, $whitespace=false)
+{
+    $patterns = array();
+
+    if ($whitespace) {
+        $patterns[] = '\s';
+    }
+
+    if (util\has_pcre_unicode_support()) {
+        if ($lower && $upper) {
+            $patterns[] = '\p{L}';
+        } elseif ($lower) {
+            $patterns[] = '\p{Ll}';
+        } elseif ($upper) {
+            $patterns[] = '\p{Lu}';
+        }
+        if ($number) {
+            $patterns[] = '\p{N}';
+        }
+
+        $pattern = '/[^' . implode('', $patterns) . ']/u';
+    } else {
+        if ($lower) {
+            $patterns[] = 'a-z';
+        }
+        if ($upper) {
+            $patterns[] = 'A-Z';
+        }
+        if ($number) {
+            $patterns[] = '0-9';
+        }
+
+        $pattern = '/[^' . implode('', $patterns) . ']/';
+    }
+
+    return function($data, $path=null) use($pattern)
+    {
+        return preg_replace($pattern, '', $data);
+    };
+}
+
 namespace plan\util;
 
 /**
@@ -985,4 +1040,19 @@ namespace plan\util;
 function is_sequence(array $array)
 {
     return !count(array_diff_key($array, array_fill(0, count($array), null)));
+}
+
+/**
+ * Return true if `preg_*` functions support unicode character properties.
+ * False otherwise.
+ *
+ * @link http://php.net/manual/en/regexp.reference.unicode.php
+ */
+function has_pcre_unicode_support()
+{
+    static $cache;
+
+    // Mute compilation warning "PCRE does not support \L" as it will return
+    // false on error anyway.
+    return isset($cache) ? $cache : $cache = @preg_match('/\pL/u', 'z') === 1;
 }

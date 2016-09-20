@@ -781,6 +781,39 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers       ::plan\filter\intl\chars
+     * @dataProvider testCharsProvider
+     */
+    public function testChars($lower, $upper, $number, $whitespace, $input, $expected)
+    {
+        setlocale(LC_ALL, 'en');
+
+        $validator = new plan(filter\intl\chars($lower, $upper, $number, $whitespace));
+        $validated = $validator($input);
+
+        $this->assertEquals($expected, $validated);
+    }
+
+    public function testCharsProvider()
+    {
+        $input = 'hEl1o ☃W0rld';
+
+        return array(
+            array(true, true, true, true, $input, 'hEl1o W0rld'),
+            array(true, false, false, false, $input, 'hlorld'),
+            array(true, true, false, false, $input, 'hEloWrld'),
+            array(true, false, true, false, $input, 'hl1o0rld'),
+            array(true, false, false, true, $input, 'hlo rld'),
+            array(false, true, false, false, $input, 'EW'),
+            array(false, true, true, false, $input, 'E1W0'),
+            array(false, true, false, true, $input, 'E W'),
+            array(false, false, true, false, $input, '10'),
+            array(false, false, true, true, $input, '1 0'),
+            array(false, false, false, true, $input, ' '),
+        );
+    }
+
+    /**
      * @expectedException        \plan\InvalidList
      * @expectedExceptionMessage Multiple invalid: ["Invalid value at key age (value is \"18 years old\")","Extra key sex not allowed","Required key name not provided"]
      */

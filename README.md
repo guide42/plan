@@ -292,7 +292,7 @@ Core _filters_ will be found in the `\plan\filter` _namespace_.
 Will cast the data into the given type.
 
     $plan = new plan(filter\type('int'));
-    $plan('123 users'); // Returns 123
+    $plan('123 users'); // returns 123
 
 Note that `boolval`, `intval`, `floatval` are not aliases of this filter but
 wrappers of the homonymous functions.
@@ -302,9 +302,28 @@ wrappers of the homonymous functions.
 Sanitization [filters](http://php.net/manual/en/filter.filters.sanitize.php).
 
     $plan = new plan(filter\sanitize('email'));
-    $plan('(john)@example.org'); // Returns 'john@example.org'
+    $plan('(john)@example.org'); // returns 'john@example.org'
 
 Aliases are: `url`, `email`.
+
+Internationalization
+--------------------
+
+This library supports some _filters_ to be language dependant. Before using any
+of them make sure that the correct locale is set (ex. by using `setlocale`).
+
+### `chars`
+
+Will keep only characters in the current language and numbers. Optionally
+white-space could be keeped too.
+
+    $lower      = true; // all lower-case characters
+    $upper      = true; // all upper-case characters
+    $number     = true; // all numbers
+    $whitespace = true; // the only one not language dependant
+
+    $plan = new plan(filter\intl\chars($lower, $upper, $number, $whitespace));
+    $plan('Hello World ☃!!1'); // returns 'Hello World !!1'
 
 Writing Validators
 ------------------

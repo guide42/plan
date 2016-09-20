@@ -1,6 +1,8 @@
 ### Last Version
 
   * Add assert\match as wrapper around preg_match
+  * Add filter\intl namespace
+  * Add filter\intl\chars
 
 ### 1.1.0 (2016-09-13)
 
