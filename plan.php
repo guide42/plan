@@ -1013,7 +1013,7 @@ function chars($lower=true, $upper=true, $number=true, $whitespace=false)
             $patterns[] = '\p{N}';
         }
 
-        $pattern = '/[^' . implode('', $patterns) . ']/u';
+        $pattern = '/[^' . \implode('', $patterns) . ']/u';
     } else {
         if ($lower) {
             $patterns[] = 'a-z';
@@ -1025,12 +1025,12 @@ function chars($lower=true, $upper=true, $number=true, $whitespace=false)
             $patterns[] = '0-9';
         }
 
-        $pattern = '/[^' . implode('', $patterns) . ']/';
+        $pattern = '/[^' . \implode('', $patterns) . ']/';
     }
 
     return function($data, $path=null) use($pattern)
     {
-        return preg_replace($pattern, '', $data);
+        return \preg_replace($pattern, '', $data);
     };
 }
 
