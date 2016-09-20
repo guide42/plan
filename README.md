@@ -87,7 +87,7 @@ A dictionary will be used to validate structures. Each key in data will be
 checked with the _validator_ of the same key in the schema. By default, keys
 are not required; but any additional key will throw an exception.
 
-    $plan = new plan(array('name' => 'John', 'age'  => 42));
+    $plan = new plan(array('name' => 'John', 'age' => 42));
     $plan(array('age' => 42));
     
     try {
