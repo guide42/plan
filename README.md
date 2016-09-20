@@ -271,7 +271,7 @@ filter as listed [here](http://php.net/manual/en/filter.filters.validate.php).
     $plan = new plan(assert\validate('validate_email'));
     $plan('john@example.org');
 
-Aliases are: `url`, `email`, `ip`, `regexp`.
+Aliases are: `url`, `email`, `ip`.
 
 And the "like-type": `boolval`, `intval`, `floatval`. Note that this will check
 that a string resemble to a boolean/int/float; for checking if the input data

@@ -1,5 +1,7 @@
 ### Last Version
 
+  * Mark assert\regexp as deprecated
+
 ### 1.1.1 (2016-09-19)
 
   * Add assert\match as wrapper around preg_match
