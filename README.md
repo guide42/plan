@@ -368,7 +368,7 @@ exceptions. All other exceptions are considerer as errors in the _validator_.
         return $data;
     };
 
-    $validator = new plan($passwordStrength);
+    $validator = new plan(assert\all(assert\str(), $passwordStrength, assert\not($old_passwd)));
     $validated = $validator('heLloW0rld');
 
 Acknowledgments
