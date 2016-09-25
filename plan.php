@@ -537,18 +537,11 @@ function object(array $structure, $class=null, $byref=true)
             $object = clone $data;
         }
 
-        $fill = function($vars, $path=null) use($object)
-        {
-            foreach ($vars as $key => $value) {
-                $object->$key = $value;
-            }
+        foreach ($vars as $key => $value) {
+            $object->$key = $value;
+        }
 
-            return $object;
-        };
-
-        $data = $fill($vars, $path);
-
-        return $data;
+        return $object;
     };
 }
 
