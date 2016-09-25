@@ -786,7 +786,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testChars($lower, $upper, $number, $whitespace, $input, $expected)
     {
-        setlocale(LC_ALL, 'en');
+        \setlocale(LC_ALL, 'en');
 
         $validator = new plan(filter\intl\chars($lower, $upper, $number, $whitespace));
         $validated = $validator($input);
