@@ -138,10 +138,19 @@ class InvalidList extends \Exception implements \IteratorAggregate
     {
         $this->errors = $errors;
 
-        $messages = array();
-        foreach ($errors as $error) {
-            $messages[] = $error->getMessage();
-        }
+        /**
+         * Extracts error message.
+         *
+         * @param Invalid $error the exception
+         *
+         * @return string
+         */
+        $extract = function(Invalid $error)
+        {
+            return $error->getMessage();
+        };
+
+        $messages = \array_map($extract, $this->errors);
         $message = 'Multiple invalid: ' . \json_encode($messages);
 
         parent::__construct($message, null, $previous);
