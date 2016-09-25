@@ -1,6 +1,7 @@
 ### Last Version
 
   * Mark assert\regexp as deprecated
+  * Add filter\intl\alpha y filter\intl\alnum
 
 ### 1.1.1 (2016-09-19)
 

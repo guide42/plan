@@ -983,6 +983,7 @@ function vars($recursive=false, $inscope=true)
 
 namespace plan\filter\intl;
 
+use plan\filter;
 use plan\util;
 
 /**
@@ -1034,6 +1035,22 @@ function chars($lower=true, $upper=true, $number=true, $whitespace=false)
     {
         return \preg_replace($pattern, '', $data);
     };
+}
+
+/**
+ * Alias of `filter\intl\chars(true, true, false)`.
+ */
+function alpha($whitespace=false)
+{
+    return filter\intl\chars(true, true, false, $whitespace);
+}
+
+/**
+ * Alias of `filter\intl\chars(true, true, true)`.
+ */
+function alnum($whitespace=false)
+{
+    return filter\intl\chars(true, true, true, $whitespace);
 }
 
 namespace plan\util;

@@ -325,6 +325,8 @@ white-space could be keeped too.
     $plan = new plan(filter\intl\chars($lower, $upper, $number, $whitespace));
     $plan('Hello World ☃!!1'); // returns 'Hello World !!1'
 
+Aliases are: `alpha`, `alnum`.
+
 Writing Validators
 ------------------
 
