@@ -200,6 +200,10 @@ a validator for each extra key.
 There is no way of treat all items with the same validator. Nor having a
 default validator for extra keys.
 
+### `dictkeys`
+
+Is also possible to validate and/or filter the list of keys of a dictionary.
+
 ### `object`
 
 The structure of an object can also be validated.

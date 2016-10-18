@@ -347,6 +347,58 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers       ::plan\assert\dictkeys
+     * @dataProvider testDictkeysProvider
+     */
+    public function testDictkeys($schema, $input)
+    {
+        $validator = new plan(assert\dictkeys($schema));
+        $validated = $validator($input);
+
+        $this->assertEquals($input, $validated);
+    }
+
+    public function testDictkeysProvider()
+    {
+        return array(
+            # Keys should always be an array
+            array(assert\type('array'), array()),
+
+            # Length is the same as the dict
+            array(assert\length(1, 1), array('key' => 'value')),
+        );
+    }
+
+    /**
+     * @covers       ::plan\assert\dictkeys
+     * @dataProvider testDictkeysFilteredProvider
+     */
+    public function testDictkeysFiltered($schema, $input, $filtered)
+    {
+        $validator = new plan(assert\dictkeys($schema));
+        $validated = $validator($input);
+
+        $this->assertEquals($filtered, $validated);
+    }
+
+    public function testDictkeysFilteredProvider()
+    {
+        return array(
+            array(
+                function($data, $root=null)
+                {
+                    \PHPUnit_Framework_TestCase::assertEquals(array('name', 'age'), $data);
+                    \PHPUnit_Framework_TestCase::assertNull($root);
+
+                    return array('name');
+                },
+                array('name' => 'John', 'age' => 42),
+                array('name' => 'John')
+            ),
+        );
+    }
+
+    /**
      * @covers ::plan\assert\object
      */
     public function testObjectNew()

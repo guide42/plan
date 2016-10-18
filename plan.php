@@ -510,6 +510,38 @@ function dict(array $structure, $required=false, $extra=false)
 }
 
 /**
+ * Runs a validator through a list of data keys.
+ *
+ * @param mixed $validator to check
+ *
+ * @return \Closure
+ */
+function dictkeys($validator)
+{
+    $compiled = Schema::compile($validator);
+
+    $type = assert\any(
+        assert\type('array'),
+        assert\instance('\Traversable')
+    );
+
+    return function($data, $root=null) use($type, $compiled)
+    {
+        $data = $type($data, $root);
+
+        $keys = \array_keys($data);
+        $keys = $compiled($keys, $root);
+
+        $return = array();
+        foreach ($keys as $key) {
+            $return[$key] = $data[$key];
+        }
+
+        return $return;
+    };
+}
+
+/**
  * Validate the structure of an object.
  *
  * @param array  $structure to be validation in given $data

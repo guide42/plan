@@ -2,6 +2,7 @@
 
   * Mark assert\regexp as deprecated
   * Add filter\intl\alpha y filter\intl\alnum
+  * Add assert\dictkeys
 
 ### 1.1.1 (2016-09-19)
 
