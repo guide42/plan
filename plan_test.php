@@ -289,8 +289,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testDictionaryExtraSchema()
     {
-      $validator = assert\dict(array(), false, array('two' => '2'));
-      $validator(array('two' => '2'));
+        $validator = assert\dict(array(), false, array('two' => '2'));
+        $validator(array('two' => '2'));
     }
 
     /**
@@ -299,8 +299,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testDictionaryExtraSchemaInvalid()
     {
-      $validator = assert\dict(array(), false, array('two' => '2'));
-      $validator(array('two' => '3'));
+        $validator = assert\dict(array(), false, array('two' => '2'));
+        $validator(array('two' => '3'));
     }
 
     public function testDictionaryDeepException()
