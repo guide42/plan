@@ -353,32 +353,22 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers       ::plan\assert\dictkeys
-     * @dataProvider testDictkeysFilteredProvider
+     * @covers ::plan\assert\dictkeys
      */
-    public function testDictkeysFiltered($schema, $input, $filtered)
+    public function testDictkeysFiltered()
     {
-        $validator = new plan(assert\dictkeys($schema));
-        $validated = $validator($input);
+        $validator = new plan(assert\dictkeys(function($data, $root=null)
+        {
+            \PHPUnit_Framework_TestCase::assertEquals(array('name', 'age'), $data);
+            \PHPUnit_Framework_TestCase::assertNull($root);
 
-        $this->assertEquals($filtered, $validated);
-    }
+            return array('name');
+        }));
 
-    public function testDictkeysFilteredProvider()
-    {
-        return array(
-            array(
-                function($data, $root=null)
-                {
-                    \PHPUnit_Framework_TestCase::assertEquals(array('name', 'age'), $data);
-                    \PHPUnit_Framework_TestCase::assertNull($root);
+        $expected  = array('name' => 'John');
+        $validated = $validator(array('name' => 'John', 'age' => 42));
 
-                    return array('name');
-                },
-                array('name' => 'John', 'age' => 42),
-                array('name' => 'John')
-            ),
-        );
+        $this->assertEquals($expected, $validated);
     }
 
     /**
