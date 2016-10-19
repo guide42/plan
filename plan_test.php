@@ -372,6 +372,20 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException        \plan\Invalid
+     * @expectedExceptionMessage Value for key "age" not found in {"name":"John"}
+     */
+    public function testDictkeysInvalid()
+    {
+        $validator = assert\dictkeys(function($data, $root=null)
+        {
+            return array('name', 'age');
+        });
+
+        $validator(array('name' => 'John'));
+    }
+
+    /**
      * @covers ::plan\assert\object
      */
     public function testObject()

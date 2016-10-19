@@ -533,7 +533,17 @@ function dictkeys($validator)
         $keys = $compiled($keys, $root);
 
         $return = array();
+
         foreach ($keys as $key) {
+            if (!\array_key_exists($key, $data)) {
+                $msg = \strtr('Value for key {key} not found in {data}', array(
+                    '{key}'  => \json_encode($key),
+                    '{data}' => \json_encode($data),
+                ));
+
+                throw new Invalid($msg, null, null, $root);
+            }
+
             $return[$key] = $data[$key];
         }
 
