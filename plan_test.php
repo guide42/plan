@@ -330,23 +330,6 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::plan\assert\object
-     */
-    public function testObject()
-    {
-        $structure = array('name' => 'John', 'age' => assert\int(), 'email' => filter\sanitize('email'));
-        $validator = new plan(assert\object($structure, 'stdClass', true));
-
-        $expect = (object) array('name' => 'John', 'age' => 42, 'email' => 'john@example.org');
-        $object = (object) array('name' => 'John', 'age' => 42, 'email' => '(john)@example¶.org');
-        $result = $validator($object);
-
-        $this->assertSame($object, $result);
-        $this->assertEquals($expect, $result);
-        $this->assertEquals($expect, $object);
-    }
-
-    /**
      * @covers       ::plan\assert\dictkeys
      * @dataProvider testDictkeysProvider
      */
@@ -396,6 +379,23 @@ class PlanTest extends \PHPUnit_Framework_TestCase
                 array('name' => 'John')
             ),
         );
+    }
+
+    /**
+     * @covers ::plan\assert\object
+     */
+    public function testObject()
+    {
+        $structure = array('name' => 'John', 'age' => assert\int(), 'email' => filter\sanitize('email'));
+        $validator = new plan(assert\object($structure, 'stdClass', true));
+
+        $expect = (object) array('name' => 'John', 'age' => 42, 'email' => 'john@example.org');
+        $object = (object) array('name' => 'John', 'age' => 42, 'email' => '(john)@example¶.org');
+        $result = $validator($object);
+
+        $this->assertSame($object, $result);
+        $this->assertEquals($expect, $result);
+        $this->assertEquals($expect, $object);
     }
 
     /**
