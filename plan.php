@@ -79,7 +79,7 @@ class Schema
 
         else {
             throw new \LogicException(
-                sprintf('Unsupported type %s', \gettype($schema))
+                \sprintf('Unsupported type %s', \gettype($schema))
             );
         }
 
