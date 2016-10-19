@@ -514,6 +514,7 @@ function dict(array $structure, $required=false, $extra=false)
  *
  * @param mixed $validator to check
  *
+ * @throws \plan\Invalid
  * @return \Closure
  */
 function dictkeys($validator)
