@@ -1,5 +1,7 @@
 ### Last Version
 
+### 1.2.0 (2016-10-26)
+
   * Mark assert\regexp as deprecated
   * Add filter\intl\alpha y filter\intl\alnum
   * Add assert\dictkeys
