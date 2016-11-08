@@ -1,5 +1,7 @@
 ### Last Version
 
+### 1.3.0 (2016-10-08)
+
   * Add InvalidList::getMessages
   * Add assert\file as an alias of dict
 
