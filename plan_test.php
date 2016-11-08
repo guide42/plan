@@ -240,8 +240,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     public function testDictionaryRequiredNoExtra()
     {
+        $expected = array('one' => '1', 'two' => '2');
+
         $validator = assert\dict(array('one' => '1'), array('one', 'two'), false);
-        $validator(array('one' => '1', 'two' => '2'));
+        $validated = $validator($expected);
+
+        $this->assertEquals($expected, $validated);
     }
 
     /**
