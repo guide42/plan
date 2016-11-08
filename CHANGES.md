@@ -1,5 +1,7 @@
 ### Last Version
 
+  * Add InvalidList::getMessages
+
 ### 1.2.0 (2016-10-26)
 
   * Mark assert\regexp as deprecated

@@ -131,13 +131,18 @@ class InvalidList extends \Exception implements \IteratorAggregate
     protected $errors;
 
     /**
+     * List of messages.
+     *
+     * @var array
+     */
+    protected $messages;
+
+    /**
      * @param array  $errors   are a list of `\plan\Invalid` exceptions
      * @param string $previous previous exception
      */
     public function __construct(array $errors, $previous=null)
     {
-        $this->errors = $errors;
-
         /**
          * Extracts error message.
          *
@@ -150,10 +155,22 @@ class InvalidList extends \Exception implements \IteratorAggregate
             return $error->getMessage();
         };
 
-        $messages = \array_map($extract, $this->errors);
-        $message = 'Multiple invalid: ' . \json_encode($messages);
+        $this->errors = $errors;
+        $this->messages = \array_map($extract, $this->errors);
+
+        $message = 'Multiple invalid: ' . \json_encode($this->messages);
 
         parent::__construct($message, null, $previous);
+    }
+
+    /**
+     * Retrieve a list of error messages.
+     *
+     * @return array
+     */
+    public function getMessages()
+    {
+        return $this->messages;
     }
 
     /**
