@@ -453,7 +453,8 @@ function dict(array $structure, $required=false, $extra=false)
             $path = $root;
             $path[] = $dkey;
 
-            if (\array_key_exists($dkey, $compiled)) {
+            switch (true) {
+            case \array_key_exists($dkey, $compiled):
                 try {
                     $return[$dkey] = $compiled[$dkey]($dvalue, $path);
                 } catch (Invalid $e) {
@@ -475,7 +476,12 @@ function dict(array $structure, $required=false, $extra=false)
                     unset($str);
                     unset($msg);
                 }
-            } elseif ($cextra === true || \array_key_exists($dkey, $cextra)) {
+            case \in_array($dkey, $reqkeys):
+                $reqkeys = \array_filter($reqkeys, function($rkey) use($dkey) {
+                    return $rkey !== $dkey;
+                });
+                break;
+            case $cextra === true || \array_key_exists($dkey, $cextra):
                 if (\is_callable($cextra[$dkey])) {
                     try {
                         $return[$dkey] = $cextra[$dkey]($dvalue, $path);
@@ -489,18 +495,13 @@ function dict(array $structure, $required=false, $extra=false)
                 } else {
                     $return[$dkey] = $dvalue;
                 }
-            } else {
+                break;
+            default:
                 $msg = \strtr('Extra key {key} not allowed', array(
                     '{key}' => $dkey,
                 ));
 
                 $errors[] = new Invalid($msg, null, null, $path);
-            }
-
-            $rkey = \array_search($dkey, $reqkeys, true);
-
-            if ($rkey !== false) {
-                unset($reqkeys[$rkey]);
             }
         }
 

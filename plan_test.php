@@ -238,6 +238,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator(array());
     }
 
+    public function testDictionaryRequiredNoExtra()
+    {
+        $validator = assert\dict(array('one' => '1'), array('one', 'two'), false);
+        $validator(array('one' => '1', 'two' => '2'));
+    }
+
     /**
      * @covers ::plan\assert\dict
      */
