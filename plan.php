@@ -529,8 +529,8 @@ function dict(array $structure, $required=false, $extra=false)
 function file()
 {
     return assert\dict(
-        ['error' => 0],
-        ['tmp_name', 'size', 'error', 'name', 'type'],
+        array('error' => 0),
+        array('tmp_name', 'size', 'error', 'name', 'type'),
         false
     );
 }
