@@ -111,11 +111,11 @@ class Invalid extends \Exception
     protected $path = [];
 
     /**
-     * @param string $template template for final message
-     * @param array  $params   parameters to the template
-     * @param string $code     error identity code
-     * @param string $previous previous exception
-     * @param array  $path     list of indexes/keys inside the tree
+     * @param string     $template template for final message
+     * @param array      $params   parameters to the template
+     * @param string     $code     error identity code
+     * @param \Exception $previous previous exception
+     * @param array      $path     list of indexes/keys inside the tree
      */
     public function __construct($template, array $params=null, $code=null,
                                 $previous=null, array $path=null
