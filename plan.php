@@ -773,6 +773,51 @@ function length($min=null, $max=null)
 }
 
 /**
+ * Look if the given data contains $needle.
+ *
+ * @param mixed $needle to be looked for
+ *
+ * @throws \plan\Invalid
+ * @return \Closure
+ */
+function has($needle)
+{
+    return function($data, $path=null) use($needle)
+    {
+        $found = false;
+
+        switch (\gettype($data)) {
+            case 'string':
+                $found = \strpos($data, $needle) !== false;
+                break;
+
+            case 'array':
+                $found = \in_array($needle, $data);
+                break;
+
+            default:
+                $msg = \strtr('Cannot look for {needle} on {type}', array(
+                    '{needle}' => \json_encode($needle),
+                    '{type}'   => \gettype($data),
+                ));
+
+                throw new Invalid($msg, null, null, $path);
+        }
+
+        if (!$found) {
+            $msg = \strtr('{needle} not found in {data}', array(
+                '{needle}' => \json_encode($needle),
+                '{data}'   => \json_encode($data),
+            ));
+
+            throw new Invalid($msg, null, null, $path);
+        }
+
+        return $data;
+    };
+}
+
+/**
  * A wrapper for validate filters using `filter_var`.
  *
  * @param string $name of the the filter
