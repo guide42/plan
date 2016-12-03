@@ -622,11 +622,10 @@ function object(array $structure, $class=null, $byref=true)
  * @throws \plan\Invalid
  * @return \Closure
  */
-function any()
+function any(...$validators)
 {
-    $validators = \func_get_args();
     $count = \func_num_args();
-    $schemas = array();
+    $schemas = [];
 
     for ($i = 0; $i < $count; $i++) {
         $schemas[] = Schema::compile($validators[$i]);
@@ -653,11 +652,10 @@ function any()
  * @throws \plan\Invalid
  * @return \Closure
  */
-function all()
+function all(...$validators)
 {
-    $validators = \func_get_args();
     $count = \func_num_args();
-    $schemas = array();
+    $schemas = [];
 
     for ($i = 0; $i < $count; $i++) {
         $schemas[] = Schema::compile($validators[$i]);
