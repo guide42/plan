@@ -1,6 +1,7 @@
 ### Last Version
 
   * Remove assert\regexp
+  * Now Invalid accepts template and params
 
 ### 1.3.0 (2016-10-08)
 
