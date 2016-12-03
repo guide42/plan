@@ -1,5 +1,7 @@
 ### Last Version
 
+  * Remove assert\regexp
+
 ### 1.3.0 (2016-10-08)
 
   * Add InvalidList::getMessages

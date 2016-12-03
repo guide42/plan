@@ -836,14 +836,6 @@ function ip()
     return assert\validate('validate_ip');
 }
 
-/**
- * @deprecated
- */
-function regexp()
-{
-    return assert\validate('validate_regexp');
-}
-
 function boolval()
 {
     return assert\validate('boolean');
