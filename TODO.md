@@ -13,7 +13,3 @@ TODO
 - [ ] `asset\one` like `assert\any` but strict only one; or add a `$count`
   parameter to `assert\any` to count the exact times that a validator was
   success.
-
-### 2.0
-
-- Move to PHP 7.
