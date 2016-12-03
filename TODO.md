@@ -17,5 +17,3 @@ TODO
 ### 2.0
 
 - Move to PHP 7.
-- Make `Invalid` exception accept a message template and parameters to be
-  constructed on `Invalid::getMessage`.
