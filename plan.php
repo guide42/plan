@@ -44,7 +44,7 @@ class Schema
         } catch (InvalidList $e) {
             throw $e;
         } catch (Invalid $e) {
-            throw new InvalidList(array($e));
+            throw new InvalidList([$e]);
         }
     }
 
@@ -94,7 +94,7 @@ class Invalid extends \Exception
      *
      * @var array
      */
-    protected $path;
+    protected $path = [];
 
     /**
      * @param string $message  template for final message
@@ -107,7 +107,9 @@ class Invalid extends \Exception
     {
         parent::__construct($message, $code, $previous);
 
-        $this->path = null === $path ? array() : $path;
+        if (!\is_null($path)) {
+            $this->path = $path;
+        }
     }
 
     /**
@@ -358,7 +360,7 @@ function seq(array $values)
         }
 
         $return = array();
-        $root = null === $root ? array() : $root;
+        $root = $root === null ? [] : $root;
         $dl = \count($data);
 
         for ($d = 0; $d < $dl; $d++) {
@@ -444,10 +446,10 @@ function dict(array $structure, $required=false, $extra=false)
     return function($data, $root=null) use($type, $compiled, $reqkeys, $cextra)
     {
         $data = $type($data, $root);
+        $root = $root === null ? [] : $root;
 
         $return = array();
         $errors = array();
-        $root = null === $root ? array() : $root;
 
         foreach ($data as $dkey => $dvalue) {
             $path = $root;
@@ -1035,7 +1037,7 @@ function vars($recursive=false, $inscope=true)
             // the $path variable. If in the future this function throw an
             // exception it should be doing manually:
             //
-            //     $root = null === $path ? array() : $path;
+            //     $root = $path === null ? array() : $path;
             //     foreach ($vars as $key => $value) {
             //         $path = $root;
             //         $path[] = $key;
