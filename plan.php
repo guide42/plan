@@ -910,6 +910,7 @@ function match($pattern)
 namespace plan\filter;
 
 use plan\Invalid;
+use plan\InvalidList;
 use plan\filter;
 
 /**
@@ -1095,6 +1096,63 @@ function vars($recursive=false, $inscope=true)
     };
 
     return $closure;
+}
+
+function datetime($format, $strict=false)
+{
+    return function($data, $path=null) use($format, $strict)
+    {
+        // Silent the PHP Warning when a non-string is given.
+        $dt = @\date_parse_from_format($format, $data);
+
+        if ($dt === false || !\is_array($dt)) {
+            $msg = \strtr('Datetime format {format} for {value} failed', array(
+                '{format}' => $format,
+                '{value}'  => \json_encode($data),
+            ));
+
+            throw new Invalid($msg, null, null, $path);
+        }
+
+        if ($dt['error_count'] + ($strict ? $dt['warnng_count'] : 0) > 0) {
+            $problems = $dt['errors'];
+            if ($strict) {
+                $problems = array_merge($errors, $dt['warnings']);
+            }
+
+            $errors = array();
+            foreach ($problems as $pos => $problem) {
+                $tpl = 'Datetime format {format} for {value} failed'
+                     . ' on position {pos}: {problem}';
+
+                $msg = \strtr($tpl, array(
+                    '{format}'  => $format,
+                    '{value}'   => \json_encode($data),
+                    '{pos}'     => $pos,
+                    '{problem}' => $problem,
+                ));
+
+                $errors[] = new Invalid($msg, null, null, $path);
+            }
+
+            if (\count($errors) === 1) {
+                throw $errors[0];
+            }
+            throw new InvalidList($errors);
+        }
+
+        if ($dt['month'] !== false
+            && $dt['day'] !== false
+            && $dt['year'] !== false
+            && !\checkdate($dt['month'], $dt['day'], $dt['year'])
+        ) {
+            $msg = \strtr('Date in {value} is not valid', array(
+                '{value}' => \json_encode($data),
+            ));
+
+            throw new Invalid($msg, null, null, $path);
+        }
+    };
 }
 
 namespace plan\filter\intl;
