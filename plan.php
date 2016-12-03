@@ -140,7 +140,7 @@ class Invalid extends \Exception
      */
     public function getPath()
     {
-        return $this->path;
+        return \array_values($this->path);
     }
 }
 
