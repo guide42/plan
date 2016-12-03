@@ -1050,7 +1050,7 @@ function vars($recursive=false, $inscope=true)
             // the $path variable. If in the future this function throw an
             // exception it should be doing manually:
             //
-            //     $root = $path === null ? array() : $path;
+            //     $root = $path === null ? [] : $path;
             //     foreach ($vars as $key => $value) {
             //         $path = $root;
             //         $path[] = $key;
