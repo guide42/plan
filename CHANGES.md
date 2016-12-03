@@ -1,5 +1,7 @@
 ### Last Version
 
+### 2.0.0 (2016-12-03)
+
   * Remove assert\regexp
   * Now Invalid accepts template and params
   * PHP >=5.6 required
