@@ -854,6 +854,8 @@ function floatval()
 /**
  * A wrapper around `preg_match` in a match/notmatch fashion.
  *
+ * @param string $pattern regular expression to match
+ *
  * @throws \plan\Invalid
  * @return \Closure
  */
