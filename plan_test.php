@@ -369,8 +369,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     {
         $validator = new plan(assert\dictkeys(function($data, $root=null)
         {
-            \PHPUnit_Framework_TestCase::assertEquals(array('name', 'age'), $data);
-            \PHPUnit_Framework_TestCase::assertNull($root);
+            \PHPUnit_Framework_Assert::assertEquals(array('name', 'age'), $data);
+            \PHPUnit_Framework_Assert::assertNull($root);
 
             return array('name');
         }));
@@ -490,8 +490,8 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator = new plan(assert\dict(array(
             'foo' => assert\all(function($data, $path=null)
             {
-                PHPUnit_Framework_Assert::assertEquals('bar', $data);
-                PHPUnit_Framework_Assert::assertEquals(array('foo'), $path);
+                \PHPUnit_Framework_Assert::assertEquals('bar', $data);
+                \PHPUnit_Framework_Assert::assertEquals(array('foo'), $path);
 
                 return $data;
             }),
