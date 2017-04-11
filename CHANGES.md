@@ -1,5 +1,7 @@
 ### Last Version
 
+  * Better error messages in assert\file
+
 ### 2.0.0 (2016-12-03)
 
   * Remove assert\regexp

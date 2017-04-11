@@ -344,6 +344,25 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::plan\assert\file
+     */
+    public function testFile()
+    {
+        $file = array(
+            'tmp_name' => '/tmp/phpFzv1ru',
+            'name' => 'avatar.png',
+            'type' => 'image/png',
+            'size' => 73096,
+            'error' => 0,
+        );
+
+        $validator = assert\file();
+        $validated = $validator($file);
+
+        $this->assertEquals($file, $validated);
+    }
+
+    /**
      * @covers       ::plan\assert\dictkeys
      * @dataProvider getDictkeysProvider
      */

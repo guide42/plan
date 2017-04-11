@@ -550,13 +550,43 @@ function dict(array $structure, $required=false, $extra=false)
     };
 }
 
+/**
+ * Validates uploaded file structure and error.
+ *
+ * @return \Closure
+ */
 function file()
 {
-    return assert\dict(
-        array('error' => 0),
+    static $errors = array(
+        UPLOAD_ERR_INI_SIZE => 'File {name} exceeds upload limit',
+        UPLOAD_ERR_FORM_SIZE => 'File {name} exceeds upload limit in form',
+        UPLOAD_ERR_PARTIAL => 'File {name} was only partially uploaded',
+        UPLOAD_ERR_NO_FILE => 'No file was uploaded',
+        UPLOAD_ERR_CANT_WRITE => 'File {name} could not be written on disk',
+        UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary directory',
+        UPLOAD_ERR_EXTENSION => 'File upload failed due to a PHP extension',
+    );
+
+    $type = assert\dict(
+        array(),
         array('tmp_name', 'size', 'error', 'name', 'type'),
         false
     );
+
+    return function($data, $root=null) use($type, $errors)
+    {
+        $data = $type($data, $root);
+
+        if ($data['error'] !== UPLOAD_ERR_OK) {
+            $tpl = isset($errors[$data['error']]) ? $errors[$data['error']]
+                 : 'File {name} was not uploaded due to an unknown error';
+            $var = array('{name}' => $data['name']);
+
+            throw new Invalid($tpl, $var, null, null, $path);
+        }
+
+        return $data;
+    };
 }
 
 /**
