@@ -1117,7 +1117,7 @@ function datetime($format, $strict=false)
         if ($dt['error_count'] + ($strict ? $dt['warnng_count'] : 0) > 0) {
             $problems = $dt['errors'];
             if ($strict) {
-                $problems = array_merge($errors, $dt['warnings']);
+                $problems = array_merge($problems, $dt['warnings']);
             }
 
             $errors = array();
