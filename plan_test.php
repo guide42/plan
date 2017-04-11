@@ -13,7 +13,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @covers       ::plan\assert\type
-     * @dataProvider testTypeProvider
+     * @dataProvider getTypeProvider
      */
     public function testType($instance, $test1, $test2)
     {
@@ -23,7 +23,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($test2, $validator($test2));
     }
 
-    public function testTypeProvider()
+    public function getTypeProvider()
     {
         return array(
             array(assert\bool(), true, false),
@@ -49,7 +49,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\assert\scalar
-     * @dataProvider testScalarProvider
+     * @dataProvider getScalarProvider
      */
     public function testScalar($test1, $test2)
     {
@@ -59,7 +59,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($test2, $validator($test2));
     }
 
-    public function testScalarProvider()
+    public function getScalarProvider()
     {
         return array(
             array(true, false),
@@ -126,7 +126,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\assert\seq
-     * @dataProvider testSequenceProvider
+     * @dataProvider getSequenceProvider
      */
     public function testSequence($schema, $input)
     {
@@ -136,7 +136,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($input, $validated);
     }
 
-    public function testSequenceProvider()
+    public function getSequenceProvider()
     {
         return array(
             # Test 1: Values can be repeated by default
@@ -185,7 +185,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\assert\dict
-     * @dataProvider testDictionaryProvider
+     * @dataProvider getDictionaryProvider
      */
     public function testDictionary($schema, $input)
     {
@@ -195,7 +195,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($input, $validated);
     }
 
-    public function testDictionaryProvider()
+    public function getDictionaryProvider()
     {
         return array(
             # Test 1: Keys are not required by default
@@ -345,7 +345,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\assert\dictkeys
-     * @dataProvider testDictkeysProvider
+     * @dataProvider getDictkeysProvider
      */
     public function testDictkeys($schema, $input)
     {
@@ -355,7 +355,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($input, $validated);
     }
 
-    public function testDictkeysProvider()
+    public function getDictkeysProvider()
     {
         return array(
             # Keys should always be an array
@@ -506,7 +506,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\assert\not
-     * @dataProvider testNotProvider
+     * @dataProvider getNotProvider
      */
     public function testNot($schema, $input)
     {
@@ -516,7 +516,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($input, $validated);
     }
 
-    public function testNotProvider()
+    public function getNotProvider()
     {
         return array(
             array(123, '123'),
@@ -530,7 +530,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers                   ::plan\assert\not
-     * @dataProvider             testNotInvalidProvider
+     * @dataProvider             getNotInvalidProvider
      * @expectedException        \plan\InvalidList
      * @expectedExceptionMessage Multiple invalid: ["Validator passed"]
      */
@@ -540,7 +540,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $validator($input);
     }
 
-    public function testNotInvalidProvider()
+    public function getNotInvalidProvider()
     {
         return array(
             array(123, 123),
@@ -554,7 +554,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\assert\iif
-     * @dataProvider testIifProvider
+     * @dataProvider getIifProvider
      */
     public function testIif($input, $condition, $true, $false)
     {
@@ -564,7 +564,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($input, $validated);
     }
 
-    public function testIifProvider()
+    public function getIifProvider()
     {
         return array(
             array(12345, true, assert\int(), assert\str()),
@@ -574,7 +574,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\assert\length
-     * @dataProvider testLengthProvider
+     * @dataProvider getLengthProvider
      */
     public function testLength($input)
     {
@@ -584,7 +584,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($input, $validated);
     }
 
-    public function testLengthProvider()
+    public function getLengthProvider()
     {
         return array(
             array('abc'),
@@ -614,7 +614,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\assert\validate
-     * @dataProvider testValidateProvider
+     * @dataProvider getValidateProvider
      */
     public function testValidate($filter, $test)
     {
@@ -624,7 +624,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($test, $validated);
     }
 
-    public function testValidateProvider()
+    public function getValidateProvider()
     {
         return array(
             array('int', '1234567'),
@@ -648,9 +648,9 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\assert\match
-     * @dataProvider testMatchProvider
+     * @dataProvider getMatchProvider
      */
-    public function testMatch($pattern, $test)
+    public function getMatch($pattern, $test)
     {
         $validator = new plan(assert\match($pattern));
         $validated = $validator($test);
@@ -658,7 +658,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($test, $validated);
     }
 
-    public function testMatchProvider()
+    public function getMatchProvider()
     {
         return array(
             array('/[a-z]/', 'a'),
@@ -678,7 +678,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\type
-     * @dataProvider testTypeFilterProvider
+     * @dataProvider getTypeFilterProvider
      */
     public function testTypeFilter($type, $expected, $test)
     {
@@ -688,7 +688,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testTypeFilterProvider()
+    public function getTypeFilterProvider()
     {
         return array(
             array('bool', true, 'something true'),
@@ -710,7 +710,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\boolval
-     * @dataProvider testBooleanProvider
+     * @dataProvider getBooleanProvider
      */
     public function testBoolean($expected, $test1, $test2, $test3)
     {
@@ -721,7 +721,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $validator($test3));
     }
 
-    public function testBooleanProvider()
+    public function getBooleanProvider()
     {
         return array(
             array(true, array(1), 'true', new \stdClass()),
@@ -731,7 +731,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\intval
-     * @dataProvider testIntegerProvider
+     * @dataProvider getIntegerProvider
      */
     public function testInteger($expected, $test1, $test2, $test3)
     {
@@ -742,7 +742,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $validator($test3));
     }
 
-    public function testIntegerProvider()
+    public function getIntegerProvider()
     {
         return array(
             array(42, '42', '042', '42e10'),
@@ -752,7 +752,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\floatval
-     * @dataProvider testFloatProvider
+     * @dataProvider getFloatProvider
      */
     public function testFloat($expected, $test1, $test2, $test3)
     {
@@ -763,7 +763,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $validator($test3));
     }
 
-    public function testFloatProvider()
+    public function getFloatProvider()
     {
         return array(
             array(0, 'PI = 3.14', '$ 19.332,35-', '0,76'),
@@ -773,7 +773,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\sanitize
-     * @dataProvider testSanitizeProvider
+     * @dataProvider getSanitizeProvider
      */
     public function testSanitize($filter, $expected, $invalid)
     {
@@ -783,7 +783,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $validated);
     }
 
-    public function testSanitizeProvider()
+    public function getSanitizeProvider()
     {
         return array(
             array('url', 'example.org', 'example¶.org'),
@@ -803,7 +803,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\vars
-     * @dataProvider testVarsProvider
+     * @dataProvider getVarsProvider
      */
     public function testVarsObject($recursive, $inscope, $expected, $object, $fix=null)
     {
@@ -817,7 +817,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $validated);
     }
 
-    public function testVarsProvider()
+    public function getVarsProvider()
     {
         $tests = array();
 
@@ -852,7 +852,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers       ::plan\filter\intl\chars
-     * @dataProvider testCharsProvider
+     * @dataProvider getCharsProvider
      */
     public function testChars($lower, $upper, $number, $whitespace, $input, $expected)
     {
@@ -864,7 +864,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $validated);
     }
 
-    public function testCharsProvider()
+    public function getCharsProvider()
     {
         $input = 'hEl1o ☃W0rld';
 
