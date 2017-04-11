@@ -299,8 +299,12 @@ class PlanTest extends \PHPUnit_Framework_TestCase
      */
     public function testDictionaryExtraSchema()
     {
+        $dict = array('two' => '2');
+
         $validator = assert\dict(array(), false, array('two' => '2'));
-        $validator(array('two' => '2'));
+        $validated = $validator($dict);
+
+        $this->assertEquals($dict, $validated);
     }
 
     /**
