@@ -1106,12 +1106,13 @@ function datetime($format, $strict=false)
         $dt = @\date_parse_from_format($format, $data);
 
         if ($dt === false || !\is_array($dt)) {
-            $msg = \strtr('Datetime format {format} for {value} failed', array(
+            $tpl = 'Datetime format {format} for {value} failed';
+            $var = array(
                 '{format}' => $format,
                 '{value}'  => \json_encode($data),
-            ));
+            );
 
-            throw new Invalid($msg, null, null, $path);
+            throw new Invalid($tpl, $var, null, null, $path);
         }
 
         if ($dt['error_count'] + ($strict ? $dt['warnng_count'] : 0) > 0) {
@@ -1124,15 +1125,14 @@ function datetime($format, $strict=false)
             foreach ($problems as $pos => $problem) {
                 $tpl = 'Datetime format {format} for {value} failed'
                      . ' on position {pos}: {problem}';
-
-                $msg = \strtr($tpl, array(
+                $var = array(
                     '{format}'  => $format,
                     '{value}'   => \json_encode($data),
                     '{pos}'     => $pos,
                     '{problem}' => $problem,
-                ));
+                );
 
-                $errors[] = new Invalid($msg, null, null, $path);
+                $errors[] = new Invalid($tpl, $var, null, null, $path);
             }
 
             if (\count($errors) === 1) {
@@ -1146,11 +1146,12 @@ function datetime($format, $strict=false)
             && $dt['year'] !== false
             && !\checkdate($dt['month'], $dt['day'], $dt['year'])
         ) {
-            $msg = \strtr('Date in {value} is not valid', array(
+            $tpl = 'Date in {value} is not valid';
+            $var = array(
                 '{value}' => \json_encode($data),
-            ));
+            );
 
-            throw new Invalid($msg, null, null, $path);
+            throw new Invalid($tpl, $var, null, null, $path);
         }
     };
 }
