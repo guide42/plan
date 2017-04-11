@@ -745,7 +745,7 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     public function getIntegerProvider()
     {
         return array(
-            array(42, '42', '042', '42e10'),
+            array(42, '42', '042', '42i10'),
             array(34, '+34', 042, 0x22),
         );
     }
