@@ -1098,6 +1098,14 @@ function vars($recursive=false, $inscope=true)
     return $closure;
 }
 
+/**
+ * Will parse given $format into a \DateTime object.
+ *
+ * @param string  $format to parse the string with
+ * @param boolean $strict if true will throw Invalid on warnings too
+ *
+ * @return \Closure
+ */
 function datetime($format, $strict=false)
 {
     return function($data, $path=null) use($format, $strict)
