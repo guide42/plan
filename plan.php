@@ -1153,6 +1153,20 @@ function datetime($format, $strict=false)
 
             throw new Invalid($tpl, $var, null, null, $path);
         }
+
+        $str = \sprintf('%04d-%02d-%02d %02d:%02d:%02d',
+            $dt['year'], $dt['month'], $dt['day'],
+            $dt['hour'], $dt['minute'], $dt['second']);
+        $ret = \date_create_immutable_from_format('Y-m-d H:i:s', $str);
+
+        if ($ret === false) {
+            $tpl = 'Could not create DateTime from {string}';
+            $var = array('{string}' => $str);
+
+            throw new Invalid($tpl, $var, null, null, $path);
+        }
+
+        return $ret;
     };
 }
 
