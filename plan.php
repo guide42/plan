@@ -1115,7 +1115,7 @@ function datetime($format, $strict=false)
             throw new Invalid($tpl, $var, null, null, $path);
         }
 
-        if ($dt['error_count'] + ($strict ? $dt['warnng_count'] : 0) > 0) {
+        if ($dt['error_count'] + ($strict ? $dt['warning_count'] : 0) > 0) {
             $problems = $dt['errors'];
             if ($strict) {
                 $problems = \array_merge($problems, $dt['warnings']);
