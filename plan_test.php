@@ -870,6 +870,34 @@ class PlanTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers       ::plan\filter\datetime
+     * @dataProvider getDatetimeProvider
+     */
+    public function testDatetime($format, $input)
+    {
+        $validator = new plan(filter\datetime($format, true));
+        $validated = $validator($input);
+
+        $this->assertInstanceof(\DateTimeImmutable::class, $validated);
+        $this->assertEquals($input, $validated->format($format));
+    }
+
+    public function getDatetimeProvider()
+    {
+        return array(
+            array('Y', '2009'),
+            array('Y-m', '2009-02'),
+            array('m/Y', '02/2009'),
+            array('d/m/y', '23/02/09'),
+            array('H', '23'),
+            array('H:i', '23:59'),
+            array('H:i:s', '23:59:59'),
+            array('P', '+03:00'),
+            array('T', 'UTC'),
+        );
+    }
+
+    /**
      * @covers       ::plan\filter\intl\chars
      * @dataProvider getCharsProvider
      */

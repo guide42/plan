@@ -910,6 +910,7 @@ function match($pattern)
 namespace plan\filter;
 
 use plan\Invalid;
+use plan\InvalidList;
 use plan\filter;
 
 /**
@@ -1095,6 +1096,74 @@ function vars($recursive=false, $inscope=true)
     };
 
     return $closure;
+}
+
+/**
+ * Will parse given $format into a \DateTime object.
+ *
+ * @param string  $format to parse the string with
+ * @param boolean $strict if true will throw Invalid on warnings too
+ *
+ * @return \Closure
+ */
+function datetime($format, $strict=false)
+{
+    return function($data, $path=null) use($format, $strict)
+    {
+        // Silent the PHP Warning when a non-string is given.
+        $dt = @\date_parse_from_format($format, $data);
+
+        if ($dt === false || !\is_array($dt)) {
+            $tpl = 'Datetime format {format} for {value} failed';
+            $var = array(
+                '{format}' => $format,
+                '{value}'  => \json_encode($data),
+            );
+
+            throw new Invalid($tpl, $var, null, null, $path);
+        }
+
+        if ($dt['error_count'] + ($strict ? $dt['warning_count'] : 0) > 0) {
+            $problems = $dt['errors'];
+            if ($strict) {
+                $problems = \array_merge($problems, $dt['warnings']);
+            }
+
+            $errors = array();
+            foreach ($problems as $pos => $problem) {
+                $tpl = 'Datetime format {format} for {value} failed'
+                     . ' on position {pos}: {problem}';
+                $var = array(
+                    '{format}'  => $format,
+                    '{value}'   => \json_encode($data),
+                    '{pos}'     => $pos,
+                    '{problem}' => $problem,
+                );
+
+                $errors[] = new Invalid($tpl, $var, null, null, $path);
+            }
+
+            if (\count($errors) === 1) {
+                throw $errors[0];
+            }
+            throw new InvalidList($errors);
+        }
+
+        if ($dt['month'] !== false
+            && $dt['day'] !== false
+            && $dt['year'] !== false
+            && !\checkdate($dt['month'], $dt['day'], $dt['year'])
+        ) {
+            $tpl = 'Date in {value} is not valid';
+            $var = array(
+                '{value}' => \json_encode($data),
+            );
+
+            throw new Invalid($tpl, $var, null, null, $path);
+        }
+
+        return \date_create_immutable_from_format($format, $data);
+    };
 }
 
 namespace plan\filter\intl;

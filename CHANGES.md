@@ -1,6 +1,7 @@
 ### Last Version
 
   * Better error messages in assert\file
+  * Add filter\datetime
 
 ### 2.0.0 (2016-12-03)
 
