@@ -889,6 +889,11 @@ class PlanTest extends \PHPUnit_Framework_TestCase
             array('Y-m', '2009-02'),
             array('m/Y', '02/2009'),
             array('d/m/y', '23/02/09'),
+            array('H', '23'),
+            array('H:i', '23:59'),
+            array('H:i:s', '23:59:59'),
+            array('P', '+03:00'),
+            array('T', 'UTC'),
         );
     }
 
