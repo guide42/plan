@@ -310,6 +310,13 @@ Sanitization [filters](http://php.net/manual/en/filter.filters.sanitize.php).
 
 Aliases are: `url`, `email`.
 
+### `datetime`
+
+Will parse a datetime formated string into a `\DateTimeImmutable` object.
+
+    $plan = new plan(filter\datetime('Y-m-d H:i:s'));
+    $plan('2009-02-23 23:59:59')->format('m-d'); // returns '02-23'
+
 Internationalization
 --------------------
 
