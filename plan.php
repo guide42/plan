@@ -553,6 +553,7 @@ function dict(array $structure, $required=false, $extra=false)
 /**
  * Validates uploaded file structure and error.
  *
+ * @throws \plan\Invalid
  * @return \Closure
  */
 function file()
