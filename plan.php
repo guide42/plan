@@ -1182,7 +1182,7 @@ function datetime($format, $strict=false)
 {
     $type = assert\datetime($format, $strict);
 
-    return function($data, $path=null) use($type)
+    return function($data, $path=null) use($type, $format)
     {
         $data = $type($data, $path);
         $date = \date_create_immutable_from_format($format, $data);
