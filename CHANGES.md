@@ -1,5 +1,7 @@
 ### Last Version
 
+  * Add assert\datetime
+
 ### 2.1.0 (2017-04-03)
 
   * Better error messages in assert\file

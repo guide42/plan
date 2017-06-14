@@ -282,6 +282,10 @@ that a string resemble to a boolean/int/float; for checking if the input data
 **IS** a boolean/int/float use the `type` _validator_. None of this will
 modify the input data.
 
+### `datetime`
+
+Validates if given datetime in string can be parsed by given format.
+
 Filters
 -------
 
