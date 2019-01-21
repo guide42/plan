@@ -1,9 +1,15 @@
 language: php
 
 php:
- - 5.6
- - 7.0
+ - 7.2
 
-install:
- - composer self-update
- - composer install
+before_script:
+  - composer require --no-interaction php-coveralls/php-coveralls
+  - composer install --no-interaction --prefer-dist
+  - mkdir -p build/logs/
+
+script:
+  - php vendor/bin/kahlan --cc=true --coverage=4 --clover=build/logs/clover.xml
+
+after_success:
+  - php vendor/bin/php-coveralls -v

@@ -1,24 +1,25 @@
 {
     "name": "guide42/plan",
     "type": "library",
-    "description": "Fast and Simple Validation",
+    "description": "Fast and simple validation library",
     "keywords": ["validator", "validation", "filter", "security"],
     "license": "ISC",
     "authors": [
-        {
-            "name": "Juan M Martínez",
-            "email": "plan@jm.guide42.com",
-            "homepage": "http://jm.guide42.com",
-            "role": "Developer"
-        }
+        {"name": "Juan M", "email": "jm@guide42.com"}
     ],
+    "autoload": {
+        "files": [
+            "library/plan.php",
+            "library/exceptions.php",
+            "library/assert.php",
+            "library/filter.php",
+            "library/util.php"
+        ]
+    },
     "require": {
-        "php": ">=5.6"
+        "php": ">=7.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.7"
-    },
-    "autoload": {
-        "classmap": ["plan.php"]
+        "kahlan/kahlan": "@stable"
     }
 }
