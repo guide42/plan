@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace plan\assert;
 
 use Closure;
-use Traversable;
-
+use TypeError;
+use LogicException;
 use function plan\compile;
-use plan\{Invalid, InvalidList, assert, filter, util};
+use plan\{Invalid, MultipleInvalid, assert, filter, util};
 
 /**
- * Check that the input data is of the given $type. The data type will not be
+ * Check that the input data is of the given `$type`. The data type will not be
  * casted.
  *
  * @param string $type something that `gettype` could return
@@ -22,13 +22,12 @@ function type(string $type)
     return function($data, $path = null) use($type)
     {
         if (gettype($data) !== $type) {
-            $tpl = '{data} is not {type}';
-            $var = array(
-                '{data}' => json_encode($data),
-                '{type}' => $type,
-            );
+            $ctx = [
+                'data' => util\repr($data),
+                'type' => $type,
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid('{data} is not {type}', $ctx, $path);
         }
 
         return $data;
@@ -44,19 +43,19 @@ function bool()
 }
 
 /**
- * Alias of `plan\assert\type('integer')`.
- */
-function int()
-{
-    return assert\type('integer');
-}
-
-/**
  * Alias of `plan\assert\type('double')`.
  */
 function float()
 {
     return assert\type('double');
+}
+
+/**
+ * Alias of `plan\assert\type('integer')`.
+ */
+function int()
+{
+    return assert\type('integer');
 }
 
 /**
@@ -78,13 +77,12 @@ function scalar()
     return function($data, $path = null)
     {
         if (!is_scalar($data)) {
-            $tpl = '{type} is not scalar';
-            $var = array(
-            	'{type}' => gettype($data),
-                '{data}' => json_encode($data),
-            );
+            $ctx = [
+                'type' => gettype($data),
+                'data' => util\repr($data),
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid('{type} is not scalar', $ctx, $path);
         }
 
         return $data;
@@ -104,14 +102,13 @@ function instance($class)
     return function($data, $path = null) use($class)
     {
         if (!$data instanceof $class) {
-            $tpl = 'Expected {class} (is {data_class})';
-            $var = array(
-                '{class}'      => $class,
-                '{data_class}' => is_object($data) ? get_class($data)
-                                                   : 'not an object',
-            );
+            $ctx = [
+                'class' => $class,
+                'object' => is_object($data)
+                                ? get_class($data) : 'not an object',
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid('Expected {class} (is {object})', $ctx, $path);
         }
 
         return $data;
@@ -119,7 +116,7 @@ function instance($class)
 }
 
 /**
- * Compare $data with $literal using the identity operator.
+ * Compare `$data` with `$literal` using the identity operator.
  *
  * @param mixed $literal something to compare to
  *
@@ -135,13 +132,34 @@ function literal($literal)
         $data = $type($data, $path);
 
         if ($data !== $literal) {
-            $tpl = '{data} is not {literal}';
-            $var = array(
-                '{data}'    => json_encode($data),
-                '{literal}' => json_encode($literal),
-            );
+            $ctx = [
+                'data' => util\repr($data),
+                'literal' => $literal,
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid('{data} is not {literal}', $ctx, $path);
+        }
+
+        return $data;
+    };
+}
+
+/**
+ * Validates that `$data` is iterable.
+ *
+ * @throws Invalid
+ * @return Closure
+ */
+function iterable()
+{
+    return function($data, $path = null)
+    {
+        if (!is_iterable($data)) {
+            $ctx = [
+                'data' => util\repr($data),
+            ];
+
+            throw new Invalid('{data} is not iterable', $ctx, $path);
         }
 
         return $data;
@@ -182,6 +200,7 @@ function seq(array $values)
 
         for ($d = 0; $d < $dl; $d++) {
             $found = null;
+            $error = null;
 
             $path = $root;
             $path[] = $d;
@@ -193,20 +212,21 @@ function seq(array $values)
                     break;
                 } catch (Invalid $e) {
                     $found = false;
-                    if (count($e->getPath()) > count($path)) {
-                        throw $e;
+                    if ($e->getDepth() > count($path)) {
+                        $error = $e;
+                        break;
                     }
                 }
             }
 
             if ($found !== true) {
-                $tpl = 'Invalid value at index {index} (value is {value})';
-                $var = array(
-                    '{index}' => $d,
-                    '{value}' => json_encode($data[$d]),
-                );
+                $tpl = $error ? '[{index}]' : '[{index}] Invalid value';
+                $ctx = [
+                    'index' => $d,
+                    'value' => util\repr($data[$d]),
+                ];
 
-                throw new Invalid($tpl, $var, null, null, $path);
+                throw new Invalid($tpl, $ctx, $path, 0, $error);
             }
         }
 
@@ -222,7 +242,7 @@ function seq(array $values)
  * @param boolean|array $extra     if accept extra keys
  *
  * @throws Invalid
- * @throws InvalidList
+ * @throws MultipleInvalid
  * @return Closure
  */
 function dict(array $structure, $required = false, $extra = false)
@@ -255,10 +275,7 @@ function dict(array $structure, $required = false, $extra = false)
         $cextra = $extra === true ?: array();
     }
 
-    $type = assert\any(
-        assert\type('array'),
-        assert\instance(Traversable::class)
-    );
+    $type = assert\iterable();
 
     return function($data, $path = null) use($type, $compiled, $reqkeys, $cextra)
     {
@@ -276,20 +293,12 @@ function dict(array $structure, $required = false, $extra = false)
                 try {
                     $return[$dkey] = $compiled[$dkey]($dvalue, $path);
                 } catch (Invalid $e) {
-                    if (count($e->getPath()) > count($path)) {
-                        // Always grab deepest exception
-                        // It will contain the path through here
-                        $errors[] = $e;
-                        continue;
-                    }
+                    $ctx = [
+                        'key' => $dkey,
+                        'value' => util\repr($dvalue),
+                    ];
 
-                    $tpl = 'Invalid value at key {key} (value is {value})';
-                    $var = array(
-                        '{key}'   => $dkey,
-                        '{value}' => json_encode($dvalue)
-                    );
-
-                    $errors[] = new Invalid($tpl, $var, null, $e, $path);
+                    $errors[$dkey] = new Invalid('[{key}]', $ctx, $path, 0, $e);
                 }
             } elseif (in_array($dkey, $reqkeys)) {
                 $return[$dkey] = $dvalue; // no validation done
@@ -299,18 +308,22 @@ function dict(array $structure, $required = false, $extra = false)
                         $return[$dkey] = $cextra[$dkey]($dvalue, $path);
                     } catch (Invalid $e) {
                         $tpl = 'Extra key {key} is not valid';
-                        $var = array('{key}' => $dkey);
+                        $ctx = [
+                            'key' => $dkey,
+                        ];
 
-                        $errors[] = new Invalid($tpl, $var, null, $e, $path);
+                        $errors[$dkey] = new Invalid($tpl, $ctx, $path, 0, $e);
                     }
                 } else {
                     $return[$dkey] = $dvalue;
                 }
             } else {
                 $tpl = 'Extra key {key} not allowed';
-                $var = array('{key}' => $dkey);
+                $ctx = [
+                    'key' => $dkey,
+                ];
 
-                $errors[] = new Invalid($tpl, $var, null, null, $path);
+                $errors[$dkey] = new Invalid($tpl, $ctx, $path);
             }
 
             $reqkeys = array_filter($reqkeys, function($rkey) use($dkey) {
@@ -323,16 +336,15 @@ function dict(array $structure, $required = false, $extra = false)
             $path[] = $rvalue;
 
             $tpl = 'Required key {key} not provided';
-            $var = array('{key}' => $rvalue);
+            $ctx = [
+                'key' => $rvalue,
+            ];
 
-            $errors[] = new Invalid($tpl, $var, null, null, $path);
+            $errors[$rvalue] = new Invalid($tpl, $ctx, $path);
         }
 
         if (!empty($errors)) {
-            if (count($errors) === 1) {
-                throw $errors[0];
-            }
-            throw new InvalidList($errors);
+            throw new MultipleInvalid($errors, $root);
         }
 
         return $return;
@@ -342,38 +354,33 @@ function dict(array $structure, $required = false, $extra = false)
 /**
  * Runs a validator through a list of data keys.
  *
- * @param mixed $validator to check
+ * @param mixed $schema to check
  *
  * @throws Invalid
  * @return Closure
  */
-function dictkeys($validator)
+function dictkeys($schema)
 {
-    $schema = compile($validator);
+    $type = assert\iterable();
+    $validator = compile($schema);
 
-    $type = assert\any(
-        assert\type('array'),
-        assert\instance(Traversable::class)
-    );
-
-    return function($data, $path = null) use($type, $schema)
+    return function($data, $path = null) use($type, $validator)
     {
         $data = $type($data, $path);
 
         $keys = array_keys($data);
-        $keys = $schema($keys, $path);
+        $keys = $validator($keys, $path);
 
         $return = array();
 
         foreach ($keys as $key) {
             if (!array_key_exists($key, $data)) {
-                $tpl = 'Value for key {key} not found in {data}';
-                $var = array(
-                    '{key}'  => json_encode($key),
-                    '{data}' => json_encode($data),
-                );
+                $ctx = [
+                    'key' => $key,
+                    'data' => util\repr($data),
+                ];
 
-                throw new Invalid($tpl, $var, null, null, $path);
+                throw new Invalid('Value for key {key} not found', $ctx, $path);
             }
 
             $return[$key] = $data[$key];
@@ -401,10 +408,9 @@ function file()
         UPLOAD_ERR_EXTENSION => 'File upload failed due to a PHP extension',
     );
 
-    $type = assert\dict(
-        array(),
-        array('tmp_name', 'size', 'error', 'name', 'type'),
-        false
+    $type = assert\dict([],
+        /* required=*/['tmp_name', 'size', 'error', 'name', 'type'],
+        /* extra=*/false
     );
 
     return function($data, $path = null) use($type, $errors)
@@ -414,9 +420,12 @@ function file()
         if ($data['error'] !== UPLOAD_ERR_OK) {
             $tpl = isset($errors[$data['error']]) ? $errors[$data['error']]
                  : 'File {name} was not uploaded due to an unknown error';
-            $var = array('{name}' => $data['name']);
+            $ctx = [
+                'name' => util\repr($data['name']),
+                'file' => util\repr($data),
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid($tpl, $ctx, $path);
         }
 
         return $data;
@@ -460,49 +469,48 @@ function object(array $structure, string $class = null, bool $byref = true)
 }
 
 /**
- * Validate at least one of the given _validators_ of throw an exception.
+ * Validate at least one of the given alternatives of throw an exception.
+ *
+ * @param array ...$alternatives schemas to match
  *
  * @throws Invalid
  * @return Closure
  */
-function any(...$validators)
+function any(...$alternatives)
 {
     $count = func_num_args();
-    $schemas = [];
-
-    for ($i = 0; $i < $count; $i++) {
-        $schemas[] = compile($validators[$i]);
-    }
+    $schemas = array_map('plan\compile', $alternatives);
 
     return function($data, $path = null) use($schemas, $count)
     {
+        $error = null;
+        $depth = $path ? count($path) : 0;
+
         for ($i = 0; $i < $count; $i++) {
             try {
                 return $schemas[$i]($data, $path);
-            } catch (InvalidList $e) {
-                // ignore
             } catch (Invalid $e) {
-                // ignore
+                if ($error === null && $e->getDepth() > $depth) {
+                    $error = $e;
+                }
             }
         }
 
-        throw new Invalid('No valid value found', null, null, null, $path);
+        throw new Invalid('No valid value found', null, $path, 0, $error);
     };
 }
 
 /**
- * Validate all given _validators_ or throw an exception.
+ * Validate all given alternatives or throw an exception.
+ *
+ * @param array ...$alternatives schemas to match
  *
  * @return Closure
  */
-function all(...$validators)
+function all(...$alternatives)
 {
     $count = func_num_args();
-    $schemas = [];
-
-    for ($i = 0; $i < $count; $i++) {
-        $schemas[] = compile($validators[$i]);
-    }
+    $schemas = array_map('plan\compile', $alternatives);
 
     return function($data, $path = null) use($schemas, $count)
     {
@@ -515,16 +523,16 @@ function all(...$validators)
 }
 
 /**
- * Check that the given _validator_ fail or throw an exception.
+ * Check that the given schema fail or throw an exception.
  *
- * @param mixed $validator to check
+ * @param mixed $schema to check
  *
  * @throws Invalid
  * @return Closure
  */
-function not($validator)
+function not($schema)
 {
-    $schema = compile($validator);
+    $schema = compile($schema);
 
     return function($data, $path = null) use($schema)
     {
@@ -536,7 +544,7 @@ function not($validator)
         }
 
         if ($pass) {
-            throw new Invalid('Validator passed', null, null, null, $path);
+            throw new Invalid('Validator passed', null, $path);
         }
 
         return $data;
@@ -573,7 +581,7 @@ function iif(bool $condition, $true = null, $false = null)
 }
 
 /**
- * The given $data length is between $min and $max value.
+ * The given `$data` length is between `$min` and `$max` value.
  *
  * @param integer|null $min the minimum value
  * @param integer|null $max the maximum value
@@ -592,17 +600,21 @@ function length(int $min = null, int $max = null)
         }
 
         if (!is_null($min) && $count($data) < $min) {
-            $tpl = 'Value must be at least {limit}';
-            $var = array('{limit}' => $min);
+            $ctx = [
+                'count' => $count($data),
+                'limit' => $min,
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid('Value must be at least {limit}', $ctx, $path);
         }
 
         if (!is_null($max) && $count($data) > $max) {
-            $tpl = 'Value must be at most {limit}';
-            $var = array('{limit}' => $max);
+            $ctx = [
+                'count' => $count($data),
+                'limit' => $max,
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid('Value must be at most {limit}', $ctx, $path);
         }
 
         return $data;
@@ -612,86 +624,127 @@ function length(int $min = null, int $max = null)
 /**
  * A wrapper for validate filters using `filter_var`.
  *
- * @param string $name of the the filter
+ * @param string  $name  of the the filter
+ * @param integer $flags for filter
  *
+ * @throws LogicException
  * @throws Invalid
  * @return Closure
  */
-function validate(string $name)
+function validate(string $name, int $flags = 0)
 {
-    $id = filter_id($name);
+    static $validate = ['domain', 'url', 'email', 'ip', 'mac_address'];
+    static $whitelist = [
+        'domain', 'url', 'email', 'ip', 'mac_address',
+        'boolean', 'float', 'int',
+    ];
 
-    return function($data, $path = null) use($name, $id)
+    if (!in_array($name, $whitelist, true)) {
+        throw new LogicException('Filter "' . $name . '" not allowed');
+    }
+
+    if (in_array($name, $validate, true)) {
+        $id = filter_id('validate_' . $name);
+    } else {
+        $id = filter_id($name);
+    }
+
+    if ($name === 'email') {
+        $flags |= FILTER_FLAG_EMAIL_UNICODE;
+    }
+
+    return function($data, $path = null) use($name, $id, $flags)
     {
         if (filter_var($data, $id) === false) {
-            $tpl = 'Validation {name} for {value} failed';
-            $var = array(
-                '{name}'  => $name,
-                '{value}' => json_encode($data),
-            );
+            $ctx = [
+                'name' => $name,
+                'data' => util\repr($data),
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid('Expected {name}', $ctx, $path);
         }
 
         return $data;
     };
 }
 
+/**
+ * Alias of `plan\assert\validate('url')`.
+ */
 function url()
 {
-    return assert\validate('validate_url');
+    return assert\validate('url');
 }
 
+/**
+ * Alias of `plan\assert\validate('email')`.
+ */
 function email()
 {
-    return assert\validate('validate_email');
+    return assert\validate('email');
 }
 
+/**
+ * Alias of `plan\assert\validate('ip')`.
+ */
 function ip()
 {
-    return assert\validate('validate_ip');
+    return assert\validate('ip');
 }
 
+/**
+ * Alias of `plan\assert\validate('boolean')`.
+ */
 function boolval()
 {
     return assert\validate('boolean');
 }
 
-function intval()
-{
-    return assert\validate('int');
-}
-
+/**
+ * Alias of `plan\assert\validate('float')`.
+ */
 function floatval()
 {
     return assert\validate('float');
 }
 
 /**
- * Will validate if $data can be parsed with given $format.
+ * Alias of `plan\assert\validate('int')`.
+ */
+function intval()
+{
+    return assert\validate('int');
+}
+
+/**
+ * Will validate if `$data` can be parsed with given `$format`.
  *
  * @param string  $format to parse the string with
  * @param boolean $strict if true will throw Invalid on warnings too
  *
  * @throws Invalid
- * @throws InvalidList
+ * @throws MultipleInvalid
  * @return Closure
  */
 function datetime(string $format, bool $strict = false)
 {
     return function($data, $path = null) use($format, $strict)
     {
-        // Silent the PHP Warning when a non-string is given.
-        $dt = @\date_parse_from_format($format, $data);
+        try {
+            // Silent the PHP Warning when a non-string is given.
+            $dt = @\date_parse_from_format($format, $data);
+        } catch (TypeError $e) {
+            $dt = false;
+        }
 
         if ($dt === false || !is_array($dt)) {
-            $tpl = 'Datetime format {format} for {value} failed';
-            $var = array(
-                '{format}' => $format,
-                '{value}'  => json_encode($data),
-            );
+            $tpl = 'Datetime format {format} for {data} failed';
+            $ctx = [
+                'format' => $format,
+                'data' => util\repr($data),
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid($tpl, $ctx, $path);
         }
 
         if ($dt['error_count'] + ($strict ? $dt['warning_count'] : 0) > 0) {
@@ -702,35 +755,21 @@ function datetime(string $format, bool $strict = false)
 
             $errors = array();
             foreach ($problems as $pos => $problem) {
-                $tpl = 'Datetime format {format} for {value} failed'
-                     . ' on position {pos}: {problem}';
-                $var = array(
-                    '{format}'  => $format,
-                    '{value}'   => json_encode($data),
-                    '{pos}'     => $pos,
-                    '{problem}' => $problem,
-                );
+                $tpl = 'Datetime format {format} for {data} failed: {problem}';
+                $ctx = [
+                    'problem' => $problem,
+                    'format' => $format,
+                    'data' => util\repr($data),
+                    'pos' => $pos,
+                ];
 
-                $errors[] = new Invalid($tpl, $var, null, null, $path);
+                $errors[] = new Invalid($tpl, $ctx, $path);
             }
 
             if (count($errors) === 1) {
                 throw $errors[0];
             }
-            throw new InvalidList($errors);
-        }
-
-        if ($dt['month'] !== false
-            && $dt['day'] !== false
-            && $dt['year'] !== false
-            && !checkdate($dt['month'], $dt['day'], $dt['year'])
-        ) {
-            $tpl = 'Date in {value} is not valid';
-            $var = array(
-                '{value}' => json_encode($data),
-            );
-
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new MultipleInvalid($errors, $path);
         }
 
         return $data;
@@ -747,16 +786,20 @@ function datetime(string $format, bool $strict = false)
  */
 function match(string $pattern)
 {
-    return function($data, $path = null) use($pattern)
-    {
-        if (!preg_match($pattern, $data)) {
-            $tpl = 'Value {value} doesn\'t follow {pattern}';
-            $var = array(
-                '{pattern}' => $pattern,
-                '{value}'   => json_encode($data),
-            );
+    $type = assert\type('string');
 
-            throw new Invalid($tpl, $var, null, null, $path);
+    return function($data, $path = null) use($type, $pattern)
+    {
+        $data = $type($data, $path);
+
+        if (!preg_match($pattern, $data)) {
+            $tpl = 'Value {data} doesn\'t follow {pattern}';
+            $ctx = [
+                'pattern' => $pattern,
+                'data' => util\repr($data),
+            ];
+
+            throw new Invalid($tpl, $ctx, $path);
         }
 
         return $data;

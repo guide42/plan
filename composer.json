@@ -9,16 +9,15 @@
     ],
     "autoload": {
         "files": [
-            "library/functions.php",
+            "library/plan.php",
             "library/exceptions.php",
             "library/assert.php",
             "library/filter.php",
-            "library/filter_intl.php",
             "library/util.php"
         ]
     },
     "require": {
-        "php": "~7.1"
+        "php": ">=7.2"
     },
     "require-dev": {
         "kahlan/kahlan": "@stable"

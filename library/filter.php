@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace plan\filter;
 
 use Closure;
-use plan\{Invalid, InvalidList, assert, filter};
+use LogicException;
+use plan\{Invalid, assert, filter, util};
 
 /**
  * Cast data type into given $type.
@@ -13,24 +14,22 @@ use plan\{Invalid, InvalidList, assert, filter};
  * @throws Invalid
  * @return Closure
  */
-function type(string $type)
+function type(string $type): callable
 {
     return function($data, $path = null) use($type)
     {
-        // We need to mute the warning here. The function will return false if
-        // it fails anyways and will throw our Invalid exception if that
-        // happend. Also, PHPUnit convert warnings into exceptions and make the
-        // test fail.
+        // Must mute the warning here. Function `settype` will return false if
+        // it fails and then will throw our Invalid exception. Also, test
+        // frameworks convert warnings into exceptions and make the test fail.
         $ret = @settype($data, $type);
 
         if ($ret === false) {
-            $tpl = 'Cannot cast {data} into {type}';
-            $var = array(
-                '{data}' => json_encode($data),
-                '{type}' => $type,
-            );
+            $ctx = [
+                'data' => util\repr($data),
+                'type' => $type,
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid('Cannot cast {data} into {type}', $ctx, $path);
         }
 
         return $data;
@@ -42,7 +41,7 @@ function type(string $type)
  *
  * @return Closure
  */
-function boolval()
+function boolval(): callable
 {
     return function($data, $path = null)
     {
@@ -57,7 +56,7 @@ function boolval()
  *
  * @return Closure
  */
-function intval(int $base = 10)
+function intval(int $base = 10): callable
 {
     return function($data, $path = null) use($base)
     {
@@ -70,7 +69,7 @@ function intval(int $base = 10)
  *
  * @return Closure
  */
-function floatval()
+function floatval(): callable
 {
     return function($data, $path = null)
     {
@@ -81,37 +80,55 @@ function floatval()
 /**
  * A wrapper for sanitize filters using `filter_var`.
  *
- * @param string $name of the filter
+ * @param string  $name  of the filter
+ * @param integer $flags for filter
  *
+ * @throws LogicException
  * @throws Invalid
  * @return Closure
  */
-function sanitize(string $name)
+function sanitize(string $name, int $flags = 0): callable
 {
-    $id = filter_id($name);
+    static $whitelist = ['url', 'email', 'float', 'int', 'string'];
 
-    return function($data, $path = null) use($name, $id)
+    if (!in_array($name, $whitelist, true)) {
+        throw new LogicException('Filter "' . $name . '" not allowed');
+    }
+
+    if ($name === 'float' || $name === 'int') {
+        $id = filter_id('number_' . $name);
+    } else {
+        $id = filter_id($name);
+    }
+
+    if ($name === 'float') {
+        $flags |= FILTER_FLAG_ALLOW_FRACTION;
+    }
+    if ($name === 'string') {
+        $flags |= FILTER_FLAG_NO_ENCODE_QUOTES;
+    }
+
+    return function($data, $path = null) use($name, $id, $flags)
     {
-        $newdata = filter_var($data, $id);
+        $new = filter_var($data, $id, array('flags' => $flags));
 
-        if ($newdata === false) {
-            $tpl = 'Sanitization {name} for {value} failed';
-            $var = array(
-                '{name}'  => $name,
-                '{value}' => json_encode($data),
-            );
+        if ($new === false) {
+            $ctx = [
+                'name' => $name,
+                'data' => util\repr($data),
+            ];
 
-            throw new Invalid($tpl, $var, null, null, $path);
+            throw new Invalid('Sanitization {name} failed', $ctx, $path);
         }
 
-        return $newdata;
+        return $new;
     };
 }
 
 /**
  * Alias of `plan\filter\sanitize('url')`.
  */
-function url()
+function url(): callable
 {
     return filter\sanitize('url');
 }
@@ -119,9 +136,33 @@ function url()
 /**
  * Alias of `plan\filter\sanitize('email')`.
  */
-function email()
+function email(): callable
 {
     return filter\sanitize('email');
+}
+
+/**
+ * Alias of `plan\filter\sanitize('float')`.
+ */
+function float(): callable
+{
+    return filter\sanitize('float');
+}
+
+/**
+ * Alias of `plan\filter\sanitize('int')`.
+ */
+function int(): callable
+{
+    return filter\sanitize('int');
+}
+
+/**
+ * Alias of `plan\filter\sanitize('string')`.
+ */
+function str(): callable
+{
+    return filter\sanitize('string');
 }
 
 /**
@@ -132,7 +173,7 @@ function email()
  *
  * @return Closure
  */
-function vars(bool $recursive = false, bool $inscope = true)
+function vars(bool $recursive = false, bool $inscope = true): callable
 {
     $closure = function($data, $path = null) use($recursive, $inscope, &$closure)
     {
@@ -143,32 +184,14 @@ function vars(bool $recursive = false, bool $inscope = true)
         if ($inscope) {
             $vars = get_object_vars($data);
         } else {
-            $vars = (array) $data;
+            $orig = (array) $data;
+            $vars = [];
 
-            $clkey = "\0" . get_class($data) . "\0";
-            $cllen = strlen($clkey);
+            foreach ($orig as $key => $value) {
+                $tmp = explode("\0", $key);
+                $key = $tmp[count($tmp) - 1];
 
-            $replace = array();
-
-            foreach ($vars as $key => $value) {
-                // XXX Why not this?
-                //     $tmp = explode("\0", $key);
-                //     $key = $tmp[count($tmp) - 1];
-                if ($key[0] === "\0") {
-                    unset($vars[$key]);
-
-                    if ($key[1] === '*') {
-                        $key = substr($key, 3);
-                    } elseif (substr($key, 0, $cllen) === $clkey) {
-                        $key = substr($key, $cllen);
-                    }
-
-                    $replace[$key] = $value;
-                }
-            }
-
-            if (!empty($replace)) {
-                $vars = array_replace($vars, $replace);
+                $vars[$key] = $value;
             }
         }
 
@@ -193,14 +216,14 @@ function vars(bool $recursive = false, bool $inscope = true)
 }
 
 /**
- * Will parse given $format into a \DateTime object.
+ * Will parse given `$format` into a \DateTime object.
  *
  * @param string  $format to parse the string with
  * @param boolean $strict if true will throw Invalid on warnings too
  *
  * @return Closure
  */
-function datetime(string $format, bool $strict = false)
+function datetime(string $format, bool $strict = false): callable
 {
     $type = assert\datetime($format, $strict);
 
@@ -211,4 +234,104 @@ function datetime(string $format, bool $strict = false)
 
         return $date;
     };
+}
+
+/**
+ * Replace placeholders in given `$template` with values extracted from data.
+ *
+ * @param string $template interpolated string with keys between values
+ *
+ * @throws Invalid
+ * @return Closure
+ */
+function template(string $template): callable
+{
+    $plan = assert\all(assert\iterable(), function($data, $path = null) {
+        return array_combine(
+            array_map(function($k) { return "{{$k}}"; }, array_keys($data)),
+            array_values($data)
+        );
+    });
+
+    return function($data, $path = null) use($plan, $template)
+    {
+        return strtr($template, $plan($data, $path));
+    };
+}
+
+namespace plan\filter\intl;
+
+use plan\{assert, util};
+
+/**
+ * Keep only langauge chars.
+ *
+ * @param boolean $lower      keep lower case letters
+ * @param boolean $upper      keep upper case letters
+ * @param boolean $number     keep numbers
+ * @param boolean $whitespace keep whitespace
+ *
+ * @return Closure
+ */
+function chars(
+    bool $lower = true,
+    bool $upper = true,
+    bool $number = true,
+    bool $whitespace = false
+) {
+    $patterns = array();
+
+    if ($whitespace) {
+        $patterns[] = '\s';
+    }
+
+    if (util\has_pcre_unicode_support()) {
+        if ($lower && $upper) {
+            $patterns[] = '\p{L}';
+        } elseif ($lower) {
+            $patterns[] = '\p{Ll}';
+        } elseif ($upper) {
+            $patterns[] = '\p{Lu}';
+        }
+        if ($number) {
+            $patterns[] = '\p{N}';
+        }
+
+        $pattern = '/[^' . implode('', $patterns) . ']/u';
+    } else {
+        if ($lower) {
+            $patterns[] = 'a-z';
+        }
+        if ($upper) {
+            $patterns[] = 'A-Z';
+        }
+        if ($number) {
+            $patterns[] = '0-9';
+        }
+
+        $pattern = '/[^' . implode('', $patterns) . ']/';
+    }
+
+    $type = assert\str();
+
+    return function($data, $path = null) use($pattern, $type)
+    {
+        return preg_replace($pattern, '', $type($data));
+    };
+}
+
+/**
+ * Alias of `filter\intl\chars(true, true, false)`.
+ */
+function alpha(bool $whitespace = false)
+{
+    return chars(true, true, false, $whitespace);
+}
+
+/**
+ * Alias of `filter\intl\chars(true, true, true)`.
+ */
+function alnum(bool $whitespace = false)
+{
+    return chars(true, true, true, $whitespace);
 }

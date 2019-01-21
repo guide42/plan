@@ -1,13 +1,16 @@
 ### Last Version
 
-### 3.0.0 (2017-07-XX)
+### 3.0.0 (2019-01-21)
 
-  * Require PHP 7.1.
-  * Add `assert\datetime`.
-  * Add `validate` function.
+  * Require PHP 7.x.
+  * Use `kahlan` for testing.
+  * Add `validate` and `check` functions.
+  * Add `assert\datetime` and `assert\iterable`.
+  * Add `filter\template` and `util\repr`.
   * Re-arrange into `library/` directory.
-  * Remove `Schema`.
-  * Rename `Schema::compile` into `compile` function.
+  * Re-name exception `InvalidList` into `MultipleInvalid`.
+  * Extract `Schema::compile` into `compile` function.
+  * Fix `filter\vars` now returns in order.
 
 ### 2.1.0 (2017-04-03)
 
@@ -17,7 +20,7 @@
 ### 2.0.0 (2016-12-03)
 
   * Remove `assert\regexp`.
-  * Now `Invalid` accepts template and params.
+  * Now `Invalid` accepts template and parameters.
   * PHP >=5.6 required.
 
 ### 1.3.0 (2016-10-08)
