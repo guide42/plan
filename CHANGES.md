@@ -2,7 +2,7 @@
 
 ### 3.0.0 (2019-01-21)
 
-  * Require PHP 7.x.
+  * Require PHP 7.2.
   * Use `kahlan` for testing.
   * Add `validate` and `check` functions.
   * Add `assert\datetime` and `assert\iterable`.
