@@ -490,7 +490,7 @@ describe('assert', function() {
                 $schema = assert\any(
                     array('type' => 'A', 'a-value' => assert\str()),
                     array('type' => 'B', 'b-value' => assert\int()),
-                    array('type' => 'C', 'c-value' => assert\bool()),
+                    array('type' => 'C', 'c-value' => assert\bool())
                 );
                 $schema(array('type' => 'C', 'c-value' => null));
             })
