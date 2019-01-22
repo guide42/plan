@@ -50,7 +50,16 @@ class Invalid extends Exception
         if (empty($context)) {
             $message = $template;
         } else {
-            $message = filter\template($template)($context, $path);
+            $replace = array_combine(
+                array_map(
+                    function($k) {
+                        return "{{$k}}";
+                    },
+                    array_keys($context)
+                ),
+                array_values($context)
+            );
+            $message = strtr($template, $replace);
         }
 
         if ($previous) {

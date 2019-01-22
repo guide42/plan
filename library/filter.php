@@ -236,29 +236,6 @@ function datetime(string $format, bool $strict = false): callable
     };
 }
 
-/**
- * Replace placeholders in given `$template` with values extracted from data.
- *
- * @param string $template interpolated string with keys between values
- *
- * @throws Invalid
- * @return Closure
- */
-function template(string $template): callable
-{
-    $plan = assert\all(assert\iterable(), function($data, $path = null) {
-        return array_combine(
-            array_map(function($k) { return "{{$k}}"; }, array_keys($data)),
-            array_values($data)
-        );
-    });
-
-    return function($data, $path = null) use($plan, $template)
-    {
-        return strtr($template, $plan($data, $path));
-    };
-}
-
 namespace plan\filter\intl;
 
 use plan\{assert, util};

@@ -221,22 +221,6 @@ describe('filter', function() {
         });
     });
 
-    describe('template', function() {
-        it('returns string with interpolated vars by key', function() {
-            $schema = filter\template('foo={foo}');
-            $result = $schema([ 'foo' => 'bar' ]);
-
-            expect($result)->toBe('foo=bar');
-        });
-        it('throws Invalid on non-iterable data', function() {
-            expect(function() {
-                $schema = filter\template('foo');
-                $result = $schema('bar');
-            })
-            ->toThrow(new Invalid('"bar" is not iterable'));
-        });
-    });
-
     describe('intl', function() {
         describe('chars', function() {
             $data = [

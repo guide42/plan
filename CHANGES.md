@@ -1,5 +1,8 @@
 ### Last Version
 
+  - Move `filter\template` inside `Invalid`.
+  - Remove `filter\template`.
+
 ### 3.0.0 (2019-01-21)
 
   * Require PHP 7.2.

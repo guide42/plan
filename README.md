@@ -417,10 +417,6 @@ $data = $plan('2009-02-23 23:59:59')->format('m-d');
 assert('02-23' === $data);
 ```
 
-### `template`
-
-Simple string template.
-
 Internationalization
 --------------------
 
