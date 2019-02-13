@@ -1,5 +1,6 @@
 ### Last Version
 
+  - Rename `assert\dictkeys` to `assert\keys`.
   - Move `filter\template` inside `Invalid`.
   - Remove `filter\template`.
   - Move `Schema`, `Invalid` and `MultipleInvalid` to its own files.

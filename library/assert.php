@@ -359,7 +359,7 @@ function dict(array $structure, $required = false, $extra = false)
  * @throws Invalid
  * @return Closure
  */
-function dictkeys($schema)
+function keys($schema)
 {
     $type = assert\iterable();
     $validator = compile($schema);

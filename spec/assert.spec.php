@@ -329,11 +329,11 @@ describe('assert', function() {
         });
     });
 
-    describe('dictkeys', function() {
+    describe('keys', function() {
         it('validates keys of an associative array', function() {
             $expected = ['zero', 'one', 'two'];
 
-            $schema = assert\dictkeys(function(array $keys) use($expected) {
+            $schema = assert\keys(function(array $keys) use($expected) {
                 expect($keys)->toBe($expected);
                 return $keys;
             });
@@ -344,7 +344,7 @@ describe('assert', function() {
             expect($result)->toBe($expected);
         });
         it('returns new associative array with returned keys', function() {
-            $schema = assert\dictkeys(function(array $keys) {
+            $schema = assert\keys(function(array $keys) {
                 return ['two'];
             });
 
@@ -357,7 +357,7 @@ describe('assert', function() {
         });
         it('throws Invalid when new keys are returned', function() {
             expect(function() {
-                $schema = assert\dictkeys(function(array $keys) {
+                $schema = assert\keys(function(array $keys) {
                     $keys[] = 'new';
                     return $keys;
                 });
