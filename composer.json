@@ -9,12 +9,12 @@
     ],
     "autoload": {
         "files": [
-            "library/plan.php",
-            "library/exceptions.php",
+            "library/functions.php",
             "library/assert.php",
             "library/filter.php",
             "library/util.php"
-        ]
+        ],
+        "psr-4": {"plan\\": "library/"}
     },
     "require": {
         "php": ">=7.2"

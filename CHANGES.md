@@ -2,6 +2,7 @@
 
   - Move `filter\template` inside `Invalid`.
   - Remove `filter\template`.
+  - Move `Schema`, `Invalid` and `MultipleInvalid` to its own files.
 
 ### 3.0.0 (2019-01-21)
 
