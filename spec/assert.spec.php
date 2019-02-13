@@ -161,6 +161,10 @@ describe('assert', function() {
         });
     });
 
+    describe('required', function() {
+        // TODO
+    });
+
     describe('seq', function() {
         it('does not validates if sequence validator is empty', function() {
             $schema = assert\seq([]);
@@ -226,22 +230,30 @@ describe('assert', function() {
             expect($schema($data))->toBe($data);
         });
         it('validates allowing extra keys', function() {
-            $schema = assert\dict([], false, true);
-            $data = [ 'key' => 'foobar' ];
+            $schema = assert\dict([], [], true);
 
-            expect($schema($data))->toBe($data);
+            expect($schema([]))->toBe([]);
+            expect($schema([ 'key' => 'foobar' ]))->toBe([ 'key' => 'foobar' ]);
+            expect($schema([ 'bar' => 'foobar' ]))->toBe([ 'bar' => 'foobar' ]);
         });
         it('validates allowing extra keys by name', function() {
-            $schema = assert\dict([], false, ['key']);
-            $data = [ 'key' => 'foobar' ];
+            $schema = assert\dict([], [], ['key']);
 
-            expect($schema($data))->toBe($data);
+            expect($schema([]))->toBe([]);
+            expect($schema([ 'key' => 'foobar' ]))->toBe([ 'key' => 'foobar' ]);
         });
         it('validates extra keys', function() {
-            $schema = assert\dict([], false, [ 'key' => assert\str() ]);
-            $data = [ 'key' => 'foobar' ];
+            $schema = assert\dict([], [], [ 'key' => assert\str() ]);
 
-            expect($schema($data))->toBe($data);
+            expect($schema([]))->toBe([]);
+            expect($schema([ 'key' => 'foobar' ]))->toBe([ 'key' => 'foobar' ]);
+        });
+        it('validates null values for each structure key not found in the input', function() {
+            $schema = assert\dict([
+                'key' => function($data, $path = null) { return 'foobar'; },
+            ]);
+
+            expect($schema([]))->toBe(['key' => 'foobar']);
         });
         it('throws MultipleInvalid when key in structure is not present', function() {
             expect(function() {
@@ -249,7 +261,7 @@ describe('assert', function() {
                 $schema([]);
             })
             ->toThrow(new MultipleInvalid([
-                'key' => new Invalid('Required key key not provided'),
+                'key' => new Invalid('[key]: Required key not provided'),
             ]));
         });
         it('throws MultipleInvalid when given required key is not present', function() {
@@ -258,7 +270,7 @@ describe('assert', function() {
                 $schema([]);
             })
             ->toThrow(new MultipleInvalid([
-                'key' => new Invalid('Required key key not provided'),
+                'key' => new Invalid('[key]: Required key not provided'),
             ]));
         });
         it('throws MultipleInvalid when extra validator fails', function() {
@@ -495,7 +507,7 @@ describe('assert', function() {
                 $schema(array('type' => 'C', 'c-value' => null));
             })
             ->toThrow(new Invalid('No valid value found', null, null, 0,
-                new Invalid('{ [type]: "C" is not A, Extra key c-value not allowed }')
+                new Invalid('{ [type]: "C" is not A, Extra key c-value not allowed, [a-value]: null is not string }')
             ));
         });
     });

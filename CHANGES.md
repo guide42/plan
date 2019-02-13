@@ -4,6 +4,7 @@
   - Move `filter\template` inside `Invalid`.
   - Remove `filter\template`.
   - Move `Schema`, `Invalid` and `MultipleInvalid` to its own files.
+  - Require all structure keys in `assert\dict` by default.
 
 ### 3.0.0 (2019-01-21)
 

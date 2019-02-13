@@ -9,6 +9,19 @@ use function plan\compile;
 use plan\{Invalid, MultipleInvalid, assert, filter, util};
 
 /**
+ * Identiy validator.
+ *
+ * @return Closure
+ */
+function id()
+{
+    return function($data, $path = null)
+    {
+        return $data;
+    };
+}
+
+/**
  * Check that the input data is of the given `$type`. The data type will not be
  * casted.
  *
@@ -167,6 +180,33 @@ function iterable()
 }
 
 /**
+ * Validates that `$data` is not `null` or empty string.
+ *
+ * @param mixed $schema to validate required values
+ *
+ * @throws Invalid
+ * @return Closure
+ */
+function required($schema)
+{
+    $validator = compile($schema);
+
+    return function($data, $path = null) use($validator)
+    {
+        if ($data === null || $data === '') {
+            $ctx = [
+                'key' => $path ? $path[count($path) - 1] : 'value',
+                'data' => util\repr($data),
+            ];
+
+            throw new Invalid('Required {key} not provided', $ctx, $path);
+        }
+
+        return $validator($data);
+    };
+}
+
+/**
  * The given schema has to be a list of possible valid values to validate from.
  * If empty, will accept any value.
  *
@@ -245,21 +285,21 @@ function seq(array $values)
  * @throws MultipleInvalid
  * @return Closure
  */
-function dict(array $structure, $required = false, $extra = false)
+function dict(array $structure, $required = array(), $extra = array())
 {
     $compiled = array();
     $reqkeys = array();
 
-    foreach ($structure as $key => $value) {
-        $compiled[$key] = compile($value);
+    foreach ($structure as $ckey => $schema) {
+        $compiled[$ckey] = compile($schema);
     }
 
     if ($required === true) {
-        $reqkeys = array_keys($compiled);
+        $compiled = array_map('plan\assert\required', $compiled);
     } elseif (is_array($required)) {
-        $reqkeys = array_values($required);
-    } else {
-        $reqkeys = array();
+        foreach (array_values($required) as $rkey) {
+            $compiled[$rkey] = required($compiled[$rkey] ?? id());
+        }
     }
 
     if (is_array($extra)) {
@@ -277,7 +317,7 @@ function dict(array $structure, $required = false, $extra = false)
 
     $type = assert\iterable();
 
-    return function($data, $path = null) use($type, $compiled, $reqkeys, $cextra)
+    return function($data, $path = null) use($type, $compiled, $required, $cextra)
     {
         $data = $type($data, $path);
         $root = $path === null ? [] : $path;
@@ -293,25 +333,18 @@ function dict(array $structure, $required = false, $extra = false)
                 try {
                     $return[$dkey] = $compiled[$dkey]($dvalue, $path);
                 } catch (Invalid $e) {
-                    $ctx = [
-                        'key' => $dkey,
-                        'value' => util\repr($dvalue),
-                    ];
-
+                    $ctx = ['key' => $dkey, 'value' => util\repr($dvalue)];
                     $errors[$dkey] = new Invalid('[{key}]', $ctx, $path, 0, $e);
                 }
-            } elseif (in_array($dkey, $reqkeys)) {
-                $return[$dkey] = $dvalue; // no validation done
+
+                unset($compiled[$dkey]);
             } elseif ($cextra === true || array_key_exists($dkey, $cextra)) {
                 if (is_callable($cextra[$dkey])) {
                     try {
                         $return[$dkey] = $cextra[$dkey]($dvalue, $path);
                     } catch (Invalid $e) {
                         $tpl = 'Extra key {key} is not valid';
-                        $ctx = [
-                            'key' => $dkey,
-                        ];
-
+                        $ctx = ['key' => $dkey];
                         $errors[$dkey] = new Invalid($tpl, $ctx, $path, 0, $e);
                     }
                 } else {
@@ -319,28 +352,23 @@ function dict(array $structure, $required = false, $extra = false)
                 }
             } else {
                 $tpl = 'Extra key {key} not allowed';
-                $ctx = [
-                    'key' => $dkey,
-                ];
-
+                $ctx = ['key' => $dkey];
                 $errors[$dkey] = new Invalid($tpl, $ctx, $path);
             }
-
-            $reqkeys = array_filter($reqkeys, function($rkey) use($dkey) {
-                return $rkey !== $dkey;
-            });
         }
 
-        foreach ($reqkeys as $rvalue) {
-            $path = $root;
-            $path[] = $rvalue;
+        if ($required !== false) {
+            foreach ($compiled as $ckey => $schema) {
+                $path = $root;
+                $path[] = $ckey;
 
-            $tpl = 'Required key {key} not provided';
-            $ctx = [
-                'key' => $rvalue,
-            ];
-
-            $errors[$rvalue] = new Invalid($tpl, $ctx, $path);
+                try {
+                    $return[$ckey] = $schema(null, $path);
+                } catch (Invalid $e) {
+                    $ctx = ['key' => $ckey];
+                    $errors[$ckey] = new Invalid('[{key}]', $ctx, $path, 0, $e);
+                }
+            }
         }
 
         if (!empty($errors)) {

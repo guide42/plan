@@ -100,19 +100,7 @@ $plan(['anything', 123, true]);
 #### Dictionaries
 
 A dictionary will be used to validate structures. Each key in data will be
-checked with the _validator_ of the same key in the schema. By default, keys
-are not required; but any additional key will throw an exception.
-
-```php
-$plan = new Schema(array('name' => 'John', 'age' => 42));
-$plan(array('age' => 42));
-
-try {
-    $plan(array('age' => 42, 'sex' => 'male'));
-} catch (Invalid $invalid) {
-    assert('{ Extra key sex not allowed }' === $invalid->getMessage());
-}
-```
+checked with the _validator_ of the same key in the schema.
 
 Validators
 ----------
@@ -152,6 +140,10 @@ See [Literals](#literals).
 
 Given data must be an array or implement `Iterable` interface.
 
+### `required`
+
+Rejected values are `null` and `''`.
+
 ### `seq`
 
 See [Sequences](#sequences).
@@ -177,19 +169,38 @@ This is normally accepted as "a list of something (or something else)".
 
 See [Dictionaries](#dictionaries).
 
-Because, by default keys are not required and extra keys throw exceptions,
-the _validator_ `dict` accept two more parameters to change this behavior.
-
 ```php
 $dict = array('name' => 'John', 'age' => 42);
+```
 
-$required = true; // Will require ALL keys
-$extra    = true; // Accept extra keys
+Elements of the dictionary not found in data will be called with `null`; any
+additional data key will throw an exception.
+
+```php
+$plan = new Schema($dict);
+
+try {
+    $plan(array('age' => 42));
+} catch (MultipleInvalid $invalid) {
+    assert('{ [name]: null is not string }' === $invalid->getMessage());
+}
+
+try {
+    $plan(array('name' => 'John', 'age' => 42, 'sex' => 'male'));
+} catch (MultipleInvalid $invalid) {
+    assert('{ Extra key sex not allowed }' === $invalid->getMessage());
+}
+```
+
+The _validator_ `dict` accept two more parameters to change this behavior.
+
+```php
+$required = false; // Accept any keys
+$extra    = true;  // Accept extra keys
 
 $plan = new Schema(assert\dict($dict, $required, $extra));
 $plan(array(
     'name' => 'John',
-    'age'  => 42,
     'sex'  => 'male', // This could be whatever
                       // as it would not be validated
 ));
@@ -204,8 +215,8 @@ $plan(array('name' => 'John', 'age' => 42, 'sex' => 'male'));
 
 try {
     $plan(array('name' => 'John', 'hobby' => 'sailing'));
-} catch (Invalid $invalid) {
-    assert('{ Extra key hobby not allowed, Required key age not provided }' === $invalid->getMessage());
+} catch (MultipleInvalid $invalid) {
+    assert('{ Extra key hobby not allowed, [age]: Required age not provided }' === $invalid->getMessage());
 }
 ```
 
