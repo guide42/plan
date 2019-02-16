@@ -148,6 +148,20 @@ Given data must be an array or implement `Iterable` interface.
 
 Rejected values are `null` and `''`.
 
+### `optional`
+
+Accepts `null` and empty string without calling the given schema.
+
+```php
+$plan = new Schema(v\dict(array(
+    'id' => v\optional(v\int()),
+    'name' => v\optional(v\str()),
+)));
+$plan(array('id' => 3004));
+$plan(array('name' => 'John'));
+$plan(array());
+```
+
 ### `seq`
 
 See [Sequences](#sequences).

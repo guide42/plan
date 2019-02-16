@@ -207,6 +207,27 @@ function required($schema = null)
 }
 
 /**
+ * Accepts `null` and empty string without calling schema.
+ *
+ * @param mixed $schema to validate when data is null of empty string
+ *
+ * @return Closure
+ */
+function optional($schema)
+{
+    $validator = compile($schema);
+
+    return function($data, $path = null) use($validator)
+    {
+        if ($data === null || $data === '') {
+            return $data;
+        }
+
+        return $validator($data);
+    };
+}
+
+/**
  * The given schema has to be a list of possible valid values to validate from.
  * If empty, will accept any value.
  *

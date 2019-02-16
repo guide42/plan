@@ -196,6 +196,23 @@ describe('assert', function() {
         });
     });
 
+    describe('optional', function() {
+        it('calls given schema when data is not null or empty string', function() {
+            $schema = assert\optional(function($data, $path=null) {
+                expect($data)->toBe('foo');
+            });
+
+            $schema('foo');
+        });
+        it('does not calls given schema when data is null or empty string', function() {
+            $schema = assert\optional(function($data, $path=null) {
+                fail();
+            });
+
+            expect($schema(null))->toBe(null);
+        });
+    });
+
     describe('seq', function() {
         it('does not validates if sequence validator is empty', function() {
             $schema = assert\seq([]);
