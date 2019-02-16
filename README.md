@@ -19,6 +19,7 @@ Simplest way would be requiring `guide42/plan` with composer.
 use plan\{Schema, MultipleInvalid, assert as v, filter as f};
 
 $userSchema = new Schema(array(
+    'id' => v\int(),
     'type' => v\any('user', 'admin'),
     'name' => v\all(
         v\length(4, 20),
@@ -26,7 +27,7 @@ $userSchema = new Schema(array(
     ),
 ));
 
-$_POST = ['type' => 'user', 'name' => 'John'];
+$_POST = ['id' => 3004, 'type' => 'user', 'name' => 'John'];
 
 try {
     $user = $userSchema($_POST);
