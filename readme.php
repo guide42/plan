@@ -20,7 +20,7 @@ function runtime(string $init): callable {
         $out = system($cmd, $ret);
 
         if ($ret !== 0) {
-            throw new RuntimeException($data, $ret);
+            throw new RuntimeException($out, $ret);
         }
 
         return $out;
