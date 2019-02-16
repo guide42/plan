@@ -590,16 +590,10 @@ function not($schema)
  */
 function iif(bool $condition, $true = null, $false = null)
 {
-    $schema = function($data, $path = null) { return $data; };
-
     if ($condition) {
-        if (!is_null($true)) {
-            $schema = compile($true);
-        }
+        $schema = compile($true ?? id());
     } else {
-        if (!is_null($false)) {
-            $schema = compile($false);
-        }
+        $schema = compile($false ?? id());
     }
 
     return function($data, $path = null) use($schema)
