@@ -13,15 +13,17 @@ function parse(string $markdown, string $lang=null): Generator {
 
 /** Creates a PHP code run environment. */
 function runtime(string $init): callable {
+    static $cmd = 'php -dzend.assertions=1 -dassert.active=1 -dassert.quiet_eval=0 -dassert.bail=1 -dassert.warning=1';
     $init = "include 'vendor/autoload.php';\n\n$init";
-    return function(string $code) use($init): string {
-        $data = system('php -r ' . escapeshellarg($init . $code), $ret);
+    return function(string $code) use($cmd, $init): string {
+        $cmd .= ' -r ' . escapeshellarg($init . $code);
+        $out = system($cmd, $ret);
 
         if ($ret !== 0) {
             throw new RuntimeException($data, $ret);
         }
 
-        return $data;
+        return $out;
     };
 }
 
@@ -33,11 +35,13 @@ function main(string $filename) {
 
     foreach ($tests as $id => $test) {
         try {
-            $exec($test);
+            $out = $exec($test);
             fwrite(STDOUT, "👍 $id\n");
+            if (!empty($out)) {
+                fwrite(STDOUT, "🐞 $out\n\n");
+            }
         } catch (RuntimeException $ex) {
             fwrite(STDERR, "🔴 $id\n{$ex}\n\n");
-            exit(1);
         }
     }
 }
