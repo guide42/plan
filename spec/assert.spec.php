@@ -162,7 +162,7 @@ describe('assert', function() {
     });
 
     describe('required', function() {
-        it('call given schema when data is not null or empty string', function() {
+        it('calls given schema when data is not null or empty string', function() {
             $schema = assert\required(function($data, $path=null) {
                 expect($data)->toBe('foo');
             });
