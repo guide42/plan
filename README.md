@@ -153,7 +153,7 @@ See [Sequences](#sequences).
 
 This is normally accepted as "a list of something (or something else)".
 
-*   A list of email? `new Schema([assert\email()])`.
+*   A list of email? `new Schema([v\email()])`.
 *   A list of people, but some of them are in text and some as a dictionary?
 
     ```php
