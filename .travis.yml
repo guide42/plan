@@ -9,6 +9,7 @@ before_script:
   - mkdir -p build/logs/
 
 script:
+  - php readme.php
   - php vendor/bin/kahlan --cc=true --coverage=4 --clover=build/logs/clover.xml
 
 after_success:

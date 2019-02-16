@@ -13,24 +13,25 @@ It has two core design goals:
 Usage
 -----
 
-Simplest way would be requiring `guide42/plan` with composer. Then can be used
-freely in PHP code:
+Simplest way would be requiring `guide42/plan` with composer.
 
 ```php
-use plan\{Schema, Invalid, assert, filter};
+use plan\{Schema, MultipleInvalid, assert as v, filter as f};
 
 $userSchema = new Schema(array(
-    'type' => assert\any('user', 'admin'),
-    'name' => assert\all(
-        assert\length(4, 20),
-        filter\intl\alnum()
+    'type' => v\any('user', 'admin'),
+    'name' => v\all(
+        v\length(4, 20),
+        f\intl\alnum()
     ),
 ));
 
+$_POST = ['type' => 'user', 'name' => 'John'];
+
 try {
     $user = $userSchema($_POST);
-} catch (Invalid $invalid) {
-    $error = $invalid->getMessage();
+} catch (MultipleInvalid $errors) {
+    $messages = $errors->getMessages();
 }
 ```
 
@@ -67,7 +68,7 @@ $plan(42);
 
 try {
     $plan(10);
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('[ 10 is not 42 ]' === $invalid->getMessage());
 }
 ```
@@ -83,6 +84,8 @@ be considerer a dictionary.
 A sequence will be treated as a list of possible valid values. Will require
 that the input data is sequence that contains one or more elements of the
 schema. Elements can be repeated.
+
+An array of possible values:
 
 ```php
 $plan = new Schema([1, 'one']);
@@ -112,12 +115,12 @@ All core _validators_ live in `\plan\assert` _namespace_.
 Will validate the type of data. The data type will be not casted.
 
 ```php
-$plan = new Schema(assert\type('integer'));
+$plan = new Schema(v\type('integer'));
 $plan(123);
 
 try {
     $plan('123');
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('[ "123" is not integer ]' === $invalid->getMessage());
 }
 ```
@@ -154,9 +157,9 @@ This is normally accepted as "a list of something (or something else)".
 *   A list of people, but some of them are in text and some as a dictionary?
 
     ```php
-    $plan = new Schema([assert\str(), array(
-        'name'  => assert\str(),
-        'email' => assert\email(),
+    $plan = new Schema([v\str(), array(
+        'name'  => v\str(),
+        'email' => v\email(),
     )]);
     $plan([
         array('name' => 'Kevin', 'email' => 'k@viewaskew.com'),
@@ -169,14 +172,11 @@ This is normally accepted as "a list of something (or something else)".
 
 See [Dictionaries](#dictionaries).
 
-```php
-$dict = array('name' => 'John', 'age' => 42);
-```
-
 Elements of the dictionary not found in data will be called with `null`; any
 additional data key will throw an exception.
 
 ```php
+$dict = array('name' => 'John', 'age' => 42);
 $plan = new Schema($dict);
 
 try {
@@ -198,7 +198,8 @@ The _validator_ `dict` accept two more parameters to change this behavior.
 $required = false; // Accept any keys
 $extra    = true;  // Accept extra keys
 
-$plan = new Schema(assert\dict($dict, $required, $extra));
+$dict = array('name' => 'John', 'age' => 42);
+$plan = new Schema(v\dict($dict, $required, $extra));
 $plan(array(
     'name' => 'John',
     'sex'  => 'male', // This could be whatever
@@ -210,7 +211,8 @@ Both parameters (`required` and `extra`) could be arrays, so only the given
 keys will be taken in account.
 
 ```php
-$plan = new Schema(assert\dict($dict, ['age'], ['sex']));
+$dict = array('name' => 'John', 'age' => 42);
+$plan = new Schema(v\dict($dict, ['age'], ['sex']));
 $plan(array('name' => 'John', 'age' => 42, 'sex' => 'male'));
 
 try {
@@ -224,14 +226,15 @@ If the `extra` parameter is a dictionary it will be compiled and treat it as
 a validator for each extra key.
 
 ```php
-$extra = array('dob' => assert\instance('\\DateTime'));
+$extra = array('dob' => v\instance('\\DateTime'));
 
-$plan = new Schema(assert\dict($dict, true, $extra));
+$dict = array('name' => 'John', 'age' => 42);
+$plan = new Schema(v\dict($dict, true, $extra));
 $plan(array('name' => 'John', 'age' => 42, 'dob' => new \DateTime));
 
 try {
     $plan(array('name' => 'John', 'age' => 42, 'dob' => '1970-01-01'));
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('{ Extra key dob is not valid: Expected \DateTime (is not an object) }' === $invalid->getMessage());
 }
 ```
@@ -248,51 +251,52 @@ Is also possible to validate and/or filter the list of keys of a dictionary.
 The structure of an object can also be validated.
 
 ```php
-$structure = array('name' => assert\str());
+$structure = array('name' => v\str());
 $class     = 'stdClass';
 $byref     = true;
 
-$plan = new Schema(assert\object($structure, $class, $byref));
+$plan = new Schema(v\object($structure, $class, $byref));
 $plan((object) array('name' => 'John'));
 
 try {
     $plan((object) array('name' => false));
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('{ [name]: false is not string }' === $invalid->getMessage());
 }
 ```
 
 ### `any`
 
-Accept any of the given list of _validators_, as a valid value. This is useful
-when you only need one choice a of set of values. If you need any quantity
-of choices use a [sequence](#sequence) instead.
+Accept any of the given list of _validators_, as a valid value.
 
 ```php
 $plan = new Schema(array(
-    'Connection' => assert\any('ethernet', 'wireless'),
+    'Connection' => v\any('ethernet', 'wireless'),
 ));
 $plan(array('Connection' => 'ethernet'));
 $plan(array('Connection' => 'wireless'));
 
 try {
     $plan(array('Connection' => 'any'));
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('{ [Connection]: No valid value found }' === $invalid->getMessage());
 }
 ```
+
+This is useful when you only need one choice a of set of values. If you need any
+quantity of choices use a [sequence](#sequence) instead.
 
 ### `all`
 
 Require all _validators_ to be valid.
 
 ```php
-$plan = new Schema(assert\all(assert\str(), assert\length(3, 17)));
+$plan = new Schema(v\all(v\str(), v\length(3, 17)));
 $plan('Hello World');
 
 try {
     $plan('No');
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('[ Value must be at least 3 ]' === $invalid->getMessage());
 }
 ```
@@ -302,13 +306,13 @@ try {
 Negative the given _validator_.
 
 ```php
-$plan = new Schema(assert\not(assert\str()));
+$plan = new Schema(v\not(v\str()));
 $plan(true);
 $plan(123);
 
 try {
     $plan('fail');
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('[ Validator passed ]' === $invalid->getMessage());
 }
 ```
@@ -319,16 +323,16 @@ Simple conditional.
 
 ```php
 $class = 'stdClass';
-$plan = new Schema(assert\iif(null !== $class,
-    assert\instance($class),
-    assert\type('object')
+$plan = new Schema(v\iif(null !== $class,
+    v\instance($class),
+    v\type('object')
 ));
 
 $plan(new stdClass);
 
 try {
     $plan(new Exception('Arr..'));
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('[ Expected stdClass (is Exception) ]' === $invalid->getMessage());
 }
 ```
@@ -339,32 +343,33 @@ The given data length is between some minimum and maximum value. This works
 with strings using `strlen` or `count` for everything else.
 
 ```php
-$plan = new Schema(assert\length(2, 4));
+$plan = new Schema(v\length(2, 4));
 $plan('abc');
 $plan(['a', 'b', 'c']);
 
 try {
     $plan('hello');
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('[ Value must be at most 4 ]' === $errors->getMessage());
 }
 ```
 
 ### `validate`
 
-A wrapper for validate filters using `filter_var`. It accepts the name of the
-filter as listed [here](http://php.net/manual/en/filter.filters.validate.php).
+A wrapper for validate filters using `filter_var`.
 
 ```php
-$plan = new Schema(assert\validate('email'));
+$plan = new Schema(v\validate('email'));
 $plan('john@example.org');
 
 try {
     $plan('john(@)example.org');
-} catch (Invalid $invalid) {
+} catch (MultipleInvalid $invalid) {
     assert('[ Expected email for "john(@)example.org" ]' === $invalid->getMessage());
 }
 ```
+
+It accepts the [name of the filter](http://php.net/manual/en/filter.filters.validate.php).
 
 Aliases are: `url`, `email`, `ip`.
 
@@ -395,7 +400,7 @@ Core _filters_ will be found in the `\plan\filter` _namespace_.
 Will cast the data into the given type.
 
 ```php
-$plan = new Schema(filter\type('int'));
+$plan = new Schema(f\type('int'));
 $data = $plan('123 users');
 
 assert(123 === $data);
@@ -409,7 +414,7 @@ wrappers of the homonymous functions.
 Sanitization [filters](http://php.net/manual/en/filter.filters.sanitize.php).
 
 ```php
-$plan = new Schema(filter\sanitize('email'));
+$plan = new Schema(f\sanitize('email'));
 $data = $plan('(john)@example.org');
 
 assert('john@example.org' === $data);
@@ -422,7 +427,7 @@ Aliases are: `url`, `email`.
 Will parse a datetime formated string into a `\DateTimeImmutable` object.
 
 ```php
-$plan = new Schema(filter\datetime('Y-m-d H:i:s'));
+$plan = new Schema(f\datetime('Y-m-d H:i:s'));
 $data = $plan('2009-02-23 23:59:59')->format('m-d');
 
 assert('02-23' === $data);
@@ -445,7 +450,7 @@ $upper      = true; // all upper-case characters
 $number     = true; // all numbers
 $whitespace = true; // the only one not language dependant
 
-$plan = new Schema(filter\intl\chars($lower, $upper, $number, $whitespace));
+$plan = new Schema(f\intl\chars($lower, $upper, $number, $whitespace));
 $data = $plan('Hello World ☃!!1');
 
 assert('Hello World !!1' === $data);
@@ -465,7 +470,7 @@ exceptions. All other exceptions are considerer as errors in the _validator_.
 ```php
 $passwordStrength = function($data, $path=null)
 {
-    $type = assert\str(); // Use another validator to check that `$data` is
+    $type = v\str(); // Use another validator to check that `$data` is
     $data = $type($data); // an string, if not will throw an exception.
 
     // Because we are going to throw more than one error, we will
@@ -497,7 +502,7 @@ $passwordStrength = function($data, $path=null)
     return $data;
 };
 
-$validator = new Schema(assert\all(assert\str(), $passwordStrength, assert\not('hunter2')));
+$validator = new Schema(v\all(v\str(), $passwordStrength, v\not('hunter2')));
 $validated = $validator('heLloW0rld');
 ```
 
