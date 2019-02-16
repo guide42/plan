@@ -1,5 +1,7 @@
 ### Last Version
 
+  - Change `assert\required` argument `$schema` as optional.
+
 ### 0.4.0 (2019-02-16)
 
   - Rename `assert\dictkeys` to `assert\keys`.
