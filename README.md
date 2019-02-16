@@ -365,7 +365,7 @@ $plan('john@example.org');
 try {
     $plan('john(@)example.org');
 } catch (MultipleInvalid $errors) {
-    assert('[ Expected email for "john(@)example.org" ]' === $errors->getMessage());
+    assert('[ Expected email ]' === $errors->getMessage());
 }
 ```
 
@@ -453,7 +453,7 @@ $whitespace = true; // the only one not language dependant
 $plan = new Schema(f\intl\chars($lower, $upper, $number, $whitespace));
 $data = $plan('Hello World ☃!!1');
 
-assert('Hello World !!1' === $data);
+assert('Hello World 1' === $data);
 ```
 
 Aliases are: `alpha`, `alnum`.
