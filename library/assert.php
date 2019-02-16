@@ -187,9 +187,9 @@ function iterable()
  * @throws Invalid
  * @return Closure
  */
-function required($schema)
+function required($schema = null)
 {
-    $validator = compile($schema);
+    $validator = compile($schema ?? id());
 
     return function($data, $path = null) use($validator)
     {
