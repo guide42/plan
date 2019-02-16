@@ -110,6 +110,10 @@ Validators
 
 All core _validators_ live in `\plan\assert` _namespace_.
 
+### `literal`
+
+See [Literals](#literals).
+
 ### `type`
 
 Will validate the type of data. The data type will be not casted.
@@ -134,10 +138,6 @@ Wrapper around `is_scalar` function.
 ### `instance`
 
 Wrapper around `instanceof` type operator.
-
-### `literal`
-
-See [Literals](#literals).
 
 ### `iterable`
 

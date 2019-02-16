@@ -22,6 +22,35 @@ function id()
 }
 
 /**
+ * Compare `$data` with `$literal` using the identity operator.
+ *
+ * @param mixed $literal something to compare to
+ *
+ * @throws Invalid
+ * @return Closure
+ */
+function literal($literal)
+{
+    $type = assert\type(gettype($literal));
+
+    return function($data, $path = null) use($type, $literal)
+    {
+        $data = $type($data, $path);
+
+        if ($data !== $literal) {
+            $ctx = [
+                'data' => util\repr($data),
+                'literal' => $literal,
+            ];
+
+            throw new Invalid('{data} is not {literal}', $ctx, $path);
+        }
+
+        return $data;
+    };
+}
+
+/**
  * Check that the input data is of the given `$type`. The data type will not be
  * casted.
  *
@@ -122,35 +151,6 @@ function instance($class)
             ];
 
             throw new Invalid('Expected {class} (is {object})', $ctx, $path);
-        }
-
-        return $data;
-    };
-}
-
-/**
- * Compare `$data` with `$literal` using the identity operator.
- *
- * @param mixed $literal something to compare to
- *
- * @throws Invalid
- * @return Closure
- */
-function literal($literal)
-{
-    $type = assert\type(gettype($literal));
-
-    return function($data, $path = null) use($type, $literal)
-    {
-        $data = $type($data, $path);
-
-        if ($data !== $literal) {
-            $ctx = [
-                'data' => util\repr($data),
-                'literal' => $literal,
-            ];
-
-            throw new Invalid('{data} is not {literal}', $ctx, $path);
         }
 
         return $data;
