@@ -257,9 +257,24 @@ try {
 There is no way of treat all items with the same validator. Nor having a
 default validator for extra keys.
 
-### `dictkeys`
+### `keys`
 
 Is also possible to validate and/or filter the list of keys of a dictionary.
+
+```php
+$schema = v\keys(function(array $keys) {
+    return array_filter($keys, function($key) {
+        return $key === 'two';
+    });
+});
+
+$result = $schema([
+    'one' => 1,
+    'two' => 2,
+]);
+
+assert($result === [ 'two' => 2 ]);
+```
 
 ### `object`
 
