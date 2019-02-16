@@ -1,5 +1,7 @@
 ### Last Version
 
+### 0.4.0 (2019-02-16)
+
   - Rename `assert\dictkeys` to `assert\keys`.
   - Move `filter\template` inside `Invalid`.
   - Remove `filter\template`.
