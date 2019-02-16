@@ -68,8 +68,8 @@ $plan(42);
 
 try {
     $plan(10);
-} catch (MultipleInvalid $invalid) {
-    assert('[ 10 is not 42 ]' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('[ 10 is not 42 ]' === $errors->getMessage());
 }
 ```
 
@@ -120,8 +120,8 @@ $plan(123);
 
 try {
     $plan('123');
-} catch (MultipleInvalid $invalid) {
-    assert('[ "123" is not integer ]' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('[ "123" is not integer ]' === $errors->getMessage());
 }
 ```
 
@@ -181,14 +181,14 @@ $plan = new Schema($dict);
 
 try {
     $plan(array('age' => 42));
-} catch (MultipleInvalid $invalid) {
-    assert('{ [name]: null is not string }' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('{ [name]: null is not string }' === $errors->getMessage());
 }
 
 try {
     $plan(array('name' => 'John', 'age' => 42, 'sex' => 'male'));
-} catch (MultipleInvalid $invalid) {
-    assert('{ Extra key sex not allowed }' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('{ Extra key sex not allowed }' === $errors->getMessage());
 }
 ```
 
@@ -217,8 +217,8 @@ $plan(array('name' => 'John', 'age' => 42, 'sex' => 'male'));
 
 try {
     $plan(array('name' => 'John', 'hobby' => 'sailing'));
-} catch (MultipleInvalid $invalid) {
-    assert('{ Extra key hobby not allowed, [age]: Required age not provided }' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('{ Extra key hobby not allowed, [age]: Required age not provided }' === $errors->getMessage());
 }
 ```
 
@@ -234,8 +234,8 @@ $plan(array('name' => 'John', 'age' => 42, 'dob' => new \DateTime));
 
 try {
     $plan(array('name' => 'John', 'age' => 42, 'dob' => '1970-01-01'));
-} catch (MultipleInvalid $invalid) {
-    assert('{ Extra key dob is not valid: Expected \DateTime (is not an object) }' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('{ Extra key dob is not valid: Expected \DateTime (is not an object) }' === $errors->getMessage());
 }
 ```
 
@@ -260,8 +260,8 @@ $plan((object) array('name' => 'John'));
 
 try {
     $plan((object) array('name' => false));
-} catch (MultipleInvalid $invalid) {
-    assert('{ [name]: false is not string }' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('{ [name]: false is not string }' === $errors->getMessage());
 }
 ```
 
@@ -278,8 +278,8 @@ $plan(array('Connection' => 'wireless'));
 
 try {
     $plan(array('Connection' => 'any'));
-} catch (MultipleInvalid $invalid) {
-    assert('{ [Connection]: No valid value found }' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('{ [Connection]: No valid value found }' === $errors->getMessage());
 }
 ```
 
@@ -296,8 +296,8 @@ $plan('Hello World');
 
 try {
     $plan('No');
-} catch (MultipleInvalid $invalid) {
-    assert('[ Value must be at least 3 ]' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('[ Value must be at least 3 ]' === $errors->getMessage());
 }
 ```
 
@@ -312,8 +312,8 @@ $plan(123);
 
 try {
     $plan('fail');
-} catch (MultipleInvalid $invalid) {
-    assert('[ Validator passed ]' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('[ Validator passed ]' === $errors->getMessage());
 }
 ```
 
@@ -332,8 +332,8 @@ $plan(new stdClass);
 
 try {
     $plan(new Exception('Arr..'));
-} catch (MultipleInvalid $invalid) {
-    assert('[ Expected stdClass (is Exception) ]' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('[ Expected stdClass (is Exception) ]' === $errors->getMessage());
 }
 ```
 
@@ -349,7 +349,7 @@ $plan(['a', 'b', 'c']);
 
 try {
     $plan('hello');
-} catch (MultipleInvalid $invalid) {
+} catch (MultipleInvalid $errors) {
     assert('[ Value must be at most 4 ]' === $errors->getMessage());
 }
 ```
@@ -364,8 +364,8 @@ $plan('john@example.org');
 
 try {
     $plan('john(@)example.org');
-} catch (MultipleInvalid $invalid) {
-    assert('[ Expected email for "john(@)example.org" ]' === $invalid->getMessage());
+} catch (MultipleInvalid $errors) {
+    assert('[ Expected email for "john(@)example.org" ]' === $errors->getMessage());
 }
 ```
 
