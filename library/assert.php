@@ -616,9 +616,9 @@ function length(int $min = null, int $max = null)
     return function($data, $path = null) use($min, $max)
     {
         if (gettype($data) === 'string') {
-            $count = function($data) { return strlen($data); };
+            $count = 'strlen';
         } else {
-            $count = function($data) { return count($data); };
+            $count = 'count';
         }
 
         if (!is_null($min) && $count($data) < $min) {
