@@ -162,7 +162,38 @@ describe('assert', function() {
     });
 
     describe('required', function() {
-        // TODO
+        it('call given schema when data is not null or empty string', function() {
+            $schema = assert\required(function($data, $path=null) {
+                expect($data)->toBe('foo');
+            });
+
+            $schema('foo');
+        });
+        it('throws Invalid when data is null', function() {
+            expect(function() {
+                $schema = assert\required();
+                $schema(null);
+            })
+            ->toThrow(new Invalid('Required value not provided'));
+        });
+        it('throws Invalid when data is null and error message has the last path', function() {
+            expect(function() {
+                $schema = assert\dict(array('last_path' => assert\required()));
+                $schema(array());
+            })
+            ->toThrow(new MultipleInvalid([
+                'last_path' => new Invalid('[last_path]', null, null, 0,
+                    new Invalid('Required last_path not provided')
+                ),
+            ]));
+        });
+        it('throws Invalid when data is empty string', function() {
+            expect(function() {
+                $schema = assert\required();
+                $schema('');
+            })
+            ->toThrow(new Invalid('Required value not provided'));
+        });
     });
 
     describe('seq', function() {
