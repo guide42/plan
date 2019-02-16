@@ -468,7 +468,7 @@ must be reported, `MultipleInvalid` is an exception that could contain multiple
 exceptions. All other exceptions are considerer as errors in the _validator_.
 
 ```php
-$passwordStrength = function($data, $path=null)
+$passwordStrength = function($data, $path = null)
 {
     $type = v\str(); // Use another validator to check that `$data` is
     $data = $type($data); // an string, if not will throw an exception.
