@@ -32,6 +32,7 @@ function main(string $filename) {
     $tests = iterator_to_array(parse(file_get_contents($filename), 'php'));
     $init = array_shift($tests);
     $exec = runtime($init);
+    $ret = 0;
 
     foreach ($tests as $id => $test) {
         try {
@@ -42,8 +43,11 @@ function main(string $filename) {
             }
         } catch (RuntimeException $ex) {
             fwrite(STDERR, "🔴 $id\n{$ex}\n\n");
+            $ret = 1;
         }
     }
+
+    return $ret;
 }
 
-main($argv[1] ?? 'README.md');
+exit(main($argv[1] ?? 'README.md'));
