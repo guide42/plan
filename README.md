@@ -465,7 +465,7 @@ assert('02-23' === $data);
 String Filters
 --------------
 
-All string transformations fall under the `plan\filter\str` namespace.
+All string transformations fall under the `\plan\filter\str` namespace.
 
 ### `nullempty`
 
