@@ -203,8 +203,8 @@ describe('filter', function() {
         it('cast to \DateTime from data matching format', function() {
             foreach ([
                 ['Y', '2009'],
-                ['Y-m', '2009-02'],
-                ['m/Y', '02/2009'],
+                ['Y-m', '2009-03'], // cannot be test against February
+                ['m/Y', '03/2009'], // on days after 28th
                 ['d/m/y', '23/02/09'],
                 ['H', '23'],
                 ['H:i', '23:59'],
