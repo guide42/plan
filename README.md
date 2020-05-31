@@ -462,6 +462,33 @@ $data = $plan('2009-02-23 23:59:59')->format('m-d');
 assert('02-23' === $data);
 ```
 
+String Filters
+--------------
+
+All string transformations fall under the `plan\filter\str` namespace.
+
+### `nullempty`
+
+Change empty strings into nulls.
+
+```php
+$plan = new Schema(f\str\nullempty());
+$data = $plan('');
+
+assert(null === $data);
+```
+
+### `strip`
+
+Wrapper of `trim` function.
+
+```php
+$plan = new Schema(f\str\strip("\t"));
+$data = $plan('\t  Hello World\t');
+
+assert('  Hello World' === $data);
+```
+
 Internationalization
 --------------------
 

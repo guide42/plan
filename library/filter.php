@@ -236,6 +236,56 @@ function datetime(string $format, bool $strict = false): callable
     };
 }
 
+namespace plan\filter\str;
+
+use plan\assert;
+
+/**
+ * Transforms string into null when is empty.
+ *
+ * @return Closure
+ */
+function nullempty(): callable
+{
+    $type = assert\str();
+
+    return function($data, $path = null) use($type)
+    {
+        $data = $type($data, $path);
+
+        if ($data === '') {
+            $data = null;
+        }
+
+        return $data;
+    };
+}
+
+/**
+ * Removes the leading and trailing whitespace from a string.
+ *
+ * @param string $chars to remove if given instead of whitespace
+ *
+ * @return Closure
+ */
+function strip(string $chars = null): callable
+{
+    $type = assert\str();
+
+    return function($data, $path = null) use($type, $chars)
+    {
+        $data = $type($data, $path);
+
+        if ($chars) {
+            $data = trim($data, $chars);
+        } else {
+            $data = trim($data);
+        }
+
+        return $data;
+    };
+}
+
 namespace plan\filter\intl;
 
 use plan\{assert, util};

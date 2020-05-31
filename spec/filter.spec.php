@@ -221,6 +221,32 @@ describe('filter', function() {
         });
     });
 
+    describe('str', function() {
+        describe('nullempty', function() {
+            it('returns null when empty', function() {
+                $schema = filter\str\nullempty();
+                $result = $schema('');
+
+                expect($result)->toBe(null);
+            });
+        });
+
+        describe('strip', function() {
+            it('returns string with leading and trailing whitespace removed', function() {
+                $schema = filter\str\strip();
+                $result = $schema("\t  Hello World\n\n");
+
+                expect($result)->toBe('Hello World');
+            });
+            it('returns string with given chars removed from the start and end', function() {
+                $schema = filter\str\strip("\t\n");
+                $result = $schema("\t  Hello World\n\n");
+
+                expect($result)->toBe('  Hello World');
+            });
+        });
+    });
+
     describe('intl', function() {
         describe('chars', function() {
             $data = [

@@ -2,6 +2,7 @@
 
   - Change `assert\required` argument `$schema` as optional.
   - Add `assert\optional`.
+  - Add `filter\str` functions: `nullempty` and `strip`.
 
 ### 0.4.0 (2019-02-16)
 
