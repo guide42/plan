@@ -7,4 +7,5 @@ TODO
 
 - [ ] `assert\set` as an unordered collection of unique elements.
 
-- [ ] `assert\includes` that could work for strings and arrays alike.
+- [ ] `assert\includes` or `assert\contains` that could work for strings and
+  arrays alike.
