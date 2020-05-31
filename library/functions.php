@@ -105,7 +105,7 @@ function check($schema): callable
             $errors = [$e];
         }
 
-        return new class($valid, $result, $errors)
+        return new class($valid, $result, $errors) implements Check
         {
             /**
              * @var boolean
@@ -160,7 +160,7 @@ function check($schema): callable
              * 
              * @return array<Invalid>
              */
-            public function getErrors()
+            public function getErrors(): array
             {
                 return $this->errors;
             }

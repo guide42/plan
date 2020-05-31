@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use plan\{Invalid, MultipleInvalid};
+use plan\{Invalid, MultipleInvalid, Check};
 use function plan\{compile, validate, check};
 
 describe('compile', function() {
@@ -50,6 +50,12 @@ describe('validate', function() {
 });
 
 describe('check', function() {
+    it('returns an instance of Check interface', function() {
+        $schema = check(123);
+        $result = $schema(123);
+
+        expect($result)->toBeAnInstanceOf(Check::class);
+    });
     it('returns an object with isValid method that returns true when schema succeed', function() {
         $schema = check(123);
         $result = $schema(123);
