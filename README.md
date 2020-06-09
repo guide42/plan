@@ -435,8 +435,8 @@ $data = $plan('123 users');
 assert(123 === $data);
 ```
 
-Note that `boolval`, `intval`, `floatval` are not aliases of this filter but
-wrappers of the homonymous functions.
+Note that `boolval`, `strval`, `intval`, `floatval` are not aliases of this
+filter but wrappers of the homonymous functions.
 
 ### `sanitize`
 

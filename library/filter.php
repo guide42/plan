@@ -50,6 +50,21 @@ function boolval(): callable
 }
 
 /**
+ * Wrapper for `strval`.
+ *
+ * @return Closure
+ */
+function strval(): callable
+{
+    return function($data, $path = null)
+    {
+        // Silent E_RECOVERABLE_ERROR when converting objects without __toString
+        // and E_NOTICE when converting arrays into string.
+        return @\strval($data);
+    };
+}
+
+/**
  * Wrapper for `intval`.
  *
  * @param integer $base numerical base

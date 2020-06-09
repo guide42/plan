@@ -55,6 +55,21 @@ describe('filter', function() {
         });
     });
 
+    describe('strval', function() {
+        it('casts to string', function() {
+            foreach ([
+                ['34', 34, 042],
+                ['1', true, 1],
+                ['', false, new \stdClass],
+            ] as list($expected, $data0, $data1)) {
+                $schema = filter\strval();
+
+                expect($schema($data0))->toBe($expected);
+                expect($schema($data1))->toBe($expected);
+            }
+        });
+    });
+
     describe('intval', function() {
         it('casts to integer', function() {
             foreach ([

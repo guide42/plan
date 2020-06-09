@@ -2,6 +2,7 @@
 
   - Change `assert\required` argument `$schema` as optional.
   - Add `assert\optional`.
+  - Add `filter\strval`.
   - Add `filter\str` functions: `nullempty` and `strip`.
   - Add `Check` interface.
 
