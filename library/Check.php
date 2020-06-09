@@ -16,6 +16,8 @@ interface Check {
     /**
      * Return check result when is valid, default otherwise.
      *
+     * @param mixed $default to return if not valid
+     *
      * @return mixed
      */
     public function getResult($default = null);
