@@ -637,23 +637,27 @@ function length(int $min = null, int $max = null)
     return function($data, $path = null) use($min, $max)
     {
         if (gettype($data) === 'string') {
-            $count = 'strlen';
+            if (function_exists('mb_strlen')) {
+                $count = mb_strlen($data);
+            } else {
+                $count = strlen($data);
+            }
         } else {
-            $count = 'count';
+            $count = count($data);
         }
 
-        if (!is_null($min) && $count($data) < $min) {
+        if (!is_null($min) && function_exists('bccomp') ? bccomp($count, $min, 14) === -1 : $count < $min) {
             $ctx = [
-                'count' => $count($data),
+                'count' => $count,
                 'limit' => $min,
             ];
 
             throw new Invalid('Value must be at least {limit}', $ctx, $path);
         }
 
-        if (!is_null($max) && $count($data) > $max) {
+        if (!is_null($max) && function_exists('bccomp') ? bccomp($count, $min, 14) === 1 : $count > $max) {
             $ctx = [
-                'count' => $count($data),
+                'count' => $count,
                 'limit' => $max,
             ];
 
