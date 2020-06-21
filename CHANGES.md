@@ -1,5 +1,7 @@
 ### Last Version
 
+### 0.5.0 (2020-06-21)
+
   - Change `assert\required` argument `$schema` as optional.
   - Add `assert\optional`.
   - Add `filter\strval`.
